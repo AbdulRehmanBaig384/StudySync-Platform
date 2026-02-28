@@ -9,8 +9,6 @@ function App() {
   return (
     <>
       <div>
-       
-          <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
         <a href="https://react.dev" target="_blank">
           <img src={reactLogo} />
