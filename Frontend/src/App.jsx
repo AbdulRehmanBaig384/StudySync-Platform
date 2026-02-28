@@ -14,11 +14,6 @@ function App() {
           <img src={reactLogo} />
         </a>
       </div>
-      
-      <div className="card">
-        
-          count is {count}
-        </button>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
