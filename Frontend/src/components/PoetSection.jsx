@@ -15,10 +15,9 @@ const poems = [
     accent: 'emerald',
     initials: 'AI',
     lines: [
-      'خودی کو کر بلند اتنا کہ ہر تقدیر سے پہلے',
-      'خدا بندے سے خود پوچھے — بتا تیری رضا کیا ہے',
+     'Raise yourself so high that before every destiny is written, God Himself asks you — tell me, what is your wish'
     ],
-    translation: 'Raise yourself so high that before every destiny is written, God Himself asks you — tell me, what is your wish?',
+    translation: '',
     note: 'Iqbal believed that the awakening of the self through knowledge and education is the greatest revolution a human being can undertake.',
   },
   {
@@ -32,10 +31,9 @@ const poems = [
     accent: 'violet',
     initials: 'AI',
     lines: [
-      'علم کا مقصد ہے معرفتِ حق',
-      'حریتِ وجدان و قوتِ کردار',
+      'The purpose of knowledge is the recognition of truth — the freedom of conscience and the strength of character.',
     ],
-    translation: 'The purpose of knowledge is the recognition of truth — the freedom of conscience and the strength of character.',
+    translation: '',
     note: 'For Iqbal, true education was not mere accumulation of facts but the ignition of the inner self — the "Khudi" — to pursue truth and purpose.',
   },
   {
