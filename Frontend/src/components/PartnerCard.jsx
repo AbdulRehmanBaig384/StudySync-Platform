@@ -1,0 +1,61 @@
+import React from 'react';
+import { FiUserPlus, FiExternalLink, FiAward, FiClock } from 'react-icons/fi';
+
+const PartnerCard = ({ name, department, semester, subjects, style, availability, compatibility, avatar }) => {
+  return (
+    <div className="bg-glass-dark p-6 rounded-3xl border border-white/5 hover:border-indigo-500/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden animate-slide-up">
+      {/* Compatibility Badge */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black px-2.5 py-1.5 rounded-full backdrop-blur-md shadow-lg shadow-indigo-500/10">
+          {compatibility}% Match
+        </div>
+      </div>
+
+      {/* Header with Avatar */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-2xl font-black text-white shadow-xl shadow-indigo-500/10 group-hover:scale-110 transition-transform">
+          {avatar}
+        </div>
+        <div>
+          <h4 className="text-lg font-black text-white font-jakarta group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{name}</h4>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{department} • Sem {semester}</p>
+        </div>
+      </div>
+
+      {/* Subjects */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {subjects.map((sub, idx) => (
+          <span key={idx} className="bg-white/5 border border-white/5 text-slate-400 text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider">
+            {sub}
+          </span>
+        ))}
+      </div>
+
+      {/* Details List */}
+      <div className="space-y-3 mb-8 flex-1">
+        <div className="flex items-center gap-3 text-xs text-slate-400 font-bold">
+          <FiAward className="text-indigo-500" />
+          <span className="uppercase tracking-widest text-[10px]">Style: <span className="text-slate-200">{style}</span></span>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-slate-400 font-bold">
+          <FiClock className="text-indigo-500" />
+          <span className="uppercase tracking-widest text-[10px]">Time: <span className="text-slate-200">{availability}</span></span>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="grid grid-cols-2 gap-3 pt-6 border-t border-white/5">
+        <button className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+          <FiUserPlus className="text-base" />
+          Connect
+        </button>
+        <button className="flex items-center justify-center gap-2 bg-white/5 border border-white/5 hover:bg-white/10 text-slate-400 hover:text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+          <FiExternalLink className="text-base" />
+          Profile
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default PartnerCard;

@@ -10,6 +10,7 @@ import TestimonialsSection from '../components/TestimonialsSection'
 import PoetSection from '../components/PoetSection'
 import CTASection from '../components/CTASection'
 import Footer from '../components/Footer'
+import DownloadBook from '../components/DownloadBook'
 
 const Home = () => {
   return (
@@ -43,6 +44,7 @@ const Home = () => {
 
       {/* 9. Call To Action */}
       <CTASection />
+      <DownloadBook />
 
       {/* 9. Footer */}
       <Footer />
