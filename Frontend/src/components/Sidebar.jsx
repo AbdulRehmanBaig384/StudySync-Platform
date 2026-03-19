@@ -18,9 +18,9 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', icon: <FiHome />, path: '/dashboard' },
     { name: 'Find Study Partner', icon: <FiSearch />, path: '/find-partner' },
-    { name: 'Study Sessions', icon: <FiBookOpen />, path: '/sessions' },
+    { name: 'Study Sessions', icon: <FiBookOpen />, path: '/StudySession' },
     { name: 'Quiz & Practice', icon: <FiLayers />, path: '/quizzes' },
-    { name: 'Coding Room', icon: <FiCode />, path: '/coding' },
+    { name: 'Coding Room', icon: <FiCode />, path: '/CodingRooms' },
     { name: 'Resources', icon: <FiFolder />, path: '/resources' },
     { name: 'AI Tutor', icon: <FiCpu />, path: '/ai-tutor' },
     { name: 'Leaderboard', icon: <FiTrendingUp />, path: '/leaderboard' },
@@ -54,7 +54,7 @@ const Sidebar = () => {
 
       <div className="p-4 mt-auto border-t border-white/5">
         <NavLink
-          to="/profile"
+          to="/StudentProfile"
           className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl transition-all"
         >
           <FiUser className="text-xl" />

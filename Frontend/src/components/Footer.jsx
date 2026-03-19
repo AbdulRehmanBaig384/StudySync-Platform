@@ -43,11 +43,11 @@ const Footer = () => {
     }
 
     const socialLinks = [
-        { label: 'Twitter', href: '#', Icon: FaTwitter },
-        { label: 'GitHub', href: '#', Icon: FaGithub },
-        { label: 'Discord', href: '#', Icon: FaDiscord },
-        { label: 'LinkedIn', href: '#', Icon: FaLinkedinIn },
-        { label: 'Instagram', href: '#', Icon: FaInstagram },
+        { label: 'Twitter', href: '#', icon: FaTwitter },
+        { label: 'GitHub', href: '#', icon: FaGithub },
+        { label: 'Discord', href: '#', icon: FaDiscord },
+        { label: 'LinkedIn', href: '#', icon: FaLinkedinIn },
+        { label: 'Instagram', href: '#', icon: FaInstagram },
     ]
 
     return (
@@ -80,7 +80,7 @@ const Footer = () => {
                                     aria-label={label}
                                     className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-indigo-600/30 transition-all duration-200"
                                 >
-                                    <Icon className="w-4 h-4" />
+                                    <icon className="w-4 h-4" />
                                 </a>
                             ))}
                         </div>

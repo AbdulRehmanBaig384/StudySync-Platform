@@ -1,12 +1,10 @@
-import mongoose from "mongoose";
-import {UserSchema} from './models/UserData'
 import { ConnectMongoDb } from "./Config/db";
 import { configDotenv } from "dotenv";
-
+import express from express
 configDotenv()
-
 ConnectMongoDb()
 
+const app=express()
 
 
 
