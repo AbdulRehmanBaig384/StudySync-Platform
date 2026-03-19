@@ -4,6 +4,7 @@ import PartnerFilters from '../components/PartnerFilters';
 import PartnerCard from '../components/PartnerCard';
 import PartnerRequestList from '../components/PartnerRequestList';
 import { FiUsers, FiFilter, FiExternalLink } from 'react-icons/fi';
+import { NavLink } from 'react-router';
 
 const FindPartner = () => {
   const partners = [
@@ -126,7 +127,7 @@ const FindPartner = () => {
             <h4 className="text-white font-black text-xl mb-4 relative z-10 font-jakarta leading-tight">Pro Tip: Fill your Profile!</h4>
             <p className="text-indigo-100/70 text-sm font-medium mb-6 relative z-10 leading-relaxed">Students with complete profiles get 4x more partner requests.</p>
             <button className="w-full bg-white text-indigo-700 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-50 transition-all relative z-10 shadow-lg">
-              Update Profile
+             <NavLink to={'/StudentProfile'}> Update Profile </NavLink>
             </button>
           </div>
         </div>

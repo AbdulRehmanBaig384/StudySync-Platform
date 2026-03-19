@@ -23,7 +23,7 @@ const Sidebar = () => {
     { name: 'Coding Room', icon: <FiCode />, path: '/CodingRooms' },
     { name: 'Resources', icon: <FiFolder />, path: '/resources' },
     { name: 'AI Tutor', icon: <FiCpu />, path: '/ai-tutor' },
-    { name: 'Leaderboard', icon: <FiTrendingUp />, path: '/leaderboard' },
+    // { name: 'Leaderboard', icon: <FiTrendingUp />, path: '/leaderboard' },
   ];
 
   return (
