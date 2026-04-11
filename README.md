@@ -5,6 +5,7 @@ StudySync is a full-stack collaborative learning platform designed for universit
 ---
 
 ## 🚀 Features
+
 ### 👨‍🎓 Student Features
 
 * 🔍 Find Study Partners (Smart Matching)
