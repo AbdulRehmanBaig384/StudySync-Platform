@@ -43,8 +43,7 @@ const Navbar = () => {
             <a
               key={link.label}
               href={link.href}
-              className="text-slate-400 hover:text-white font-medium transition-colors duration-200 text-sm"
-            >
+              className="text-slate-400 hover:text-white font-medium transition-colors duration-200 text-sm">
               {link.label}
             </a>
           ))}
@@ -54,8 +53,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           <Link
             to="/login"
-            className="text-slate-300 hover:text-white font-medium text-sm transition-colors duration-200 px-4 py-2"
-          >
+            className="text-slate-300 hover:text-white font-medium text-sm transition-colors duration-200 px-4 py-2">
             Log In
           </Link>
           <Link
