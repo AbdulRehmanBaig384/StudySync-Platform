@@ -25,8 +25,7 @@ const Navbar = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled ? 'bg-glass-dark shadow-lg shadow-black/20' : 'bg-transparent'
-      }`}
-    >
+      }`}>
       <div className="container-max px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
@@ -38,7 +37,6 @@ const Navbar = () => {
             <span className="text-gradient">Sync</span>
           </span>
         </Link>
-
         {/* Desktop Nav Links */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map(link => (
