@@ -56,10 +56,7 @@ const Navbar = () => {
             className="text-slate-300 hover:text-white font-medium text-sm transition-colors duration-200 px-4 py-2">
             Log In
           </Link>
-          <Link
-            to="/signup"
-            className="btn-primary text-sm px-5 py-2.5 rounded-xl inline-flex items-center gap-1.5"
-          >
+          <Link to="/signup"  className="btn-primary text-sm px-5 py-2.5 rounded-xl inline-flex items-center gap-1.5">
             <span>Get Started Free</span>
             <FiChevronRight className="w-4 h-4" />
           </Link>
