@@ -20,6 +20,9 @@ const Login = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
+  const handleGoogleLogin=()=>{
+    window.location.href='http://localhost:3000/auth/google";'
+  }
   const validate = () => {
     const newErrors = {}
     if (!formData.email.trim()) newErrors.email = 'Email is required'
@@ -221,6 +224,7 @@ const Login = () => {
             {/* Submit */}
             <button
               type="submit"
+              
               disabled={isLoading}
               className="btn-primary w-full py-3.5 rounded-xl text-base mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
             >
