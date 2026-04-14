@@ -2,9 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { HiOutlineBookOpen } from 'react-icons/hi'
 import { FiArrowRight } from 'react-icons/fi'
-import {
-    FaTwitter,
-    FaGithub,
+import { FaTwitter, FaGithub,
     FaDiscord,
     FaLinkedinIn,
     FaInstagram,
