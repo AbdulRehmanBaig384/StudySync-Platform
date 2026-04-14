@@ -67,14 +67,12 @@ const Footer = () => {
                                     key={label}
                                     href={href}
                                     aria-label={label}
-                                    className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-indigo-600/30 transition-all duration-200"
-                                >
+                                    className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-indigo-600/30 transition-all duration-200" >
                                     <Icon className="w-4 h-4" />
                                 </a>
                             ))}
                         </div>
                     </div>
-
                     {/* Link columns */}
                     {Object.entries(footerLinks).map(([category, links]) => (
                         <div key={category} className="flex flex-col gap-4">
@@ -82,10 +80,8 @@ const Footer = () => {
                             <ul className="flex flex-col gap-2.5">
                                 {links.map(link => (
                                     <li key={link.label}>
-                                        <a
-                                            href={link.href}
-                                            className="text-slate-400 hover:text-white text-sm transition-colors duration-200"
-                                        >
+                                        <a href={link.href}
+                                            className="text-slate-400 hover:text-white text-sm transition-colors duration-200" >
                                             {link.label}
                                         </a>
                                     </li>
@@ -110,7 +106,6 @@ const Footer = () => {
                         </button>
                     </div>
                 </div>
-
                 {/* Bottom Row */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-white/5">
                     <p className="text-slate-500 text-sm">
@@ -124,5 +119,4 @@ const Footer = () => {
         </footer>
     )
 }
-
 export default Footer
