@@ -2,9 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { HiOutlineBookOpen } from 'react-icons/hi'
 import { FiArrowRight } from 'react-icons/fi'
-import { FaTwitter, FaGithub, FaDiscord, FaLinkedinIn, FaInstagram,
-    FaHeart,
-} from 'react-icons/fa'
+import { FaTwitter, FaGithub, FaDiscord, FaLinkedinIn, FaInstagram, FaHeart,} from 'react-icons/fa'
 
 const Footer = () => {
     const footerLinks = {
