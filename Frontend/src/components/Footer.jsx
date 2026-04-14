@@ -94,7 +94,6 @@ const Footer = () => {
                         </div>
                     ))}
                 </div>
-
                 {/* Newsletter */}
                 <div className="bg-glass rounded-2xl p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
@@ -102,11 +101,9 @@ const Footer = () => {
                         <p className="text-slate-400 text-sm">Get updates on new features and student tips.</p>
                     </div>
                     <div className="flex w-full md:w-auto gap-2">
-                        <input
-                            type="email"
+                        <input type="email"
                             placeholder="Enter your email"
-                            className="flex-1 md:w-64 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-300 placeholder-slate-500 px-4 py-2.5 outline-none focus:border-indigo-500 transition-colors"
-                        />
+                            className="flex-1 md:w-64 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-300 placeholder-slate-500 px-4 py-2.5 outline-none focus:border-indigo-500 transition-colors" />
                         <button className="btn-primary text-sm px-5 py-2.5 rounded-xl whitespace-nowrap flex items-center gap-1.5">
                             <span>Subscribe</span>
                             <FiArrowRight className="w-4 h-4" />
