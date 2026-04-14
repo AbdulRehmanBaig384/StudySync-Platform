@@ -34,7 +34,6 @@ const Footer = () => {
             { label: 'GDPR', href: '#' },
         ],
     }
-
     const socialLinks = [
         { label: 'Twitter', href: '#', Icon: FaTwitter },
         { label: 'GitHub', href: '#', Icon: FaGithub },
@@ -42,7 +41,6 @@ const Footer = () => {
         { label: 'LinkedIn', href: '#', Icon: FaLinkedinIn },
         { label: 'Instagram', href: '#', Icon: FaInstagram },
     ]
-
     return (
         <footer className="bg-[#060b18] border-t border-white/5 pt-16 pb-8">
             <div className="container-max px-6">
@@ -59,11 +57,9 @@ const Footer = () => {
                                 <span className="text-gradient">Sync</span>
                             </span>
                         </Link>
-
                         <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
                             The collaborative learning platform for university students. Study smarter, together.
                         </p>
-
                         {/* Social Icons */}
                         <div className="flex gap-3 mt-2">
                             {socialLinks.map(({ label, href, Icon }) => (
