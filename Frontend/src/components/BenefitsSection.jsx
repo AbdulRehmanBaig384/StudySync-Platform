@@ -1,9 +1,5 @@
 import React from 'react'
-import {
-  HiOutlineLightBulb,
-  HiOutlineChatAlt2,
-  HiOutlineTrendingUp,
-  HiOutlineBookOpen,
+import {HiOutlineLightBulb, HiOutlineChatAlt2,HiOutlineTrendingUp,HiOutlineBookOpen,
   HiOutlineAcademicCap,
   HiOutlineVideoCamera,
   HiOutlineGlobe,
