@@ -50,14 +50,11 @@ const BenefitsSection = () => {
             on what matters most — actually learning.
           </p>
         </div>
-
         {/* Benefits Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {benefits.map(({ Icon, title, description, gradient }) => (
-            <div
-              key={title}
-              className="group bg-glass rounded-2xl p-6 text-center card-hover flex flex-col items-center gap-4 border border-white/5 hover:border-white/10"
-            >
+            <div key={title}
+              className="group bg-glass rounded-2xl p-6 text-center card-hover flex flex-col items-center gap-4 border border-white/5 hover:border-white/10">
               <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
                 <Icon className="w-8 h-8 text-white" />
               </div>
