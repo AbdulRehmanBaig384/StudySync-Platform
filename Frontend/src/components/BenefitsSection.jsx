@@ -27,19 +27,16 @@ const benefits = [
     gradient: 'from-orange-500 to-rose-600',
   },
 ]
-
 const stats = [
   { value: '50K+', label: 'Active Students', Icon: HiOutlineAcademicCap },
   { value: '5K+', label: 'Study Sessions Daily', Icon: HiOutlineVideoCamera },
   { value: '200+', label: 'Universities', Icon: HiOutlineGlobe },
   { value: '4.9★', label: 'App Rating', Icon: HiOutlineStar },
 ]
-
 const BenefitsSection = () => {
   return (
     <section className="section-padding relative overflow-hidden">
       <div className="orb w-[350px] h-[350px] bg-green-500 top-0 right-0 opacity-5" />
-
       <div className="container-max">
         {/* Header */}
         <div className="text-center mb-16 flex flex-col items-center gap-4">
