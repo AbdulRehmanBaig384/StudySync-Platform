@@ -38,7 +38,7 @@ const BenefitsSection = () => {
     <section className="section-padding relative overflow-hidden">
       <div className="orb w-[350px] h-[350px] bg-green-500 top-0 right-0 opacity-5" />
       <div className="container-max">
-        {/* Header */}
+        {/* header */}
         <div className="text-center mb-16 flex flex-col items-center gap-4">
           <span className="text-green-400 font-semibold text-sm uppercase tracking-widest">Why StudySync?</span>
           <h2 className="section-title text-white">
@@ -50,7 +50,7 @@ const BenefitsSection = () => {
             on what matters most — actually learning.
           </p>
         </div>
-        {/* Benefits Grid */}
+        {/* benefits grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {benefits.map(({ Icon, title, description, gradient }) => (
             <div key={title}
@@ -65,7 +65,6 @@ const BenefitsSection = () => {
             </div>
           ))}
         </div>
-
         {/* Stats Banner */}
         <div className="mt-20 bg-glass rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map(({ value, label, Icon }) => (
@@ -82,5 +81,4 @@ const BenefitsSection = () => {
     </section>
   )
 }
-
 export default BenefitsSection
