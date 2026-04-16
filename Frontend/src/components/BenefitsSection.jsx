@@ -1,7 +1,5 @@
 import React from 'react'
-import {HiOutlineLightBulb, HiOutlineChatAlt2,HiOutlineTrendingUp,HiOutlineBookOpen,
-  HiOutlineAcademicCap,
-  HiOutlineVideoCamera,
+import {HiOutlineLightBulb, HiOutlineChatAlt2,HiOutlineTrendingUp,HiOutlineBookOpen,HiOutlineAcademicCap,HiOutlineVideoCamera,
   HiOutlineGlobe,
   HiOutlineStar,
 } from 'react-icons/hi'
