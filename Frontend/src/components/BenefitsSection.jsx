@@ -1,8 +1,5 @@
 import React from 'react'
-import {HiOutlineLightBulb, HiOutlineChatAlt2,HiOutlineTrendingUp,HiOutlineBookOpen,HiOutlineAcademicCap,HiOutlineVideoCamera,
-  HiOutlineGlobe,
-  HiOutlineStar,
-} from 'react-icons/hi'
+import {HiOutlineLightBulb, HiOutlineChatAlt2,HiOutlineTrendingUp,HiOutlineBookOpen,HiOutlineAcademicCap,HiOutlineVideoCamera,HiOutlineGlobe,HiOutlineStar,} from 'react-icons/hi'
 
 const benefits = [
   {
