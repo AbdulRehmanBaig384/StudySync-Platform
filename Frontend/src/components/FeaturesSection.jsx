@@ -38,14 +38,11 @@ const features = [
     description: 'Share notes, slides, documents, and study materials within your study groups. Everything organized in one place.',
     gradient: 'from-violet-500 to-pink-600',
     glow: 'group-hover:shadow-violet-500/25',
-  },
-]
-
+  },]
 const FeaturesSection = () => {
   return (
     <section id="features" className="section-padding relative overflow-hidden">
       <div className="orb w-[500px] h-[500px] bg-indigo-600 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5" />
-
       <div className="container-max">
         {/* Header */}
         <div className="text-center mb-16 flex flex-col items-center gap-4">
@@ -59,7 +56,6 @@ const FeaturesSection = () => {
             collaborate, stay productive, and achieve academic excellence.
           </p>
         </div>
-
         {/* Feature Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => {
