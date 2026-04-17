@@ -68,14 +68,12 @@ const FeaturesSection = () => {
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
-                {/* content */}
                 <h3 className="font-jakarta font-bold text-white text-xl mb-3 group-hover:text-gradient transition-all duration-300">
                   {feature.title}
                 </h3>
                 <p className="text-slate-400 text-sm leading-relaxed">
                   {feature.description}
                 </p>
-                {/* Arrow */}
                 <div className="mt-5 flex items-center gap-2 text-indigo-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-[-8px] group-hover:translate-x-0">
                   <span>Learn more</span>
                   <FiArrowRight className="w-4 h-4" />
