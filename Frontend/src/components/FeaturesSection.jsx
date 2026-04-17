@@ -1,10 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import {
-  HiOutlineUsers,
-  HiOutlineVideoCamera,
-  HiOutlineCode,
-  HiOutlineClipboardCheck,
+import { HiOutlineUsers, HiOutlineVideoCamera,HiOutlineCode, HiOutlineClipboardCheck,
   HiOutlineFolderOpen,
 } from 'react-icons/hi'
 import { FiArrowRight } from 'react-icons/fi'
