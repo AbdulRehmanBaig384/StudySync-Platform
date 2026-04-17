@@ -44,7 +44,7 @@ const FeaturesSection = () => {
     <section id="features" className="section-padding relative overflow-hidden">
       <div className="orb w-[500px] h-[500px] bg-indigo-600 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5" />
       <div className="container-max">
-        {/* Header */}
+        {/* header */}
         <div className="text-center mb-16 flex flex-col items-center gap-4">
           <span className="text-indigo-400 font-semibold text-sm uppercase tracking-widest">Platform Features</span>
           <h2 className="section-title text-white">
@@ -56,7 +56,7 @@ const FeaturesSection = () => {
             collaborate, stay productive, and achieve academic excellence.
           </p>
         </div>
-        {/* Feature Cards Grid */}
+        {/* feature cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => {
             const Icon = feature.icon
@@ -65,13 +65,11 @@ const FeaturesSection = () => {
                 key={feature.title}
                 className={`group bg-glass rounded-2xl p-6 card-hover cursor-pointer ${feature.glow} group-hover:shadow-2xl ${
                   index === 4 ? 'lg:col-start-2' : ''
-                }`}
-              >
+                }`}>
                 {/* Icon */}
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
-
                 {/* Content */}
                 <h3 className="font-jakarta font-bold text-white text-xl mb-3 group-hover:text-gradient transition-all duration-300">
                   {feature.title}
