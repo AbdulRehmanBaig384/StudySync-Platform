@@ -44,7 +44,7 @@ const Footer = () => {
     return (
         <footer className="bg-[#060b18] border-t border-white/5 pt-16 pb-8">
             <div className="container-max px-6">
-                {/* Top Row */}
+                {/* top row */}
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
                     {/* Brand Column */}
                     <div className="col-span-2 flex flex-col gap-4">
