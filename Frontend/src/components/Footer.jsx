@@ -66,7 +66,6 @@ const Footer = () => {
                             ))}
                         </div>
                     </div>
-                    {/* Link columns */}
                     {Object.entries(footerLinks).map(([category, links]) => (
                         <div key={category} className="flex flex-col gap-4">
                             <h4 className="text-white font-semibold text-sm font-jakarta">{category}</h4>
@@ -102,8 +101,7 @@ const Footer = () => {
                     <p className="text-slate-500 text-sm">
                         © {new Date().getFullYear()} StudySync. All rights reserved.
                     </p>
-                    <p className="text-slate-500 text-sm">
-                        Made with <FaHeart /> for students everywhere </p>
+                    <p className="text-slate-500 text-sm"> Made with <FaHeart /> for students everywhere </p>
                 </div>
             </div>
         </footer>
