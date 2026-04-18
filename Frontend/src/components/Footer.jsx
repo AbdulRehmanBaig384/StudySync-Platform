@@ -98,9 +98,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-white/5">
-                    <p className="text-slate-500 text-sm">
-                        © {new Date().getFullYear()} StudySync. All rights reserved.
-                    </p>
+                    <p className="text-slate-500 text-sm"> © {new Date().getFullYear()} StudySync. All rights reserved. </p>
                     <p className="text-slate-500 text-sm"> Made with <FaHeart /> for students everywhere </p>
                 </div>
             </div>
