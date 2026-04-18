@@ -11,8 +11,7 @@ const Footer = () => {
             { label: 'Study Rooms', href: '#study-rooms' },
             { label: 'For Teachers', href: '#teachers' },
             { label: 'How It Works', href: '#how-it-works' },
-            { label: 'Pricing', href: '#' },
-        ],
+            { label: 'Pricing', href: '#' },],
         Company: [
             { label: 'About Us', href: '#' },
             { label: 'Blog', href: '#' },
@@ -24,8 +23,7 @@ const Footer = () => {
             { label: 'Help Center', href: '#' },
             { label: 'Community', href: '#' },
             { label: 'Status', href: '#' },
-            { label: 'API', href: '#' },
-        ],
+            { label: 'API', href: '#' },],
         Legal: [
             { label: 'Privacy Policy', href: '#' },
             { label: 'Terms of Service', href: '#' },
