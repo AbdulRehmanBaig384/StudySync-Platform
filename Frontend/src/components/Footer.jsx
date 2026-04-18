@@ -18,8 +18,7 @@ const Footer = () => {
             { label: 'Blog', href: '#' },
             { label: 'Careers', href: '#' },
             { label: 'Press Kit', href: '#' },
-            { label: 'Contact', href: '#' },
-        ],
+            { label: 'Contact', href: '#' },],
         Resources: [
             { label: 'Documentation', href: '#' },
             { label: 'Help Center', href: '#' },
@@ -32,8 +31,7 @@ const Footer = () => {
             { label: 'Terms of Service', href: '#' },
             { label: 'Cookie Policy', href: '#' },
             { label: 'GDPR', href: '#' },
-        ],
-    }
+        ],}
     const socialLinks = [
         { label: 'Twitter', href: '#', Icon: FaTwitter },
         { label: 'GitHub', href: '#', Icon: FaGithub },
