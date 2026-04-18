@@ -103,11 +103,9 @@ const Footer = () => {
                         © {new Date().getFullYear()} StudySync. All rights reserved.
                     </p>
                     <p className="text-slate-500 text-sm">
-                        Made with <FaHeart /> for students everywhere
-                    </p>
+                        Made with <FaHeart /> for students everywhere </p>
                 </div>
             </div>
         </footer>
-    )
-}
+    )}
 export default Footer
