@@ -1,8 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import {
-  HiOutlineUsers,
-  HiOutlineVideoCamera,
+import { HiOutlineUsers,HiOutlineVideoCamera,
   HiOutlineChartBar,
 } from 'react-icons/hi'
 import { FiArrowRight, FiPlay } from 'react-icons/fi'
