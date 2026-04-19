@@ -14,16 +14,10 @@ const HeroSection = () => {
       <div className="orb w-[300px] h-[300px] bg-cyan-400 top-[30%] right-[10%] opacity-10" />
       <div
         className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-        }}/>
-
+        style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,backgroundSize: '60px 60px',}}/>
       <div className="container-max px-6 py-24 grid lg:grid-cols-2 gap-16 items-center w-full">
         {/* Left Content */}
         <div className="flex flex-col gap-8 z-10">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-glass rounded-full px-4 py-2 w-fit">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <span className="text-sm text-slate-300 font-medium">Trusted by 50,000+ students</span>
