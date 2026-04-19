@@ -9,20 +9,16 @@ import { RiUserSmileLine } from 'react-icons/ri'
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
-      {/* Background orbs */}
       <div className="orb w-[600px] h-[600px] bg-purple-600 top-[-200px] left-[-200px]" />
       <div className="orb w-[400px] h-[400px] bg-indigo-500 bottom-[-100px] right-[-100px] opacity-10" />
       <div className="orb w-[300px] h-[300px] bg-cyan-400 top-[30%] right-[10%] opacity-10" />
-
-      {/* Grid background */}
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
           backgroundSize: '60px 60px',
-        }}
-      />
+        }}/>
 
       <div className="container-max px-6 py-24 grid lg:grid-cols-2 gap-16 items-center w-full">
         {/* Left Content */}
