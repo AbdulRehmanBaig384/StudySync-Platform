@@ -36,7 +36,6 @@ const HeroSection = () => {
               Find study partners, join live sessions, practice coding, and ace your exams — together.
             </p>
           </div>
-
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4">
             <Link to="/signup" className="btn-primary text-base px-8 py-3.5 rounded-xl inline-flex items-center gap-2">
@@ -48,12 +47,9 @@ const HeroSection = () => {
               Start Studying
             </button>
           </div>
-
           {/* Stats */}
           <div className="flex flex-wrap gap-8 pt-4">
-            {[
-              { value: '50K+', label: 'Students', Icon: HiOutlineUsers },
-              { value: '2K+', label: 'Study Sessions', Icon: HiOutlineVideoCamera },
+            {[  { value: '50K+', label: 'Students', Icon: HiOutlineUsers },  { value: '2K+', label: 'Study Sessions', Icon: HiOutlineVideoCamera },
               { value: '98%', label: 'Satisfaction Rate', Icon: HiOutlineChartBar },
             ].map(stat => (
               <div key={stat.label} className="flex items-center gap-2">
@@ -66,8 +62,6 @@ const HeroSection = () => {
             ))}
           </div>
         </div>
-
-        {/* Right - Illustration */}
         <div className="relative items-center justify-center z-10 hidden lg:flex">
           <div className="relative w-[500px] h-[500px]">
             {/* Decorative rings */}
@@ -145,5 +139,4 @@ const HeroSection = () => {
     </section>
   )
 }
-
 export default HeroSection
