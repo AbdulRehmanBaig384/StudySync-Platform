@@ -12,8 +12,7 @@ const HeroSection = () => {
       <div className="orb w-[600px] h-[600px] bg-purple-600 top-[-200px] left-[-200px]" />
       <div className="orb w-[400px] h-[400px] bg-indigo-500 bottom-[-100px] right-[-100px] opacity-10" />
       <div className="orb w-[300px] h-[300px] bg-cyan-400 top-[30%] right-[10%] opacity-10" />
-      <div
-        className="absolute inset-0 opacity-[0.03]"
+      <div className="absolute inset-0 opacity-[0.03]"
         style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,backgroundSize: '60px 60px',}}/>
       <div className="container-max px-6 py-24 grid lg:grid-cols-2 gap-16 items-center w-full">
         {/* Left Content */}
@@ -23,7 +22,7 @@ const HeroSection = () => {
             <span className="text-sm text-slate-300 font-medium">Trusted by 50,000+ students</span>
           </div>
 
-          {/* Headline */}
+          {/* headline */}
           <div className="flex flex-col gap-4">
             <h1 className="section-title text-white leading-tight">
               Study Smarter,{' '}
@@ -36,7 +35,6 @@ const HeroSection = () => {
               Find study partners, join live sessions, practice coding, and ace your exams — together.
             </p>
           </div>
-          {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4">
             <Link to="/signup" className="btn-primary text-base px-8 py-3.5 rounded-xl inline-flex items-center gap-2">
               <HiOutlineUsers className="w-5 h-5" />
@@ -67,8 +65,6 @@ const HeroSection = () => {
             {/* Decorative rings */}
             <div className="absolute inset-0 rounded-full border border-indigo-500/20 animate-spin-slow" />
             <div className="absolute inset-8 rounded-full border border-purple-500/20 animate-spin-slow" style={{ animationDirection: 'reverse', animationDuration: '15s' }} />
-
-            {/* Main card */}
             <div className="absolute inset-16 bg-glass rounded-3xl flex flex-col items-center justify-center gap-4 animate-float glow-purple">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                 <HiOutlineVideoCamera className="w-8 h-8 text-white" />
