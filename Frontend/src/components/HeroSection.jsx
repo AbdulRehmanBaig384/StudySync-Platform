@@ -111,7 +111,6 @@ const HeroSection = () => {
                 <p className="text-yellow-400 text-xs">95 / 100</p>
               </div>
             </div>
-
             <div className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-glass rounded-xl px-3 py-2 flex items-center gap-2 animate-float-delayed">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                 <BiTargetLock className="w-4 h-4 text-white" />
@@ -124,8 +123,7 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
-
-      {/* Scroll indicator */}
+      {/* scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
         <span className="text-xs text-slate-400">Scroll to explore</span>
         <div className="w-5 h-8 border border-slate-600 rounded-full flex items-start justify-center p-1">
@@ -133,6 +131,5 @@ const HeroSection = () => {
         </div>
       </div>
     </section>
-  )
-}
+  )}
 export default HeroSection
