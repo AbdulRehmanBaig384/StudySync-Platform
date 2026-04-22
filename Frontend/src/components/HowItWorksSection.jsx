@@ -32,7 +32,6 @@ const HowItWorksSection = () => {
   return (
     <section id="how-it-works" className="section-padding relative overflow-hidden">
       <div className="orb w-[500px] h-[500px] bg-indigo-600 bottom-0 left-0 opacity-5" />
-
       <div className="container-max">
         {/* Header */}
         <div className="text-center mb-20 flex flex-col items-center gap-4">
@@ -46,12 +45,10 @@ const HowItWorksSection = () => {
             Get started in minutes. No complicated setup — just create your profile and start learning smarter.
           </p>
         </div>
-
         {/* Steps */}
         <div className="relative grid md:grid-cols-4 gap-8">
           {/* Connecting line (desktop) */}
           <div className="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-indigo-500/30 via-cyan-500/30 via-green-500/30 to-orange-500/30" />
-
           {steps.map(({ number, Icon, title, description, color }) => (
             <div key={number} className="flex flex-col items-center text-center gap-5 group">
               {/* Step Circle */}
