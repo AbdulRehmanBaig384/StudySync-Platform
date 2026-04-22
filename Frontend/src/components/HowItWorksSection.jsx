@@ -1,8 +1,6 @@
 import React from 'react'
-import {HiOutlineUserCircle,HiOutlineUsers, HiOutlineAcademicCap, HiOutlineChartBar,
-} from 'react-icons/hi'
+import {HiOutlineUserCircle,HiOutlineUsers, HiOutlineAcademicCap, HiOutlineChartBar,} from 'react-icons/hi'
 import { FiArrowRight } from 'react-icons/fi'
-
 const steps = [
   {
     number: '01',
