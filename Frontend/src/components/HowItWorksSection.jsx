@@ -8,15 +8,13 @@ const steps = [
     title: 'Create Your Student Profile',
     description: 'Sign up and set up your academic profile — add your university, major, subjects, schedule, and learning preferences.',
     color: 'from-indigo-500 to-purple-600',
-  },
-  {
+  },{
     number: '02',
     Icon: HiOutlineUsers,
     title: 'Find Compatible Study Partners',
     description: 'Our smart matching engine recommends the best study partners that align with your goals, pace, and availability.',
     color: 'from-cyan-500 to-blue-600',
-  },
-  {
+  },{
     number: '03',
     Icon: HiOutlineAcademicCap,
     title: 'Join Study Sessions',
@@ -29,9 +27,7 @@ const steps = [
     title: 'Track Your Progress',
     description: 'Review your study stats, scores, achievements, and streaks. Celebrate milestones and stay motivated.',
     color: 'from-orange-500 to-rose-600',
-  },
-]
-
+  },]
 const HowItWorksSection = () => {
   return (
     <section id="how-it-works" className="section-padding relative overflow-hidden">
