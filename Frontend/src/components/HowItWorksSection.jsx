@@ -1,7 +1,5 @@
 import React from 'react'
-import {
-  HiOutlineUserCircle,
-  HiOutlineUsers,
+import {HiOutlineUserCircle,HiOutlineUsers,
   HiOutlineAcademicCap,
   HiOutlineChartBar,
 } from 'react-icons/hi'
