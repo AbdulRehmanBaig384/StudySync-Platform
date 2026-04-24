@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiCode, 
-  FiPlay, 
-  FiSend, 
-  FiCpu, 
-  FiMessageSquare, 
-  FiClock, 
-  FiMaximize, 
-  FiSettings, 
+import {
+  FiCode,
+  FiPlay,
+  FiSend,
+  FiCpu,
+  FiMessageSquare,
+  FiClock,
+  FiMaximize,
+  FiSettings,
   FiChevronDown,
   FiTerminal,
   FiTrash2,
@@ -61,7 +61,7 @@ const CodingRooms = () => {
 
   return (
     <div className="h-screen bg-[#050811] flex flex-col font-inter overflow-hidden text-slate-300">
-      
+
       {/* --- ELITE IDE HEADER --- */}
       <header className="h-14 bg-[#0a0f1e] border-b border-white/5 flex items-center justify-between px-4 z-50 shadow-2xl">
         <div className="flex items-center gap-4">
@@ -90,24 +90,22 @@ const CodingRooms = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => toggleRightPanel('ai')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                activeRightPanel === 'ai' 
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30 border-violet-500' 
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeRightPanel === 'ai'
+                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30 border-violet-500'
                   : 'bg-white/5 text-slate-400 border-white/5 hover:bg-white/10 hover:text-white'
-              }`}
+                }`}
             >
               <FiCpu /> AI Tutor
             </button>
-            
-            <button 
+
+            <button
               onClick={() => toggleRightPanel('chat')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                activeRightPanel === 'chat' 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 border-indigo-500' 
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeRightPanel === 'chat'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 border-indigo-500'
                   : 'bg-white/5 text-slate-400 border-white/5 hover:bg-white/10 hover:text-white'
-              }`}
+                }`}
             >
               <FiMessageSquare /> Partner Chat
             </button>
@@ -115,7 +113,7 @@ const CodingRooms = () => {
             <div className="h-6 w-px bg-white/10 mx-2" />
 
             <div className="flex items-center bg-[#0d1226] border border-white/5 rounded-xl p-1 shadow-2xl">
-              <select 
+              <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
                 className="bg-transparent text-xs font-black uppercase tracking-widest px-3 py-1.5 text-indigo-400 outline-none cursor-pointer hover:text-indigo-300 transition-colors"
@@ -125,14 +123,14 @@ const CodingRooms = () => {
                 <option value="cpp">C++ 20</option>
               </select>
             </div>
-            
-            <button 
+
+            <button
               onClick={handleRun}
               className="flex items-center gap-2 px-5 py-2 bg-white/5 hover:bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-black uppercase tracking-widest text-[10px] rounded-xl transition-all active:scale-95"
             >
               <FiPlay fill="currentColor" className="text-[10px]" /> Run
             </button>
-            
+
             <button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black uppercase tracking-widest text-[10px] rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
               Submit Solution
             </button>
@@ -148,7 +146,7 @@ const CodingRooms = () => {
 
       {/* --- MAIN SPLIT SPACE --- */}
       <main className="flex-1 flex overflow-hidden">
-        
+
         {/* PANEL 1: PROBLEM DESCRIPTION */}
         <section className="w-[450px] xl:w-[550px] bg-[#0a0f1e]/50 border-r border-white/5 flex flex-col overflow-hidden animate-slide-up">
           <div className="flex items-center gap-6 px-6 h-12 border-b border-white/5 bg-white/[0.01]">
@@ -156,7 +154,7 @@ const CodingRooms = () => {
             <button className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors h-full">Solutions</button>
             <button className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors h-full">Submissions</button>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -190,10 +188,10 @@ const CodingRooms = () => {
                 <span className="w-8 h-px bg-indigo-500" /> Examples
               </h4>
               <div className="space-y-4">
-                <ExampleCard 
-                  input="nums = [2,7,11,15], target = 9" 
-                  output="[0,1]" 
-                  explanation="Because nums[0] + nums[1] == 9, we return [0, 1]." 
+                <ExampleCard
+                  input="nums = [2,7,11,15], target = 9"
+                  output="[0,1]"
+                  explanation="Because nums[0] + nums[1] == 9, we return [0, 1]."
                 />
               </div>
             </div>
@@ -216,9 +214,9 @@ const CodingRooms = () => {
           <div className="flex-1 flex overflow-hidden relative">
             {/* Line Gutter */}
             <div className="w-12 bg-black/20 border-r border-white/5 py-6 flex flex-col items-center text-slate-700 font-mono text-[11px] leading-[1.8rem] select-none">
-              {[...Array(30)].map((_, i) => <div key={i}>{i+1}</div>)}
+              {[...Array(30)].map((_, i) => <div key={i}>{i + 1}</div>)}
             </div>
-            
+
             {/* Professional Editor Sim */}
             <div className="flex-1 flex flex-col relative custom-scrollbar overflow-auto">
               {/* Fake Syntax Overlay would go here in real Monaco, using styled textarea for now */}
@@ -228,7 +226,7 @@ const CodingRooms = () => {
                 spellCheck="false"
                 className="flex-1 bg-transparent p-6 font-mono text-[14px] leading-[1.8rem] text-indigo-50/90 focus:outline-none resize-none overflow-visible whitespace-pre"
               />
-              
+
               {/* Editor Floating Actions */}
               <div className="absolute top-4 right-6 flex items-center gap-2">
                 <button className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">
@@ -243,13 +241,13 @@ const CodingRooms = () => {
             <div className="h-[300px] xl:h-[350px] bg-glass-dark border-t border-white/10 flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.5)] animate-slide-up relative">
               <div className="h-10 flex items-center px-6 border-b border-white/5 bg-white/[0.01] justify-between">
                 <div className="flex gap-8 h-full">
-                  <button 
+                  <button
                     onClick={() => setActiveBottomTab('output')}
                     className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all h-full border-b-2 ${activeBottomTab === 'output' ? 'text-indigo-400 border-indigo-500' : 'text-slate-600 border-transparent hover:text-slate-400'}`}
                   >
                     <FiTerminal /> Console Output
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveBottomTab('input')}
                     className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all h-full border-b-2 ${activeBottomTab === 'input' ? 'text-indigo-400 border-indigo-500' : 'text-slate-600 border-transparent hover:text-slate-400'}`}
                   >
@@ -257,13 +255,13 @@ const CodingRooms = () => {
                   </button>
                 </div>
                 <div className="flex items-center gap-4">
-                  <button 
+                  <button
                     onClick={() => setOutput('')}
                     className="text-slate-600 hover:text-rose-400 transition-colors"
                   >
                     <FiTrash2 className="text-sm" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => setIsConsoleOpen(false)}
                     className="p-1 text-slate-500 hover:text-white hover:bg-white/5 rounded transition-all"
                   >
@@ -271,7 +269,7 @@ const CodingRooms = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="flex-1 p-6 overflow-y-auto font-mono text-xs custom-scrollbar">
                 {activeBottomTab === 'output' ? (
                   <div className="animate-slide-up space-y-2">
@@ -292,7 +290,7 @@ const CodingRooms = () => {
                       <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Compiler Stdin</h5>
                       <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[8px] font-black rounded uppercase">Array Formatted</span>
                     </div>
-                    <textarea 
+                    <textarea
                       value={testCase}
                       onChange={(e) => setTestCase(e.target.value)}
                       className="flex-1 bg-black/30 rounded-2xl border border-white/5 p-4 text-emerald-400 focus:outline-none focus:border-emerald-500/20 resize-none font-mono"
@@ -316,7 +314,7 @@ const CodingRooms = () => {
                   {activeRightPanel === 'chat' ? 'Partner Chat' : 'AI Assistant'}
                 </h4>
               </div>
-              <button 
+              <button
                 onClick={() => setActiveRightPanel(null)}
                 className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"
               >
@@ -328,26 +326,26 @@ const CodingRooms = () => {
               {activeRightPanel === 'chat' ? (
                 <>
                   <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-                    <ChatMessage 
-                      user="Study Assistant" 
-                      time="10:42 AM" 
-                      color="indigo" 
-                      text="Hello! Remember that using a Hash Map can reduce the complexity to O(n)." 
+                    <ChatMessage
+                      user="Study Assistant"
+                      time="10:42 AM"
+                      color="indigo"
+                      text="Hello! Remember that using a Hash Map can reduce the complexity to O(n)."
                     />
-                    <ChatMessage 
-                      user="Alex (Partner)" 
-                      time="10:45 AM" 
-                      color="emerald" 
-                      text="I'm testing the edge case with [3, 3] target = 6. Can you check my indices?" 
+                    <ChatMessage
+                      user="Alex (Partner)"
+                      time="10:45 AM"
+                      color="emerald"
+                      text="I'm testing the edge case with [3, 3] target = 6. Can you check my indices?"
                       self={false}
                     />
                   </div>
 
                   <div className="p-5 bg-white/[0.02] border-t border-white/5">
                     <div className="relative group">
-                      <input 
-                        type="text" 
-                        placeholder="Message partner..." 
+                      <input
+                        type="text"
+                        placeholder="Message partner..."
                         className="w-full bg-[#0d1226] border border-white/10 focus:border-indigo-500/40 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none transition-all pr-12 shadow-inner"
                       />
                       <button className="absolute right-2 top-2 p-2.5 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all">
@@ -365,7 +363,7 @@ const CodingRooms = () => {
                     <h4 className="text-sm font-black text-white">Advanced AI Tutor</h4>
                     <p className="text-[11px] text-slate-400 leading-relaxed font-medium">I'm analyzing your current code context in real-time. How can I assist your learning?</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 gap-4">
                     <AIActionBtn icon={<FiZap />} text="Analyze Complexity" />
                     <AIActionBtn icon={<FiInfo />} text="Get Small Hint" />

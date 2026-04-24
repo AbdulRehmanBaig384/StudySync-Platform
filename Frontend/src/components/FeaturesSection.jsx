@@ -73,9 +73,8 @@ const FeaturesSection = () => {
             return (
               <div
                 key={feature.title}
-                className={`group bg-glass rounded-2xl p-6 card-hover cursor-pointer ${feature.glow} group-hover:shadow-2xl ${
-                  index === 4 ? 'lg:col-start-2' : ''
-                }`}
+                className={`group bg-glass rounded-2xl p-6 card-hover cursor-pointer ${feature.glow} group-hover:shadow-2xl ${index === 4 ? 'lg:col-start-2' : ''
+                  }`}
               >
                 {/* Icon */}
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>

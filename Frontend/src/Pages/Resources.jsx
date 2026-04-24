@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { 
-  FiSearch, 
-  FiFileText, 
-  FiVideo, 
-  FiEdit3, 
-  FiCode, 
-  FiBookmark, 
-  FiTrendingUp, 
-  FiDownload, 
-  FiEye, 
-  FiClipboard, 
-  FiClock, 
+import {
+  FiSearch,
+  FiFileText,
+  FiVideo,
+  FiEdit3,
+  FiCode,
+  FiBookmark,
+  FiTrendingUp,
+  FiDownload,
+  FiEye,
+  FiClipboard,
+  FiClock,
   FiFilter,
   FiGrid,
   FiList,
@@ -37,14 +37,87 @@ const Resources = () => {
 
   // Mock Data
   const resources = [
-    { id: 1, title: 'DSA Master Sheet', type: 'PDF', subject: 'DSA', date: '2024-04-20', trending: true, bookmarked: true, tab: 'notes' },
-    { id: 2, title: 'React Hooks Deep Dive', type: 'Video', subject: 'Web Dev', date: '2024-04-18', trending: true, tab: 'videos', difficulty: 'Advanced' },
-    { id: 3, title: 'Neural Networks 101', type: 'Notes', subject: 'Data Science', date: '2024-04-15', tab: 'notes' },
-    { id: 4, title: 'Operating Systems Lab 4', type: 'Assignment', subject: 'OS', date: '2024-04-25', status: 'Pending', tab: 'assignments' },
-    { id: 5, title: 'Python List Comprehension', type: 'Code', subject: 'Python', date: '2024-04-10', tab: 'snippets', code: 'nums = [x for x in range(10) if x % 2 == 0]' },
-    { id: 6, title: 'SQL Queries Cheat Sheet', type: 'PDF', subject: 'Database', date: '2024-04-22', trending: true, tab: 'cheatsheets' },
-    { id: 7, title: 'System Design Patterns', type: 'Video', subject: 'Architecture', date: '2024-04-12', tab: 'videos', difficulty: 'Expert' },
-    { id: 8, title: 'C++ STL Shortcuts', type: 'Cheat Sheet', subject: 'C++', date: '2024-04-05', bookmarked: true, tab: 'cheatsheets' },
+    { 
+      id: 1, 
+      title: 'DSA Master Sheet', 
+      type: 'PDF', 
+      subject: 'DSA', 
+      date: '2024-04-20', 
+      trending: true, 
+      bookmarked: true, 
+      tab: 'notes',
+      image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1469&auto=format&fit=crop'
+    },
+    { 
+      id: 2, 
+      title: 'React Hooks Deep Dive', 
+      type: 'Video', 
+      subject: 'Web Dev', 
+      date: '2024-04-18', 
+      trending: true, 
+      tab: 'videos', 
+      difficulty: 'Advanced',
+      image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1470&auto=format&fit=crop'
+    },
+    { 
+      id: 3, 
+      title: 'Neural Networks 101', 
+      type: 'Notes', 
+      subject: 'Data Science', 
+      date: '2024-04-15', 
+      tab: 'notes',
+      image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=1470&auto=format&fit=crop'
+    },
+    { 
+      id: 4, 
+      title: 'Operating Systems Lab 4', 
+      type: 'Assignment', 
+      subject: 'OS', 
+      date: '2024-04-25', 
+      status: 'Pending', 
+      tab: 'assignments',
+      image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1470&auto=format&fit=crop'
+    },
+    { 
+      id: 5, 
+      title: 'Python List Comprehension', 
+      type: 'Code', 
+      subject: 'Python', 
+      date: '2024-04-10', 
+      tab: 'snippets', 
+      code: 'nums = [x for x in range(10) if x % 2 == 0]',
+      image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1470&auto=format&fit=crop'
+    },
+    { 
+      id: 6, 
+      title: 'SQL Queries Cheat Sheet', 
+      type: 'PDF', 
+      subject: 'Database', 
+      date: '2024-04-22', 
+      trending: true, 
+      tab: 'cheatsheets',
+      image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=1421&auto=format&fit=crop'
+    },
+    { 
+      id: 7, 
+      title: 'System Design Patterns', 
+      type: 'Video', 
+      subject: 'Architecture', 
+      date: '2024-04-12', 
+      tab: 'videos', 
+      difficulty: 'Expert',
+      image: 'https://images.unsplash.com/photo-1508921331509-4c7ee27c0d23?q=80&w=1470&auto=format&fit=crop'
+    },
+    { 
+      id: 8, 
+      title: 'C++ STL Shortcuts', 
+      type: 'Cheat Sheet', 
+      subject: 'C++', 
+      date: '2024-04-05', 
+      bookmarked: true, 
+      tab: 'cheatsheets',
+      image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1470&auto=format&fit=crop'
+    },
   ];
 
   const filteredResources = resources.filter(res => {
@@ -56,20 +129,20 @@ const Resources = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
-        
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-black text-white tracking-tight">Study Resources</h1>
             <p className="text-slate-400 text-sm mt-1">Explore, download, and master your subjects.</p>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <div className="relative group">
               <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search resources..." 
+              <input
+                type="text"
+                placeholder="Search resources..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-3 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition-all w-full md:w-[300px]"
@@ -88,11 +161,10 @@ const Resources = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                  activeTab === tab.id 
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                     : 'bg-white/5 text-slate-400 hover:bg-white/10 border border-white/5'
-                }`}
+                  }`}
               >
                 {tab.icon} {tab.label}
               </button>
@@ -123,77 +195,46 @@ const Resources = () => {
 // --- Sub-Components ---
 
 const ResourceCard = ({ res }) => {
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'PDF': return <FiFileText className="text-rose-400" />;
-      case 'Video': return <FiVideo className="text-indigo-400" />;
-      case 'Assignment': return <FiEdit3 className="text-emerald-400" />;
-      case 'Code': return <FiCode className="text-amber-400" />;
-      default: return <FiFileText className="text-slate-400" />;
-    }
-  };
-
   return (
-    <div className="group bg-glass-dark border border-white/5 rounded-3xl p-6 hover:border-indigo-500/30 transition-all hover:-translate-y-1 shadow-xl hover:shadow-indigo-600/5 overflow-hidden relative">
-      {/* Background Glow */}
-      <div className="absolute -top-10 -right-10 w-24 h-24 bg-indigo-600/5 blur-3xl group-hover:bg-indigo-600/10 transition-colors" />
-      
-      <div className="flex flex-col h-full space-y-5">
-        <div className="flex items-start justify-between">
-          <div className={`p-3 rounded-2xl bg-white/5 text-xl`}>
-            {getTypeIcon(res.type)}
-          </div>
-          <div className="flex gap-2">
-            {res.trending && (
-              <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest rounded-md border border-amber-500/20">
-                Trending
-              </span>
-            )}
-            {res.difficulty && (
-              <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[8px] font-black uppercase tracking-widest rounded-md border border-indigo-500/20">
-                {res.difficulty}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{res.subject}</span>
-          <h3 className="text-white font-bold mt-1 group-hover:text-indigo-300 transition-colors">{res.title}</h3>
-        </div>
-
-        {res.type === 'Code' && (
-          <div className="bg-black/40 rounded-xl p-3 font-mono text-[10px] text-slate-400 overflow-hidden line-clamp-2">
-            {res.code}
+    <div className="group bg-glass-dark border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all hover:-translate-y-1 shadow-xl flex flex-col h-full">
+      {/* Card Splash Image */}
+      <div className="h-40 w-full relative overflow-hidden">
+        <img 
+          src={res.image} 
+          alt={res.title} 
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
+        {res.trending && (
+          <div className="absolute top-4 right-4">
+            <span className="bg-amber-500 text-white text-[8px] font-black px-2 py-1 rounded-lg uppercase tracking-widest shadow-lg shadow-amber-600/20">
+              Trending
+            </span>
           </div>
         )}
+      </div>
 
-        <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
-          <div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold">
-            <FiClock /> {res.date}
+      <div className="p-8 space-y-6 flex-1 flex flex-col">
+        <div className="flex items-start justify-between">
+          <div>
+            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{res.subject}</span>
+            <h3 className="text-white font-bold mt-1 group-hover:text-indigo-300 transition-colors leading-tight">{res.title}</h3>
           </div>
-          
-          <div className="flex items-center gap-2">
-            {res.tab === 'assignments' ? (
-              <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${res.status === 'Pending' ? 'bg-rose-500/10 text-rose-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
-                {res.status}
-              </span>
-            ) : (
-              <>
-                <button className="p-2 text-slate-400 hover:text-white transition-colors" title="Download">
-                  <FiDownload />
-                </button>
-                <button className="p-2 text-slate-400 hover:text-white transition-colors" title="Bookmark">
-                  <FiBookmark fill={res.bookmarked ? 'currentColor' : 'none'} className={res.bookmarked ? 'text-amber-500' : ''} />
-                </button>
-              </>
-            )}
+          <div className="text-slate-500 text-xl group-hover:text-indigo-400 transition-colors">
+            {res.type === 'Video' ? <FiVideo /> : <FiFileText />}
           </div>
         </div>
 
-        {/* Hover Action Button */}
-        <button className="w-full mt-2 py-2.5 bg-white/5 hover:bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white rounded-xl transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 shadow-lg shadow-indigo-600/20">
-          {res.type === 'Video' ? <><FiVideo /> Watch Now</> : <><FiEye /> View Resource</>}
+        <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+          <span className="flex items-center gap-2"><FiClock /> {res.date}</span>
+          <div className="flex gap-3">
+            <button className="hover:text-white transition-colors" title="Download"><FiDownload /></button>
+            <button className="hover:text-amber-500 transition-colors" title="Bookmark"><FiBookmark fill={res.bookmarked ? 'currentColor' : 'none'} className={res.bookmarked ? 'text-amber-500' : ''} /></button>
+          </div>
+        </div>
+
+        <button className="w-full mt-auto py-4 bg-white/5 hover:bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white rounded-2xl transition-all flex items-center justify-center gap-2">
+          {res.type === 'Video' ? 'Watch Lesson' : 'View Content'}
         </button>
       </div>
     </div>

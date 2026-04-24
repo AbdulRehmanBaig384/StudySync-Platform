@@ -11,6 +11,7 @@ import StudySession from './Pages/StudySession'
 import Resources from './Pages/Resources'
 import AITutor from './Pages/AITutor'
 import ProHub from './Pages/ProHub'
+import Quizzes from './Pages/Quizzes'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/resources" element={<Resources/>}/>
         <Route path="/ai-tutor" element={<AITutor/>}/>
         <Route path="/pro-hub" element={<ProHub/>}/>
+        <Route path="/quizzes" element={<Quizzes/>}/>
       </Routes>
     </Router>
   )

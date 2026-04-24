@@ -102,7 +102,7 @@ const FindPartner = () => {
         {/* Main Feed */}
         <div className="xl:col-span-3 space-y-8">
           <PartnerFilters />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {partners.map((partner) => (
               <PartnerCard key={partner.id} {...partner} />
@@ -120,14 +120,14 @@ const FindPartner = () => {
         {/* Sidebar Interactions */}
         <div className="space-y-8">
           <PartnerRequestList />
-          
+
           {/* Quick Tip Card */}
           <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-8 rounded-3xl shadow-2xl shadow-indigo-600/20 relative overflow-hidden group animate-slide-up" style={{ animationDelay: '0.4s' }}>
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all"></div>
             <h4 className="text-white font-black text-xl mb-4 relative z-10 font-jakarta leading-tight">Pro Tip: Fill your Profile!</h4>
             <p className="text-indigo-100/70 text-sm font-medium mb-6 relative z-10 leading-relaxed">Students with complete profiles get 4x more partner requests.</p>
             <button className="w-full bg-white text-indigo-700 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-50 transition-all relative z-10 shadow-lg">
-             <NavLink to={'/StudentProfile'}> Update Profile </NavLink>
+              <NavLink to={'/StudentProfile'}> Update Profile </NavLink>
             </button>
           </div>
         </div>

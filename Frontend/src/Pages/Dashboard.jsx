@@ -41,34 +41,34 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-        <StatCard 
-          title="Study Hours" 
-          value="42.5h" 
-          icon={<FiClock />} 
-          trend="up" 
-          trendValue="12%" 
+        <StatCard
+          title="Study Hours"
+          value="42.5h"
+          icon={<FiClock />}
+          trend="up"
+          trendValue="12%"
           color="indigo"
         />
-        <StatCard 
-          title="Courses Active" 
-          value="6" 
-          icon={<FiBookOpen />} 
+        <StatCard
+          title="Courses Active"
+          value="6"
+          icon={<FiBookOpen />}
           color="blue"
         />
-        <StatCard 
-          title="Avg. Quiz Score" 
-          value="92%" 
-          icon={<FiTarget />} 
-          trend="up" 
-          trendValue="5%" 
+        <StatCard
+          title="Avg. Quiz Score"
+          value="92%"
+          icon={<FiTarget />}
+          trend="up"
+          trendValue="5%"
           color="emerald"
         />
-        <StatCard 
-          title="Current Streak" 
-          value="14 Days" 
-          icon={<FiZap />} 
-          trend="up" 
-          trendValue="2 days" 
+        <StatCard
+          title="Current Streak"
+          value="14 Days"
+          icon={<FiZap />}
+          trend="up"
+          trendValue="2 days"
           color="amber"
         />
       </div>
@@ -87,19 +87,21 @@ const Dashboard = () => {
               <button className="text-indigo-400 font-black uppercase tracking-widest text-[10px] hover:text-indigo-300 transition-colors">See all quizzes</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <QuizCard 
-                title="React Hooks Mastery" 
-                questions={20} 
-                duration={15} 
-                category="Engineering" 
+              <QuizCard
+                title="React Hooks Mastery"
+                questions={20}
+                duration={15}
+                category="Engineering"
                 difficulty="Intermediate"
+                image="https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1470&auto=format&fit=crop"
               />
-              <QuizCard 
-                title="System Design Basics" 
-                questions={15} 
-                duration={20} 
-                category="Architecture" 
+              <QuizCard
+                title="System Design Basics"
+                questions={15}
+                duration={20}
+                category="Architecture"
                 difficulty="Advanced"
+                image="https://images.unsplash.com/photo-1508921331509-4c7ee27c0d23?q=80&w=1470&auto=format&fit=crop"
                 completed={true}
               />
             </div>

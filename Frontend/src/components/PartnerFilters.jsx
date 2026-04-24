@@ -17,9 +17,9 @@ const PartnerFilters = () => {
           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject</label>
           <div className="relative">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="e.g. React" 
+            <input
+              type="text"
+              placeholder="e.g. React"
               className="w-full bg-white/5 border border-white/5 rounded-2xl py-3 pl-10 pr-4 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-slate-600 font-bold"
             />
           </div>

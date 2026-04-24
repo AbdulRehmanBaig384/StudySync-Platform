@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiSend, 
-  FiPlus, 
-  FiSearch, 
-  FiMessageCircle, 
-  FiZap, 
-  FiBook, 
-  FiClock, 
-  FiStar, 
-  FiDownload, 
-  FiCopy, 
-  FiTrash2, 
-  FiCheckCircle, 
-  FiTrendingUp, 
-  FiCpu, 
+import {
+  FiSend,
+  FiPlus,
+  FiSearch,
+  FiMessageCircle,
+  FiZap,
+  FiBook,
+  FiClock,
+  FiStar,
+  FiDownload,
+  FiCopy,
+  FiTrash2,
+  FiCheckCircle,
+  FiTrendingUp,
+  FiCpu,
   FiActivity,
   FiEdit,
   FiLayers,
@@ -42,13 +42,13 @@ const AITutor = () => {
     const newMsg = { id: messages.length + 1, role: 'user', text: inputText, type: 'text' };
     setMessages([...messages, newMsg]);
     setInputText('');
-    
+
     // Simulate AI response
     setTimeout(() => {
-      const aiMsg = { 
-        id: messages.length + 2, 
-        role: 'ai', 
-        text: "That's a great question! Here's a quick interactive quiz to test your understanding of what we just discussed.", 
+      const aiMsg = {
+        id: messages.length + 2,
+        role: 'ai',
+        text: "That's a great question! Here's a quick interactive quiz to test your understanding of what we just discussed.",
         type: 'quiz',
         quiz: {
           question: "Which hook should you use to store a persistent value that doesn't trigger a re-render?",
@@ -63,19 +63,19 @@ const AITutor = () => {
   return (
     <DashboardLayout>
       <div className="flex h-[calc(100vh-160px)] bg-glass-dark rounded-[2.5rem] border border-white/5 overflow-hidden animate-fade-in shadow-2xl relative">
-        
+
         {/* --- 1. LEFT SIDEBAR: CHAT HISTORY --- */}
         <aside className="w-80 border-r border-white/5 bg-white/[0.01] flex flex-col hidden lg:flex">
           <div className="p-6 space-y-6">
             <button className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-[1.02] active:scale-95 transition-all">
               <FiPlus /> New Session
             </button>
-            
+
             <div className="relative group">
               <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search conversations..." 
+              <input
+                type="text"
+                placeholder="Search conversations..."
                 className="w-full bg-black/20 border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500/30 transition-all"
               />
             </div>
@@ -85,7 +85,7 @@ const AITutor = () => {
             <div className="space-y-2">
               <h3 className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Recent Chats</h3>
               {history.map((chat) => (
-                <div 
+                <div
                   key={chat.id}
                   onClick={() => setActiveChat(chat.id)}
                   className={`group flex flex-col gap-1 p-4 rounded-2xl cursor-pointer transition-all ${activeChat === chat.id ? 'bg-indigo-600/10 border border-indigo-500/20' : 'hover:bg-white/5'}`}
@@ -120,7 +120,7 @@ const AITutor = () => {
 
         {/* --- 2. MAIN CHAT AREA --- */}
         <section className="flex-1 flex flex-col bg-[#050811]/30 relative">
-          
+
           {/* Chat Header */}
           <header className="h-16 px-8 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
             <div className="flex items-center gap-4">
@@ -135,7 +135,7 @@ const AITutor = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <button className="p-2.5 bg-white/5 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all"><FiDownload /></button>
               <button className="p-2.5 bg-white/5 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all"><FiShare2 /></button>
@@ -154,14 +154,13 @@ const AITutor = () => {
                   </div>
                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{msg.role === 'ai' ? 'StudySync AI' : 'You'}</span>
                 </div>
-                
-                <div className={`max-w-[85%] p-5 rounded-[2rem] border transition-all ${
-                  msg.role === 'ai' 
-                    ? 'bg-glass-dark border-white/5 rounded-tl-none text-slate-200' 
+
+                <div className={`max-w-[85%] p-5 rounded-[2rem] border transition-all ${msg.role === 'ai'
+                    ? 'bg-glass-dark border-white/5 rounded-tl-none text-slate-200'
                     : 'bg-indigo-600 border-indigo-500/30 rounded-tr-none text-white shadow-xl shadow-indigo-600/10'
-                }`}>
+                  }`}>
                   <p className="text-sm leading-relaxed font-medium">{msg.text}</p>
-                  
+
                   {msg.type === 'quiz' && (
                     <div className="mt-6 p-6 bg-black/30 rounded-3xl border border-white/10 space-y-4">
                       <h4 className="text-xs font-bold text-indigo-300">Quick Test: {msg.quiz.question}</h4>
@@ -192,15 +191,15 @@ const AITutor = () => {
               <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 <button className="p-2 text-slate-500 hover:text-indigo-400 transition-colors"><FiMic /></button>
               </div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Ask me anything about your subjects..." 
+                placeholder="Ask me anything about your subjects..."
                 className="w-full bg-[#1e293b]/50 border border-white/10 group-focus-within:border-indigo-500/40 rounded-3xl pl-14 pr-16 py-5 text-sm text-white placeholder:text-slate-500 focus:outline-none transition-all shadow-inner"
               />
-              <button 
+              <button
                 onClick={handleSendMessage}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all"
               >
@@ -214,7 +213,7 @@ const AITutor = () => {
         {/* --- 3. RIGHT SIDEBAR: SMART INSIGHTS --- */}
         <aside className="w-[320px] xl:w-[400px] border-l border-white/5 bg-white/[0.01] flex flex-col hidden xl:flex">
           <div className="p-8 space-y-10 overflow-y-auto custom-scrollbar">
-            
+
             {/* Learning Progress */}
             <div className="space-y-6">
               <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">

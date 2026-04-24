@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import { 
-  FiUsers, 
-  FiMessageSquare, 
-  FiVideo, 
-  FiBarChart2, 
-  FiHelpCircle, 
-  FiSearch, 
-  FiUserPlus, 
-  FiSend, 
-  FiThumbsUp, 
-  FiThumbsDown, 
-  FiCheckCircle, 
-  FiPlay, 
-  FiSquare, 
-  FiCoffee, 
-  FiLogOut, 
-  FiFolder, 
-  FiBookmark, 
-  FiClock, 
+import {
+  FiUsers,
+  FiMessageSquare,
+  FiVideo,
+  FiBarChart2,
+  FiHelpCircle,
+  FiSearch,
+  FiUserPlus,
+  FiSend,
+  FiThumbsUp,
+  FiThumbsDown,
+  FiCheckCircle,
+  FiPlay,
+  FiSquare,
+  FiCoffee,
+  FiLogOut,
+  FiFolder,
+  FiBookmark,
+  FiClock,
   FiBell,
   FiMoreVertical,
   FiMic,
@@ -41,7 +41,7 @@ const StudySession = () => {
 
   return (
     <div className="h-screen bg-[#0f172a] flex flex-col font-jakarta overflow-hidden text-slate-300">
-      
+
       {/* --- 1. TOP HEADER BAR --- */}
       <header className="h-16 bg-[#1e293b]/50 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-6 sticky top-0 z-50 shadow-2xl">
         <div className="flex items-center gap-6">
@@ -72,7 +72,7 @@ const StudySession = () => {
             </div>
             <span className="text-xs font-bold text-slate-400">12+ Online</span>
           </div>
-          
+
           <div className="flex items-center gap-2 bg-black/20 px-4 py-2 rounded-xl border border-white/5 font-mono text-xs text-white">
             <FiClock className="text-emerald-400" />
             01:42:05
@@ -92,15 +92,15 @@ const StudySession = () => {
 
       {/* --- 2. MAIN LAYOUT (3 COLUMN) --- */}
       <main className="flex-1 flex overflow-hidden">
-        
+
         {/* LEFT SIDEBAR (Participants) */}
         <aside className="hidden lg:flex w-72 bg-[#0f172a] border-r border-white/5 flex-col">
           <div className="p-6 space-y-6">
             <div className="relative">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input 
-                type="text" 
-                placeholder="Find participant..." 
+              <input
+                type="text"
+                placeholder="Find participant..."
                 className="w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500/30 transition-all"
               />
             </div>
@@ -122,9 +122,8 @@ const StudySession = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-white">{p.name}</p>
-                    <span className={`text-[8px] font-black uppercase tracking-widest ${
-                      p.role === 'Host' ? 'text-amber-500' : p.role === 'Student' ? 'text-indigo-400' : 'text-slate-500'
-                    }`}>{p.role}</span>
+                    <span className={`text-[8px] font-black uppercase tracking-widest ${p.role === 'Host' ? 'text-amber-500' : p.role === 'Student' ? 'text-indigo-400' : 'text-slate-500'
+                      }`}>{p.role}</span>
                   </div>
                 </div>
                 <FiMoreVertical className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -153,7 +152,7 @@ const StudySession = () => {
 
         {/* RIGHT SIDEBAR (Tools) */}
         <aside className="hidden xl:flex w-80 bg-[#0f172a] border-l border-white/5 flex-col overflow-y-auto custom-scrollbar">
-          
+
           {/* Session Controls */}
           <div className="p-6 border-b border-white/5 space-y-4">
             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Session Controls</h3>
@@ -203,7 +202,7 @@ const StudySession = () => {
 // --- Sub-Components ---
 
 const TabButton = ({ active, onClick, icon, label }) => (
-  <button 
+  <button
     onClick={onClick}
     className={`flex items-center gap-2 h-full border-b-2 transition-all px-2 ${active ? 'border-indigo-500 text-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
   >
@@ -221,9 +220,9 @@ const ChatTab = () => (
     </div>
     <div className="p-6 bg-white/[0.02] border-t border-white/5">
       <div className="relative group max-w-4xl mx-auto">
-        <input 
-          type="text" 
-          placeholder="Send a message to everyone..." 
+        <input
+          type="text"
+          placeholder="Send a message to everyone..."
           className="w-full bg-[#1e293b] border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-indigo-500/40 transition-all shadow-inner"
         />
         <button className="absolute right-3 top-2.5 p-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-600/30 hover:scale-105 transition-all">
@@ -236,17 +235,17 @@ const ChatTab = () => (
 
 const DiscussionTab = () => (
   <div className="h-full overflow-y-auto p-8 space-y-6 custom-scrollbar animate-fade-in">
-    <QuestionCard 
-      title="How to optimize Dijkstra's for sparse graphs?" 
-      desc="I'm currently using a priority queue but it still feels slow on large data sets." 
+    <QuestionCard
+      title="How to optimize Dijkstra's for sparse graphs?"
+      desc="I'm currently using a priority queue but it still feels slow on large data sets."
       tags={['DSA', 'Optimization']}
       author="Sarah Ahmed"
       votes={42}
       solved={true}
     />
-    <QuestionCard 
-      title="React.memo vs useMemo: When to use which?" 
-      desc="I'm confused about the performance benefits when wrapping child components." 
+    <QuestionCard
+      title="React.memo vs useMemo: When to use which?"
+      desc="I'm confused about the performance benefits when wrapping child components."
       tags={['React', 'Web Dev']}
       author="Alex Johnson"
       votes={12}
@@ -260,11 +259,11 @@ const LiveTab = () => (
     <div className="max-w-4xl w-full aspect-video bg-[#1e293b] rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col items-center justify-center space-y-8 relative overflow-hidden group">
       {/* Background Pulse */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      
+
       <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center text-4xl text-slate-500 animate-pulse">
         <FiVideo />
       </div>
-      
+
       <div className="text-center space-y-2 relative z-10">
         <h2 className="text-2xl font-black text-white">Join the Virtual Study Room</h2>
         <p className="text-slate-400 text-sm">Enable your camera and microphone to start collaborating.</p>
@@ -289,12 +288,12 @@ const LiveTab = () => (
 
 const PollsTab = () => (
   <div className="h-full overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-8 custom-scrollbar animate-fade-in">
-    <PollCard 
+    <PollCard
       question="What is the average time complexity of Quick Sort?"
       options={['O(n log n)', 'O(n^2)', 'O(n)', 'O(log n)']}
       votes={24}
     />
-    <QuizCard 
+    <QuizCard
       title="Weekly Algorithm Quiz"
       progress={65}
       questionCount={10}

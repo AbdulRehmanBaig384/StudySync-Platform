@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  FiStar, 
-  FiZap, 
-  FiLock, 
-  FiCheck, 
-  FiTrendingUp, 
-  FiCpu, 
-  FiBookOpen, 
-  FiActivity, 
-  FiMap, 
-  FiCreditCard, 
+import {
+  FiStar,
+  FiZap,
+  FiLock,
+  FiCheck,
+  FiTrendingUp,
+  FiCpu,
+  FiBookOpen,
+  FiActivity,
+  FiMap,
+  FiCreditCard,
   FiAward,
   FiChevronRight,
   FiSearch,
@@ -27,7 +27,7 @@ const ProHub = () => {
   return (
     <DashboardLayout>
       <div className="space-y-16 animate-fade-in pb-20">
-        
+
         {/* --- HERO & PRICING SECTION --- */}
         <section className="text-center space-y-12">
           <div className="space-y-4">
@@ -46,7 +46,7 @@ const ProHub = () => {
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-4">
             <span className={`text-xs font-bold ${billingCycle === 'monthly' ? 'text-white' : 'text-slate-500'}`}>Monthly</span>
-            <button 
+            <button
               onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
               className="w-12 h-6 bg-white/5 rounded-full relative p-1 transition-all"
             >
@@ -56,25 +56,25 @@ const ProHub = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
-            <PricingCard 
-              name="Free" 
-              price="0" 
-              features={['Basic AI Chat', 'Public Resources', '1 Study Session/Day']} 
+            <PricingCard
+              name="Free"
+              price="0"
+              features={['Basic AI Chat', 'Public Resources', '1 Study Session/Day']}
               btnText="Current Plan"
               active={false}
             />
-            <PricingCard 
-              name="Student Plus" 
-              price={billingCycle === 'monthly' ? '9' : '7'} 
-              features={['Advanced AI Tutor', 'Private Study Rooms', 'Unlimited Resources', 'Mock Exams']} 
+            <PricingCard
+              name="Student Plus"
+              price={billingCycle === 'monthly' ? '9' : '7'}
+              features={['Advanced AI Tutor', 'Private Study Rooms', 'Unlimited Resources', 'Mock Exams']}
               btnText="Get Started"
               popular={true}
               active={true}
             />
-            <PricingCard 
-              name="Premium Tutor" 
-              price={billingCycle === 'monthly' ? '29' : '24'} 
-              features={['1-on-1 AI Mentorship', 'Hardest Problems Mode', 'Personalized Roadmap', 'Official Certificates']} 
+            <PricingCard
+              name="Premium Tutor"
+              price={billingCycle === 'monthly' ? '29' : '24'}
+              features={['1-on-1 AI Mentorship', 'Hardest Problems Mode', 'Personalized Roadmap', 'Official Certificates']}
               btnText="Go Elite"
               active={false}
             />
@@ -90,26 +90,26 @@ const ProHub = () => {
             <button className="text-xs font-bold text-indigo-400 hover:underline">Explore AI Mode</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FeatureCard 
-              icon={<FiZap />} 
-              title="24/7 Expert AI" 
+            <FeatureCard
+              icon={<FiZap />}
+              title="24/7 Expert AI"
               desc="Instant answers for DSA, DBMS, and Web Dev."
             />
-            <FeatureCard 
-              icon={<FiMap />} 
-              title="Guided Solving" 
+            <FeatureCard
+              icon={<FiMap />}
+              title="Guided Solving"
               desc="Step-by-step logic without giving the answer."
               locked={true}
             />
-            <FeatureCard 
-              icon={<FiActivity />} 
-              title="Exam Mode" 
+            <FeatureCard
+              icon={<FiActivity />}
+              title="Exam Mode"
               desc="MCQs & Short questions tailored to exams."
               locked={true}
             />
-            <FeatureCard 
-              icon={<FiCode />} 
-              title="Code Tutor" 
+            <FeatureCard
+              icon={<FiCode />}
+              title="Code Tutor"
               desc="Live debugging and logic optimization."
               locked={true}
             />
@@ -118,15 +118,15 @@ const ProHub = () => {
 
         {/* --- MARKETPLACE & CHALLENGES --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Course Marketplace (Left 2/3) */}
           <div className="lg:col-span-2 space-y-8">
             <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
               <FiBookOpen className="text-violet-400" /> Course Marketplace
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <CourseCard title="Mastering System Design" tag="Advanced" instructor="Dr. Arshad" rating={4.9} />
-              <CourseCard title="Full Stack React Pro" tag="Beginner" instructor="Engr. Ahsan" rating={4.8} />
+              <CourseCard title="Mastering System Design" tag="Advanced" instructor="Dr. Arshad" rating={4.9} image="https://images.unsplash.com/photo-1508921331509-4c7ee27c0d23?q=80&w=1470&auto=format&fit=crop" />
+              <CourseCard title="Full Stack React Pro" tag="Beginner" instructor="Engr. Ahsan" rating={4.8} image="https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1470&auto=format&fit=crop" />
             </div>
           </div>
 
@@ -157,7 +157,7 @@ const ProHub = () => {
 
         {/* --- INTELLIGENCE & ROADMAP --- */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          
+
           <div className="bg-glass-dark border border-white/5 rounded-[2.5rem] p-10 space-y-8">
             <h3 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3">
               <FiTarget className="text-emerald-400" /> Learning Path
@@ -208,11 +208,10 @@ const ProHub = () => {
 // --- Sub-Components ---
 
 const PricingCard = ({ name, price, features, btnText, popular, active }) => (
-  <div className={`p-10 rounded-[3rem] border flex flex-col h-full transition-all hover:-translate-y-2 ${
-    popular 
-      ? 'bg-gradient-to-br from-indigo-600/20 to-violet-600/20 border-indigo-500/30 scale-105 shadow-2xl shadow-indigo-600/10' 
+  <div className={`p-10 rounded-[3rem] border flex flex-col h-full transition-all hover:-translate-y-2 ${popular
+      ? 'bg-gradient-to-br from-indigo-600/20 to-violet-600/20 border-indigo-500/30 scale-105 shadow-2xl shadow-indigo-600/10'
       : 'bg-glass-dark border-white/5'
-  }`}>
+    }`}>
     {popular && <span className="mx-auto -mt-14 mb-8 px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full">Most Popular</span>}
     <h3 className="text-xl font-black text-white uppercase tracking-tight">{name}</h3>
     <div className="mt-6 flex items-baseline gap-1">
@@ -226,11 +225,10 @@ const PricingCard = ({ name, price, features, btnText, popular, active }) => (
         </li>
       ))}
     </ul>
-    <button className={`mt-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
-      active 
-        ? 'bg-white text-indigo-900' 
+    <button className={`mt-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${active
+        ? 'bg-white text-indigo-900'
         : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
-    }`}>
+      }`}>
       {btnText}
     </button>
   </div>
@@ -253,11 +251,17 @@ const FeatureCard = ({ icon, title, desc, locked }) => (
   </div>
 );
 
-const CourseCard = ({ title, tag, instructor, rating }) => (
+const CourseCard = ({ title, tag, instructor, rating, image }) => (
   <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl hover:border-violet-500/20 transition-all group cursor-pointer">
     <div className="h-40 bg-black/20 rounded-2xl mb-5 flex items-center justify-center relative overflow-hidden">
-      <FiPlay className="text-4xl text-white/10 group-hover:text-white/40 transition-all group-hover:scale-125" />
-      <span className="absolute top-4 left-4 px-3 py-1 bg-violet-600/10 text-violet-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-violet-500/20">{tag}</span>
+      <img 
+        src={image} 
+        alt={title} 
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40 group-hover:opacity-60"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-60" />
+      <FiPlay className="absolute text-4xl text-white/10 group-hover:text-white/60 transition-all group-hover:scale-125 z-10" />
+      <span className="absolute top-4 left-4 px-3 py-1 bg-violet-600/20 text-violet-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-violet-500/20 z-10">{tag}</span>
     </div>
     <div className="space-y-3">
       <h3 className="font-bold text-white group-hover:text-violet-400 transition-colors">{title}</h3>
@@ -274,11 +278,10 @@ const CourseCard = ({ title, tag, instructor, rating }) => (
 
 const RoadmapStep = ({ title, completed, current, locked }) => (
   <div className="flex items-center gap-4 relative group">
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center z-10 transition-all ${
-      completed ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 
-      current ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 border border-indigo-500/20' : 
-      'bg-slate-800 text-slate-600 border border-white/5'
-    }`}>
+    <div className={`w-10 h-10 rounded-xl flex items-center justify-center z-10 transition-all ${completed ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+        current ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 border border-indigo-500/20' :
+          'bg-slate-800 text-slate-600 border border-white/5'
+      }`}>
       {completed ? <FiCheck /> : locked ? <FiLock /> : <FiZap />}
     </div>
     <div className="flex-1">

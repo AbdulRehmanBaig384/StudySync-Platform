@@ -15,7 +15,7 @@ const StatCard = ({ title, value, icon, trend, trendValue, color }) => {
         <div>
           <p className="text-sm font-medium text-slate-400 mb-1">{title}</p>
           <h3 className="text-2xl font-black text-white">{value}</h3>
-          
+
           {trend && (
             <div className={`flex items-center gap-1 mt-2 text-xs font-bold ${trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}`}>
               <span>{trend === 'up' ? '↑' : '↓'}</span>
@@ -24,7 +24,7 @@ const StatCard = ({ title, value, icon, trend, trendValue, color }) => {
             </div>
           )}
         </div>
-        
+
         <div className={`p-3 rounded-2xl ${colorMap[color] || colorMap.indigo} bg-opacity-10 backdrop-blur-md border border-white/10 group-hover:scale-110 transition-transform`}>
           <span className="text-2xl">{icon}</span>
         </div>
