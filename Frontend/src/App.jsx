@@ -8,6 +8,9 @@ import SignUp from './components/SignUp'
 import StudentProfile from './Pages/StudentProfile'
 import CodingRooms from './Pages/CodingRooms'
 import StudySession from './Pages/StudySession'
+import Resources from './Pages/Resources'
+import AITutor from './Pages/AITutor'
+import ProHub from './Pages/ProHub'
 
 function App() {
   return (
@@ -21,6 +24,9 @@ function App() {
         <Route path="/StudentProfile" element={<StudentProfile/>}/>
         <Route path="/CodingRooms" element={<CodingRooms/>}/>
         <Route path="/StudySession" element={<StudySession/>}/>
+        <Route path="/resources" element={<Resources/>}/>
+        <Route path="/ai-tutor" element={<AITutor/>}/>
+        <Route path="/pro-hub" element={<ProHub/>}/>
       </Routes>
     </Router>
   )
