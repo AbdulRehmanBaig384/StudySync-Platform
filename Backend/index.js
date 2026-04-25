@@ -4,6 +4,7 @@ import express from 'express'
 import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
 import connectionRoutes from './routes/connectionRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import User from './models/UserData.js';
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
 app.use('/api/invite', connectionRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.get("/studysync", (req, res) => {
   res.send("hello from the server");
@@ -38,6 +40,8 @@ const io = new Server(httpServer, {
   },
 });
 
+app.set('io', io);
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -46,6 +50,30 @@ io.on("connection", (socket) => {
     await User.findOneAndUpdate({ email }, { onlineStatus: "online" });
     socket.userEmail = email;
     io.emit("status_change", { email, status: "online" });
+  });
+
+  socket.on("join_chat", (invitationId) => {
+    socket.join(invitationId);
+    console.log(`User joined chat: ${invitationId}`);
+  });
+
+  socket.on("send_message", (message) => {
+    // Message should contain invitationId, senderId, text, etc.
+    io.to(message.invitationId).emit("receive_message", message);
+  });
+
+  socket.on("typing", (data) => {
+    // data should contain invitationId and userId
+    socket.to(data.invitationId).emit("user_typing", data);
+  });
+
+  socket.on("stop_typing", (data) => {
+    socket.to(data.invitationId).emit("user_stop_typing", data);
+  });
+
+  socket.on("message_seen", (data) => {
+    // data contains invitationId and userId
+    socket.to(data.invitationId).emit("messages_marked_seen", data);
   });
 
   socket.on("disconnect", async () => {

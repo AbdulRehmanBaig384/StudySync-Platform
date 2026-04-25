@@ -12,7 +12,8 @@ import {
   FiUser,
   FiSettings,
   FiLogOut,
-  FiStar
+  FiStar,
+  FiMessageSquare
 } from 'react-icons/fi';
 
 const Sidebar = () => {
@@ -32,6 +33,7 @@ const Sidebar = () => {
     { name: 'Coding Room', icon: <FiCode />, path: '/CodingRooms' },
     { name: 'Resources', icon: <FiFolder />, path: '/resources' },
     { name: 'AI Tutor', icon: <FiCpu />, path: '/ai-tutor' },
+    { name: 'Messages', icon: <FiMessageSquare />, path: '/chat' },
     { name: 'Pro Hub', icon: <FiStar className="text-amber-400" />, path: '/pro-hub' },
     // { name: 'Leaderboard', icon: <FiTrendingUp />, path: '/leaderboard' },
   ];

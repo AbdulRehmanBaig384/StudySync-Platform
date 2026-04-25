@@ -86,6 +86,15 @@ export const respondToInvitation = async (req, res) => {
     invitation.status = status;
     await invitation.save();
 
+    // If accepted, notify both users via socket to update their messaging list
+    if (status === 'accepted') {
+      const io = req.app.get('io');
+      const populatedInvitation = await Invitation.findById(invitationId)
+        .populate('sender receiver', 'Firstname lastname email profilePicture onlineStatus department facultyOfStudy');
+      
+      io.emit('invitation_accepted', populatedInvitation);
+    }
+
     res.json({ message: `Invitation ${status}`, invitation });
   } catch (error) {
     console.error(error);

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiMessageSquare, FiUser, FiLoader, FiCircle } from 'react-icons/fi';
 
 const PartnerConnections = ({ onSelectPartner }) => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const userId = sessionStorage.getItem('userId');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -43,7 +45,13 @@ const PartnerConnections = ({ onSelectPartner }) => {
         connections.map((conn) => (
           <div 
             key={conn._id} 
-            onClick={() => onSelectPartner && onSelectPartner(conn)}
+            onClick={() => {
+              if (onSelectPartner) {
+                onSelectPartner(conn);
+              } else {
+                navigate('/chat', { state: { selectedPartner: conn } });
+              }
+            }}
             className="flex items-center justify-between p-3 hover:bg-white/5 rounded-2xl transition-all cursor-pointer group"
           >
             <div className="flex items-center gap-3">

@@ -14,6 +14,7 @@ import ProHub from "./Pages/ProHub";
 import Quizzes from "./Pages/Quizzes";
 import NotFound from "./Pages/NotFound";
 import CompleteProfile from "./Pages/CompleteProfile";
+import Chat from "./Pages/Chat";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { TimerProvider } from "./context/TimerContext";
 
@@ -96,6 +97,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Quizzes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             }
           />
