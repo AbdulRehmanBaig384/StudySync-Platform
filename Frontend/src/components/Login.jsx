@@ -7,6 +7,8 @@ import { MdOutlineBarChart, MdOutlineVideoCall } from 'react-icons/md'
 import { RiUserSmileLine } from 'react-icons/ri'
 import { BiUserCircle } from 'react-icons/bi'
 
+import { GoogleLogin } from '@react-oauth/google';
+
 const Login = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({ email: '', password: '' })
@@ -22,9 +24,45 @@ const Login = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
-  const handleGoogleLogin=()=>{
-    window.location.href='http://localhost:3000/auth/google";'
-  }
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    setApiError('');
+    try {
+      const response = await fetch('http://localhost:3000/api/users/google-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        if (!result.profileCompleted) {
+          // New Google User needs to complete profile
+          sessionStorage.setItem('userEmail', result.email);
+          navigate('/complete-profile');
+        } else {
+          // Returning User
+          sessionStorage.setItem('token', result.token);
+          sessionStorage.setItem('userName', result.name);
+          sessionStorage.setItem('userId', result._id);
+          navigate('/dashboard');
+        }
+      } else {
+        setApiError(result.message || 'Google Login failed');
+      }
+    } catch (error) {
+      console.error(error);
+      setApiError('Network error during Google Login.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setApiError('Google Login Failed');
+  };
+
   const validate = () => {
     const newErrors = {}
     if (!formData.email.trim()) newErrors.email = 'Email is required'
@@ -53,9 +91,16 @@ const Login = () => {
       const result = await response.json()
 
       if (response.ok) {
-        sessionStorage.setItem('token', result.token)
-        sessionStorage.setItem('userName', result.name)
-        navigate('/dashboard')
+        if (result.profileCompleted === false) {
+           sessionStorage.setItem('userEmail', result.email);
+           navigate('/complete-profile');
+        } else {
+           sessionStorage.setItem('token', result.token)
+           sessionStorage.setItem('userName', result.name)
+           sessionStorage.setItem('userEmail', result.email)
+           sessionStorage.setItem('userId', result._id)
+           navigate('/dashboard')
+        }
       } else {
         setApiError(result.message || 'Login failed')
       }
@@ -66,11 +111,6 @@ const Login = () => {
       setIsLoading(false)
     }
   }
-
-  const socialProviders = [
-    { name: 'Google', Icon: FaGoogle, color: 'hover:text-red-400' },
-    { name: 'GitHub', Icon: FaGithub, color: 'hover:text-white' },
-  ]
 
   const activityFeed = [
     { initials: 'AK', name: 'Aisha K.', action: 'joined Coding Room', time: '2m ago', gradient: 'from-indigo-500 to-purple-600' },
@@ -166,16 +206,15 @@ const Login = () => {
           </div>
 
           {/* Social Login */}
-          <div className="flex gap-3 mb-6">
-            {socialProviders.map(({ name, Icon, color }) => (
-              <button
-                key={name}
-                className={`flex-1 flex items-center justify-center gap-2 bg-glass border border-white/10 text-slate-300 ${color} hover:border-white/20 hover:bg-white/10 rounded-xl py-3 text-sm font-medium transition-all duration-200`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{name}</span>
-              </button>
-            ))}
+          <div className="flex justify-center mb-6 w-full">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              theme="filled_black"
+              shape="pill"
+              size="large"
+              text="continue_with"
+            />
           </div>
 
           {/* Divider */}

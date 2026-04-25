@@ -15,27 +15,75 @@ const UserSchema = mongoose.Schema({
         required: true,
     },
     password: {
-        type: String,
-        required: true,
+        type: String, // Optional for Google users
     },
     University_Name: {
         type: String,
-        required: true,
         default: ''
     },
     Year_of_Study: {
         type: Number,
-        required: true,
     },
     Preferred_Subjects: {
         type: [String],
-        required: true,
         default: [],
     },
     Preferred_Study_Time: {
         type: String,
-        required: true,
         default: ''
+    },
+    profileCompleted: {
+        type: Boolean,
+        default: false
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true // Allows multiple null values
+    },
+    profilePicture: {
+        type: String
+    },
+    totalStudyHours: {
+        type: Number,
+        default: 0
+    },
+    todayStudyHours: {
+        type: Number,
+        default: 0
+    },
+    dailyGoal: {
+        type: Number,
+        default: 3 // Default 3 hours
+    },
+    currentStreak: {
+        type: Number,
+        default: 0
+    },
+    longestStreak: {
+        type: Number,
+        default: 0
+    },
+    lastStudyDate: {
+        type: Date
+    },
+    studyHistory: [{
+        date: String,
+        hours: Number,
+        goalMet: Boolean
+    }],
+    department: {
+        type: String,
+        default: ''
+    },
+    facultyOfStudy: {
+        type: String,
+        default: ''
+    },
+    onlineStatus: {
+        type: String,
+        enum: ['online', 'offline'],
+        default: 'offline'
     }
 })
 

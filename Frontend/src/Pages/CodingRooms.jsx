@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FiCode,
   FiPlay,
@@ -19,19 +19,30 @@ import {
   FiX,
   FiArrowLeft,
   FiZap,
-  FiLayout
+  FiLayout,
+  FiRefreshCw
 } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
+import Editor from '@monaco-editor/react';
+
+const languageTemplates = {
+  javascript: `// StudySync IDE v1.0\n\nfunction solve(nums, target) {\n    const map = new Map();\n    for (let i = 0; i < nums.length; i++) {\n        const complement = target - nums[i];\n        if (map.has(complement)) {\n            return [map.get(complement), i];\n        }\n        map.set(nums[i], i);\n    }\n    return [];\n}`,
+  python: `# StudySync IDE v1.0\n\ndef solve(nums, target):\n    numMap = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in numMap:\n            return [numMap[complement], i]\n        numMap[num] = i\n    return []`,
+  cpp: `// StudySync IDE v1.0\n#include <iostream>\n#include <vector>\n#include <unordered_map>\n\nusing namespace std;\n\nvector<int> solve(vector<int>& nums, int target) {\n    unordered_map<int, int> map;\n    for (int i = 0; i < nums.size(); i++) {\n        int complement = target - nums[i];\n        if (map.find(complement) != map.end()) {\n            return {map[complement], i};\n        }\n        map[nums[i]] = i;\n    }\n    return {};\n}`
+};
 
 const CodingRooms = () => {
   const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState('// StudySync IDE v1.0\n\nfunction solve(nums, target) {\n    const map = new Map();\n    for (let i = 0; i < nums.length; i++) {\n        const complement = target - nums[i];\n        if (map.has(complement)) {\n            return [map.get(complement), i];\n        }\n        map.set(nums[i], i);\n    }\n    return [];\n}');
+  const [code, setCode] = useState(languageTemplates.javascript);
   const [output, setOutput] = useState('');
-  const [testCase, setTestCase] = useState('[2, 7, 11, 15]\n9');
+  const [testCase, setTestCase] = useState('[2, 7, 11, 15]\\n9');
   const [activeRightPanel, setActiveRightPanel] = useState(null); // null, 'chat', or 'ai'
   const [activeBottomTab, setActiveBottomTab] = useState('output'); // 'output' or 'input'
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [showAIPopover, setShowAIPopover] = useState(false);
+
+  const editorRef = useRef(null);
 
   const toggleRightPanel = (panel) => {
     if (activeRightPanel === panel) {
@@ -39,6 +50,33 @@ const CodingRooms = () => {
     } else {
       setActiveRightPanel(panel);
     }
+  };
+
+  const handleEditorMount = (editor, monaco) => {
+    editorRef.current = editor;
+  };
+
+  const handleLanguageChange = (e) => {
+    const newLang = e.target.value;
+    setLanguage(newLang);
+    setCode(languageTemplates[newLang]);
+  };
+
+  const handleResetCode = () => {
+    setCode(languageTemplates[language]);
+  };
+
+  const handleAIAction = (actionType) => {
+    setShowAIPopover(false);
+    setActiveRightPanel('ai');
+    
+    let selectedText = "";
+    if (editorRef.current) {
+        const selection = editorRef.current.getSelection();
+        selectedText = editorRef.current.getModel().getValueInRange(selection);
+    }
+    
+    console.log(`Action: ${actionType}, Context: ${selectedText}`);
   };
 
   // Timer logic
@@ -115,7 +153,7 @@ const CodingRooms = () => {
             <div className="flex items-center bg-[#0d1226] border border-white/5 rounded-xl p-1 shadow-2xl">
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={handleLanguageChange}
                 className="bg-transparent text-xs font-black uppercase tracking-widest px-3 py-1.5 text-indigo-400 outline-none cursor-pointer hover:text-indigo-300 transition-colors"
               >
                 <option value="javascript">JavaScript</option>
@@ -123,6 +161,13 @@ const CodingRooms = () => {
                 <option value="cpp">C++ 20</option>
               </select>
             </div>
+
+            <button
+              onClick={handleResetCode}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 text-slate-400 hover:text-rose-400 font-black uppercase tracking-widest text-[10px] rounded-xl transition-all active:scale-95"
+            >
+              <FiRefreshCw className="text-[10px]" /> Reset
+            </button>
 
             <button
               onClick={handleRun}
@@ -212,26 +257,53 @@ const CodingRooms = () => {
         {/* PANEL 2: EDITOR CORE */}
         <section className="flex-1 flex flex-col bg-[#050811] relative border-r border-white/5">
           <div className="flex-1 flex overflow-hidden relative">
-            {/* Line Gutter */}
-            <div className="w-12 bg-black/20 border-r border-white/5 py-6 flex flex-col items-center text-slate-700 font-mono text-[11px] leading-[1.8rem] select-none">
-              {[...Array(30)].map((_, i) => <div key={i}>{i + 1}</div>)}
-            </div>
-
             {/* Professional Editor Sim */}
-            <div className="flex-1 flex flex-col relative custom-scrollbar overflow-auto">
-              {/* Fake Syntax Overlay would go here in real Monaco, using styled textarea for now */}
-              <textarea
+            <div className="flex-1 flex flex-col relative w-full h-full">
+              <Editor
+                height="100%"
+                language={language}
+                theme="vs-dark"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
-                spellCheck="false"
-                className="flex-1 bg-transparent p-6 font-mono text-[14px] leading-[1.8rem] text-indigo-50/90 focus:outline-none resize-none overflow-visible whitespace-pre"
+                onChange={(value) => setCode(value)}
+                onMount={handleEditorMount}
+                loading={<div className="flex items-center justify-center h-full text-slate-500 text-xs font-mono">Loading Monaco Editor...</div>}
+                options={{
+                  wordWrap: "on",
+                  smoothScrolling: true,
+                  automaticLayout: true,
+                  bracketPairColorization: { enabled: true },
+                  folding: true,
+                  formatOnPaste: true,
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                  padding: { top: 24 }
+                }}
               />
 
               {/* Editor Floating Actions */}
-              <div className="absolute top-4 right-6 flex items-center gap-2">
-                <button className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">
+              <div className="absolute top-4 right-6 flex items-center gap-2 z-10">
+                <button className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md">
                   <FiZap /> Optimized
                 </button>
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowAIPopover(!showAIPopover)}
+                    className="flex items-center justify-center w-7 h-7 bg-violet-600/20 hover:bg-violet-600/40 border border-violet-500/40 text-violet-300 rounded-lg transition-all shadow-lg backdrop-blur-md shadow-violet-600/20"
+                  >
+                    <FiCpu />
+                  </button>
+                  {showAIPopover && (
+                    <div className="absolute right-0 mt-2 w-48 bg-[#0d1226] border border-white/10 rounded-xl shadow-2xl py-2 z-50 animate-fade-in flex flex-col">
+                      <h5 className="px-4 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500 border-b border-white/5 mb-1">AI Assistant</h5>
+                      <button onClick={() => handleAIAction('Explain Code')} className="px-4 py-2 text-left text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"><FiInfo className="text-violet-400" /> Explain selected code</button>
+                      <button onClick={() => handleAIAction('Find Bugs')} className="px-4 py-2 text-left text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"><FiCode className="text-rose-400" /> Find bugs in code</button>
+                      <button onClick={() => handleAIAction('Suggest Improvements')} className="px-4 py-2 text-left text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"><FiCheckCircle className="text-emerald-400" /> Suggest improvements</button>
+                      <button onClick={() => handleAIAction('Optimize')} className="px-4 py-2 text-left text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"><FiZap className="text-amber-400" /> Optimize code</button>
+                      <button onClick={() => handleAIAction('Hints')} className="px-4 py-2 text-left text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"><FiCpu className="text-indigo-400" /> Generate hints</button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

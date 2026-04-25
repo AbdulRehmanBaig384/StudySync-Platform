@@ -26,6 +26,29 @@ const universities = [
   'Bahria University', 'Punjab University', 'University of Karachi', 'Other',
 ];
 
+const departmentsList = [
+  'Computer Science (CS)',
+  'Software Engineering (SE)',
+  'Information Technology (IT)',
+  'Data Science',
+  'Artificial Intelligence (AI)',
+  'Cyber Security',
+  'Electrical Engineering (EE)',
+  'Electronics Engineering (ECE)',
+  'Mechanical Engineering (ME)',
+  'Civil Engineering (CE)',
+  'Business Administration (BBA)',
+  'Accounting & Finance',
+  'Economics',
+  'Mathematics',
+  'Physics',
+  'Mass Communication',
+  'Pharmacy',
+  'Biochemistry',
+  'Sociology',
+  'Psychology'
+];
+
 const subjectsList = [
   'Computer Science', 'Software Engineering', 'Electrical Engineering',
   'Mechanical Engineering', 'Business Administration', 'Mathematics',
@@ -34,6 +57,8 @@ const subjectsList = [
 
 const studyTimes = ['Morning', 'Afternoon', 'Evening', 'Night'];
 const yearsOfStudy = ['1', '2', '3', '4', '5']; // Using numerical strings
+
+import { GoogleLogin } from '@react-oauth/google';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -56,6 +81,8 @@ const SignUp = () => {
       lastName: '',
       email: '',
       university: '',
+      department: '',
+      facultyOfStudy: '',
       subject: [],
       yearOfStudy: '',
       studyTime: '',
@@ -101,6 +128,43 @@ const SignUp = () => {
     setStep((s) => s - 1);
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    setApiError('');
+    try {
+      const response = await fetch('http://localhost:3000/api/users/google-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        if (!result.profileCompleted) {
+          sessionStorage.setItem('userEmail', result.email);
+          navigate('/complete-profile');
+        } else {
+          sessionStorage.setItem('token', result.token);
+          sessionStorage.setItem('userName', result.name);
+          sessionStorage.setItem('userId', result._id);
+          navigate('/dashboard');
+        }
+      } else {
+        setApiError(result.message || 'Google Signup failed');
+      }
+    } catch (error) {
+      console.error(error);
+      setApiError('Network error during Google Signup.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setApiError('Google Signup Failed');
+  };
+
   const onSubmit = async (data) => {
     setIsLoading(true);
     setApiError('');
@@ -119,6 +183,8 @@ const SignUp = () => {
         // Store JWT token
         sessionStorage.setItem('token', result.token);
         sessionStorage.setItem('userName', result.name);
+        sessionStorage.setItem('userEmail', result.email);
+        sessionStorage.setItem('userId', result._id);
         
         // Redirect to Dashboard
         navigate('/dashboard');
@@ -308,17 +374,20 @@ const SignUp = () => {
             {/* STEP 1: Personal Info */}
             {step === 1 && (
               <div className="flex flex-col gap-5 animate-slide-up">
-                <div className="flex gap-3">
-                  {socialProviders.map(({ name, Icon }) => (
-                    <button
-                      key={name}
-                      type="button"
-                      className="flex-1 flex items-center justify-center gap-2 bg-glass border border-white/10 text-slate-300 hover:text-white hover:border-white/20 hover:bg-white/10 rounded-xl py-3 text-sm font-medium transition-all duration-200"
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span>{name}</span>
-                    </button>
-                  ))}
+                {apiError && (
+                  <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+                    <p className="text-red-400 text-sm text-center">{apiError}</p>
+                  </div>
+                )}
+                <div className="flex justify-center w-full">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    theme="filled_black"
+                    shape="pill"
+                    size="large"
+                    text="signup_with"
+                  />
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex-1 h-px bg-white/10" />
@@ -405,6 +474,40 @@ const SignUp = () => {
                     <FiChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                   </div>
                   {errors.university && <p className="text-red-400 text-xs">{errors.university.message}</p>}
+                </div>
+
+                {/* Department */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-slate-300 text-sm font-medium">Department</label>
+                  <div className="relative">
+                    <select
+                      className={selectClass(errors.department)}
+                      {...register('department', { required: 'Please select your department' })}
+                    >
+                      <option value="" disabled style={{ background: '#0a0f1e' }}>
+                        Select your department
+                      </option>
+                      {departmentsList.map((d) => (
+                        <option key={d} value={d} style={{ background: '#0a0f1e', color: 'white' }}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                    <FiChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  </div>
+                  {errors.department && <p className="text-red-400 text-xs">{errors.department.message}</p>}
+                </div>
+
+                {/* Faculty of Study */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-slate-300 text-sm font-medium">Faculty of Study</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Science & IT"
+                    className={inputClass(errors.facultyOfStudy)}
+                    {...register('facultyOfStudy', { required: 'Faculty is required' })}
+                  />
+                  {errors.facultyOfStudy && <p className="text-red-400 text-xs">{errors.facultyOfStudy.message}</p>}
                 </div>
 
                 {/* Year of Study */}

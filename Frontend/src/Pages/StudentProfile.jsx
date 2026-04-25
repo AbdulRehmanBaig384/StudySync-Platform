@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { 
   FiUser, 
@@ -14,34 +14,84 @@ import {
   FiEyeOff,
   FiClock,
   FiZap,
-  FiSettings
+  FiSettings,
+  FiLoader
 } from 'react-icons/fi';
 
 const StudentProfile = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Mock User Data
-  const [userData, setUserData] = useState({
-    name: 'Alex Johnson',
-    email: 'alex.johnson@university.edu',
-    university: 'Stanford University',
-    department: 'Computer Science',
-    semester: '6th Semester',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
-    dailyGoal: 4,
-    streak: 14,
-    timerSettings: { focus: 25, shortBreak: 5, longBreak: 15 },
-    notifications: { reminders: true, messages: true, requests: false },
-    privacy: { visibility: 'public', status: 'online' },
-    aiTutor: { style: 'detailed', focus: 'Programming & Logic' },
-    partnerPrefs: { 
-      subjects: ['React', 'Data Structures', 'AI'],
-      time: 'Evening',
-      style: 'Collaborative',
-      semester: 'Any'
-    }
-  });
+  // Real User Data state
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const email = sessionStorage.getItem('userEmail');
+      if (!email) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch(`http://localhost:3000/api/users/profile?email=${email}`);
+        const data = await response.json();
+        if (response.ok) {
+          setUserData({
+            name: `${data.Firstname} ${data.lastname}`,
+            firstName: data.Firstname,
+            lastName: data.lastname,
+            email: data.email,
+            university: data.University_Name,
+            department: data.department,
+            facultyOfStudy: data.facultyOfStudy,
+            semester: `${data.Year_of_Study}${data.Year_of_Study > 3 ? 'th' : data.Year_of_Study === 1 ? 'st' : data.Year_of_Study === 2 ? 'nd' : 'rd'} Semester`,
+            yearOfStudy: data.Year_of_Study,
+            avatar: data.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.Firstname}`,
+            dailyGoal: data.dailyGoal || 3,
+            streak: data.currentStreak || 0,
+            timerSettings: { focus: 25, shortBreak: 5, longBreak: 15 },
+            notifications: { reminders: true, messages: true, requests: false },
+            privacy: { visibility: 'public', status: data.onlineStatus || 'offline' },
+            aiTutor: { style: 'detailed', focus: data.Preferred_Subjects?.[0] || 'General' },
+            partnerPrefs: { 
+              subjects: data.Preferred_Subjects || [],
+              time: data.Preferred_Study_Time || 'Evening',
+              style: 'Collaborative',
+              semester: 'Any'
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
+          <FiLoader className="text-5xl text-indigo-500 animate-spin" />
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Loading Profile...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">User session not found. Please log in.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const tabs = [
     { id: 'general', label: 'General', icon: <FiUser /> },
@@ -175,11 +225,12 @@ const GeneralTab = ({ userData, isEditing }) => (
       <InputGroup label="Email Address" value={userData.email} disabled={true} />
       <InputGroup label="University Name" value={userData.university} disabled={!isEditing} />
       <InputGroup label="Primary Department" value={userData.department} disabled={!isEditing} />
+      <InputGroup label="Faculty of Study" value={userData.facultyOfStudy} disabled={!isEditing} />
       <SelectGroup 
         label="Current Semester" 
         value={userData.semester} 
         disabled={!isEditing} 
-        options={['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th']} 
+        options={['1st Semester', '2nd Semester', '3rd Semester', '4th Semester', '5th Semester', '6th Semester', '7th Semester', '8th Semester']} 
       />
     </div>
   </div>

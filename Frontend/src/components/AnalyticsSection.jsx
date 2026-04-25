@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { 
   BarChart, 
   Bar, 
@@ -10,17 +10,36 @@ import {
   AreaChart, 
   Area 
 } from 'recharts';
+import { useTimer } from '../context/TimerContext';
 
 const AnalyticsSection = () => {
-  const studyHoursData = [
-    { day: 'Mon', hours: 4.5 },
-    { day: 'Tue', hours: 3.2 },
-    { day: 'Wed', hours: 5.8 },
-    { day: 'Thu', hours: 4.0 },
-    { day: 'Fri', hours: 6.5 },
-    { day: 'Sat', hours: 2.5 },
-    { day: 'Sun', hours: 1.5 },
-  ];
+  const { studyStats } = useTimer();
+  const studyHistory = studyStats?.studyHistory || [];
+
+  const studyHoursData = useMemo(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+    
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - dayOfWeek);
+    
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const data = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startOfWeek);
+      d.setDate(startOfWeek.getDate() + i);
+      const dateString = d.toISOString().split('T')[0];
+      
+      const historyItem = studyHistory.find(h => h.date === dateString);
+      data.push({
+        day: days[i],
+        hours: historyItem ? Number(historyItem.hours.toFixed(1)) : 0
+      });
+    }
+
+    return data;
+  }, [studyHistory]);
 
   const progressData = [
     { week: 'W1', score: 65 },

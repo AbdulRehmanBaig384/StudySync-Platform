@@ -9,17 +9,23 @@ import StudySessionList from '../components/StudySessionList';
 import CodingChallengeCard from '../components/CodingChallengeCard';
 import ResourceList from '../components/ResourceList';
 import Leaderboard from '../components/Leaderboard';
-import { FiBookOpen, FiClock, FiTarget, FiZap, FiPlus, FiBell } from 'react-icons/fi';
+import { FiBookOpen, FiClock, FiTarget, FiZap, FiPlus, FiBell, FiPause } from 'react-icons/fi';
+import { useTimer } from '../context/TimerContext';
 
 const Dashboard = () => {
   const [userName, setUserName] = useState('Alex');
+  const { studyStats, startSession, isActive, isPaused, togglePause } = useTimer();
 
   useEffect(() => {
     const storedName = sessionStorage.getItem('userName');
     if (storedName) {
-      setUserName(storedName.split(' ')[0]); // Get first name
+      setUserName(storedName.split(' ')[0]);
     }
   }, []);
+
+  const goalPercentage = studyStats.dailyGoal > 0 
+    ? Math.min(Math.round((studyStats.todayStudyHours / studyStats.dailyGoal) * 100), 100) 
+    : 0;
 
   return (
     <DashboardLayout>
@@ -31,7 +37,7 @@ const Dashboard = () => {
           </h2>
           <p className="text-slate-500 font-bold uppercase tracking-widest text-xs flex items-center gap-2">
             <span className="w-8 h-px bg-indigo-500/30"></span>
-            You've completed 85% of your weekly goal
+            You've completed {goalPercentage}% of your daily goal
           </p>
         </div>
         <div className="flex items-center gap-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
@@ -39,12 +45,21 @@ const Dashboard = () => {
             <FiBell className="text-xl" />
             <span className="absolute top-4 right-4 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#0a0f1e] animate-pulse"></span>
           </button>
-          <button className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-7 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-indigo-600/20 group">
-            <div className="bg-white/20 p-1 rounded-lg group-hover:rotate-90 transition-transform">
-              <FiPlus className="text-lg" />
-            </div>
-            Start Session
-          </button>
+          
+          {!isActive ? (
+            <button onClick={startSession} className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-7 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-indigo-600/20 group">
+              <div className="bg-white/20 p-1 rounded-lg group-hover:rotate-90 transition-transform">
+                <FiPlus className="text-lg" />
+              </div>
+              Start Session
+            </button>
+          ) : (
+            <button onClick={togglePause} className="flex items-center gap-3 bg-amber-500/20 text-amber-400 border border-amber-500/30 px-7 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-amber-500/30 active:scale-95 transition-all shadow-lg shadow-amber-500/10">
+              <FiPause className="text-lg" />
+              {isPaused ? "Resume Session" : "Pause Session"}
+            </button>
+          )}
+
         </div>
       </div>
 
@@ -52,10 +67,10 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-slide-up" style={{ animationDelay: '0.2s' }}>
         <StatCard
           title="Study Hours"
-          value="42.5h"
+          value={`${studyStats.totalStudyHours.toFixed(1)}h`}
           icon={<FiClock />}
           trend="up"
-          trendValue="12%"
+          trendValue="Daily updated"
           color="indigo"
         />
         <StatCard
@@ -74,10 +89,10 @@ const Dashboard = () => {
         />
         <StatCard
           title="Current Streak"
-          value="14 Days"
+          value={`${studyStats.currentStreak} Days`}
           icon={<FiZap />}
           trend="up"
-          trendValue="2 days"
+          trendValue={`Peak: ${studyStats.longestStreak}`}
           color="amber"
         />
       </div>
@@ -122,7 +137,7 @@ const Dashboard = () => {
 
         {/* Right Sidebar Column */}
         <div className="space-y-8">
-          <StreakTracker currentStreak={14} goal={20} />
+          <StreakTracker currentStreak={studyStats.currentStreak} goal={studyStats.longestStreak > 20 ? studyStats.longestStreak + 5 : 20} studyHistory={studyStats.studyHistory} />
           <StudySessionList />
           <Leaderboard />
           <CodingChallengeCard />

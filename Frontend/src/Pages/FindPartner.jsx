@@ -1,80 +1,167 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import PartnerFilters from '../components/PartnerFilters';
 import PartnerCard from '../components/PartnerCard';
 import PartnerRequestList from '../components/PartnerRequestList';
-import { FiUsers, FiFilter, FiExternalLink } from 'react-icons/fi';
+import { FiUsers, FiLoader } from 'react-icons/fi';
 import { NavLink } from 'react-router';
+import { io } from 'socket.io-client';
 
 const FindPartner = () => {
-  const partners = [
-    {
-      id: 1,
-      name: 'Sarah Chen',
-      department: 'Computer Science',
-      semester: 6,
-      subjects: ['React', 'Node.js', 'System Design'],
-      style: 'Silent Study',
-      availability: 'Evenings (6 PM - 9 PM)',
-      compatibility: 95,
-      avatar: 'SC'
-    },
-    {
-      id: 2,
-      name: 'Jordan Smith',
-      department: 'Engineering',
-      semester: 4,
-      subjects: ['Calculus III', 'Physics II'],
-      style: 'Discussion',
-      availability: 'Afternoons (2 PM - 5 PM)',
-      compatibility: 82,
-      avatar: 'JS'
-    },
-    {
-      id: 3,
-      name: 'Emily Davis',
-      department: 'Business',
-      semester: 2,
-      subjects: ['Economics', 'Business Ethics'],
-      style: 'Project-based',
-      availability: 'Weekends',
-      compatibility: 78,
-      avatar: 'ED'
-    },
-    {
-      id: 4,
-      name: 'Alex Rivera',
-      department: 'Computer Science',
-      semester: 6,
-      subjects: ['Databases', 'Java Mastery'],
-      style: 'Silent Study',
-      availability: 'Mornings',
-      compatibility: 88,
-      avatar: 'AR'
-    },
-    {
-      id: 5,
-      name: 'Maya Patel',
-      department: 'Design',
-      semester: 5,
-      subjects: ['UI Design', 'Typography'],
-      style: 'Discussion',
-      availability: 'Flexible',
-      compatibility: 91,
-      avatar: 'MP'
-    },
-    {
-      id: 6,
-      name: 'Leo King',
-      department: 'Mathematics',
-      semester: 3,
-      subjects: ['Linear Algebra', 'Discrete Math'],
-      style: 'Silent Study',
-      availability: 'Late Nights',
-      compatibility: 85,
-      avatar: 'LK'
+  const [partners, setPartners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState(null);
+  const [filters, setFilters] = useState({
+    subject: '',
+    department: '',
+    semester: '',
+    style: '',
+    skill: '',
+    time: ''
+  });
+
+  // useEffect(() => {
+  //   const email = sessionStorage.getItem('userEmail');
+  //   if (!email) return;
+
+  //   // Initialize socket
+  //   const socket = io('http://localhost:3000');
+  //   socket.emit('user_online', email);
+
+  //   socket.on('status_change', ({ email: changedEmail, status }) => {
+  //     setPartners(prev => prev.map(p => 
+  //       p.email === changedEmail ? { ...p, onlineStatus: status } : p
+  //     ));
+  //   });
+
+  //   const fetchData = async () => {
+  //     try {
+  //       // Get user profile first to get their department/subjects
+  //       const profileRes = await fetch(`http://localhost:3000/api/users/profile?email=${email}`);
+  //       const profileData = await profileRes.json();
+
+  //       if (profileRes.ok) {
+  //         setUserProfile(profileData);
+  //         setFilters(prev => ({ ...prev, department: profileData.department }));
+
+  //         // Fetch partners based on user profile
+  //         const partnersRes = await fetch(`http://localhost:3000/api/users/partners?email=${email}&department=${profileData.department}&facultyOfStudy=${profileData.facultyOfStudy}&preferredSubjects=${profileData.Preferred_Subjects.join(',')}`);
+  //         const partnersData = await partnersRes.json();
+
+  //         if (partnersRes.ok) {
+  //           setPartners(partnersData);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const email = sessionStorage.getItem('userEmail');
+    if (!email) return;
+
+    const socket = io('http://localhost:3000');
+    socket.emit('user_online', email);
+
+    socket.on('status_change', ({ email: changedEmail, status }) => {
+      setPartners(prev => prev.map(p =>
+        p.email === changedEmail ? { ...p, onlineStatus: status } : p
+      ));
+    });
+
+    const fetchData = async () => {
+      try {
+        const userId = sessionStorage.getItem('userId');
+        const profileRes = await fetch(`http://localhost:3000/api/users/profile?email=${email}`);
+        const profileData = await profileRes.json();
+
+        if (profileRes.ok) {
+          setUserProfile(profileData);
+          setFilters(prev => ({ ...prev, department: profileData.department }));
+
+          // ✅ Subjects alag alag params mein
+          const subjectsParam = (profileData.Preferred_Subjects || [])
+            .map(s => `preferredSubjects=${encodeURIComponent(s)}`)
+            .join('&');
+
+          const partnersRes = await fetch(
+            `http://localhost:3000/api/users/partners?userId=${userId || profileData._id}&department=${encodeURIComponent(profileData.department)}&facultyOfStudy=${encodeURIComponent(profileData.facultyOfStudy)}&${subjectsParam}`
+          );
+          const partnersData = await partnersRes.json();
+
+          if (partnersRes.ok) {
+            setPartners(partnersData);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => socket.disconnect();
+  }, []);
+
+  // const handleFilterChange = async (newFilters) => {
+  //   setFilters(newFilters);
+  //   setLoading(true);
+  //   try {
+  //     const email = sessionStorage.getItem('userEmail');
+  //     const subjectsParam = (newFilters.subject
+  //       ? [newFilters.subject]
+  //       : userProfile?.Preferred_Subjects || []
+  //     ).map(s => `preferredSubjects=${encodeURIComponent(s)}`).join('&');
+
+  //     const partnersRes = await fetch(`http://localhost:3000/api/users/partners?email=${email}&department=${newFilters.department || userProfile?.department}&facultyOfStudy=${newFilters.facultyOfStudy || userProfile?.facultyOfStudy}&preferredSubjects=${newFilters.subject || userProfile?.Preferred_Subjects.join(',')}&semester=${newFilters.semester}`);
+  //     const partnersData = await partnersRes.json();
+  //     if (partnersRes.ok) {
+  //       setPartners(partnersData);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error filtering partners:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const handleFilterChange = async (newFilters) => {
+    setFilters(newFilters);
+    setLoading(true);
+    try {
+      const userId = sessionStorage.getItem('userId');
+
+      const subjectsParam = (newFilters.subject
+        ? [newFilters.subject]
+        : userProfile?.Preferred_Subjects || []
+      ).map(s => `preferredSubjects=${encodeURIComponent(s)}`).join('&');
+
+      const partnersRes = await fetch(
+        `http://localhost:3000/api/users/partners?userId=${userId || userProfile?._id}&department=${encodeURIComponent(newFilters.department || userProfile?.department || '')}&facultyOfStudy=${encodeURIComponent(newFilters.facultyOfStudy || userProfile?.facultyOfStudy || '')}&${subjectsParam}&semester=${newFilters.semester || ''}`
+      );
+
+      const partnersData = await partnersRes.json();
+      if (partnersRes.ok) {
+        setPartners(partnersData);
+      }
+    } catch (error) {
+      console.error("Error filtering partners:", error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   return (
     <DashboardLayout>
@@ -101,20 +188,56 @@ const FindPartner = () => {
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
         {/* Main Feed */}
         <div className="xl:col-span-3 space-y-8">
-          <PartnerFilters />
+          <PartnerFilters onFilterChange={handleFilterChange} initialFilters={filters} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {partners.map((partner) => (
-              <PartnerCard key={partner.id} {...partner} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <FiLoader className="text-4xl text-indigo-500 animate-spin" />
+              <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Finding matches...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {partners.length > 0 ? (
+                partners.map((partner) => (
+                  <PartnerCard
+                    key={partner._id}
+                    name={`${partner.Firstname} ${partner.lastname}`}
+                    department={partner.department}
+                    facultyOfStudy={partner.facultyOfStudy}
+                    semester={partner.Year_of_Study}
+                    subjects={partner.Preferred_Subjects}
+                    style={partner.Preferred_Study_Time}
+                    availability={partner.Preferred_Study_Time}
+                    compatibility={partner.matchScore * 30 + 10} // Simple visualization
+                    matchLevel={partner.matchLevel}
+                    onlineStatus={partner.onlineStatus}
+                    avatar={partner.Firstname.charAt(0) + partner.lastname.charAt(0)}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full bg-white/5 border border-white/5 rounded-[2rem] p-12 text-center animate-slide-up">
+                  <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
+                    <FiUsers className="text-slate-500 text-2xl" />
+                  </div>
+                  <p className="text-slate-400 font-bold mb-2">No partners found matching your criteria.</p>
+                  <p className="text-slate-500 text-xs uppercase tracking-widest font-medium">
+                    {!userProfile?.department
+                      ? "Make sure you have set your department in your profile!"
+                      : `Only users in the "${userProfile.department}" department with completed profiles will appear here.`}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Load More/Status */}
-          <div className="pt-12 pb-20 flex justify-center">
-            <button className="bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 active:scale-95 shadow-xl">
-              Show more potential matches
-            </button>
-          </div>
+          {!loading && partners.length > 0 && (
+            <div className="pt-12 pb-20 flex justify-center">
+              <button className="bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 active:scale-95 shadow-xl">
+                Show more potential matches
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Sidebar Interactions */}
