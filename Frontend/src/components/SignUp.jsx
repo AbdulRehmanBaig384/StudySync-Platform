@@ -16,9 +16,10 @@ import {
   HiOutlineUsers,
   HiOutlineClock
 } from 'react-icons/hi';
-import { FaGoogle, FaGithub } from 'react-icons/fa';
 import { FiArrowRight, FiLoader, FiChevronDown, FiCheck } from 'react-icons/fi';
 import { MdOutlineSchool, MdOutlineVideoCall } from 'react-icons/md';
+import { GoogleLogin } from '@react-oauth/google';
+import { getBackendBaseUrl, postUserSignup } from '../Services/apiClient';
 
 const universities = [
   'NUST', 'FAST-NUCES', 'LUMS', 'COMSATS', 'UET Lahore', 'UET Taxila',
@@ -57,8 +58,6 @@ const subjectsList = [
 
 const studyTimes = ['Morning', 'Afternoon', 'Evening', 'Night'];
 const yearsOfStudy = ['1', '2', '3', '4', '5']; // Using numerical strings
-
-import { GoogleLogin } from '@react-oauth/google';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -132,7 +131,7 @@ const SignUp = () => {
     setIsLoading(true);
     setApiError('');
     try {
-      const response = await fetch('http://localhost:3000/api/users/google-login', {
+      const response = await fetch(`${getBackendBaseUrl()}/api/users/google-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: credentialResponse.credential }),
@@ -141,13 +140,13 @@ const SignUp = () => {
       const result = await response.json();
 
       if (response.ok) {
+        sessionStorage.setItem('token', result.token);
+        sessionStorage.setItem('userName', result.name);
+        sessionStorage.setItem('userId', result._id);
+        sessionStorage.setItem('userEmail', result.email);
         if (!result.profileCompleted) {
-          sessionStorage.setItem('userEmail', result.email);
           navigate('/complete-profile');
         } else {
-          sessionStorage.setItem('token', result.token);
-          sessionStorage.setItem('userName', result.name);
-          sessionStorage.setItem('userId', result._id);
           navigate('/dashboard');
         }
       } else {
@@ -169,31 +168,15 @@ const SignUp = () => {
     setIsLoading(true);
     setApiError('');
     try {
-      const response = await fetch('http://localhost:3000/api/users/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Store JWT token
-        sessionStorage.setItem('token', result.token);
-        sessionStorage.setItem('userName', result.name);
-        sessionStorage.setItem('userEmail', result.email);
-        sessionStorage.setItem('userId', result._id);
-        
-        // Redirect to Dashboard
-        navigate('/dashboard');
-      } else {
-        setApiError(result.message || 'Signup failed');
-      }
+      const result = await postUserSignup(data);
+      sessionStorage.setItem('token', result.token);
+      sessionStorage.setItem('userName', result.name);
+      sessionStorage.setItem('userEmail', result.email);
+      sessionStorage.setItem('userId', result._id);
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
-      setApiError('Network error. Please try again.');
+      setApiError(error.message || 'Network error. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -210,22 +193,17 @@ const SignUp = () => {
     } rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-500 transition-all duration-200 appearance-none cursor-pointer bg-white/5 text-white`;
 
   const steps = [
-    { label: 'Personal Info', Icon: HiOutlineUsers },
-    { label: 'Academic Info', Icon: HiOutlineAcademicCap },
-    { label: 'Secure Account', Icon: HiOutlineShieldCheck },
+    { label: 'Personal Info', icon: <HiOutlineUsers className="w-4 h-4" /> },
+    { label: 'Academic Info', icon: <HiOutlineAcademicCap className="w-4 h-4" /> },
+    { label: 'Secure Account', icon: <HiOutlineShieldCheck className="w-4 h-4" /> },
   ];
 
   const leftBenefits = [
-    { Icon: HiOutlineLightBulb, text: 'AI-matched study partners in your field' },
-    { Icon: MdOutlineVideoCall, text: 'Collaborative coding & quiz rooms' },
-    { Icon: HiOutlineTrendingUp, text: 'Track your progress & productivity' },
-    { Icon: HiOutlineBookmark, text: 'Access a curated resource library' },
-    { Icon: MdOutlineSchool, text: 'Connect with teachers & mentors' },
-  ];
-
-  const socialProviders = [
-    { name: 'Google', Icon: FaGoogle },
-    { name: 'GitHub', Icon: FaGithub },
+    { icon: <HiOutlineLightBulb className="w-5 h-5 text-indigo-400" />, text: 'AI-matched study partners in your field' },
+    { icon: <MdOutlineVideoCall className="w-5 h-5 text-indigo-400" />, text: 'Collaborative coding & quiz rooms' },
+    { icon: <HiOutlineTrendingUp className="w-5 h-5 text-indigo-400" />, text: 'Track your progress & productivity' },
+    { icon: <HiOutlineBookmark className="w-5 h-5 text-indigo-400" />, text: 'Access a curated resource library' },
+    { icon: <MdOutlineSchool className="w-5 h-5 text-indigo-400" />, text: 'Connect with teachers & mentors' },
   ];
 
   return (
@@ -266,10 +244,10 @@ const SignUp = () => {
           </div>
 
           <div className="flex flex-col gap-4">
-            {leftBenefits.map(({ Icon, text }) => (
+            {leftBenefits.map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-glass rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-5 h-5 text-indigo-400" />
+                  {icon}
                 </div>
                 <p className="text-slate-300 text-sm">{text}</p>
               </div>
@@ -328,7 +306,7 @@ const SignUp = () => {
 
           {/* Step Indicator */}
           <div className="flex items-center gap-2 mb-8">
-            {steps.map(({ label, Icon: StepIcon }, i) => {
+            {steps.map(({ label, icon }, i) => {
               const num = i + 1;
               const isActive = num === step;
               const isDone = num < step;
@@ -347,7 +325,7 @@ const SignUp = () => {
                       {isDone ? (
                         <HiOutlineCheckCircle className="w-5 h-5 text-white" />
                       ) : (
-                        <StepIcon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                        <span className={isActive ? 'text-white' : 'text-slate-500'}>{icon}</span>
                       )}
                     </div>
                     <span

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useRef, useContext } from 'react';
 
 const TimerContext = createContext();
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 export const useTimer = () => useContext(TimerContext);
 
@@ -28,7 +29,7 @@ export const TimerProvider = ({ children }) => {
   const intervalRef = useRef(null);
 
   const getEmail = () => {
-    return sessionStorage.getItem('userEmail') || sessionStorage.getItem('userName');
+    return sessionStorage.getItem('userEmail');
   };
 
   // Fetch initial stats once user is logged in
@@ -37,7 +38,7 @@ export const TimerProvider = ({ children }) => {
       const email = getEmail();
       if (!email) return;
       try {
-        const res = await fetch(`http://localhost:3000/api/users/study-stats?email=${email}`);
+        const res = await fetch(`${API_BASE_URL}/api/users/study-stats?email=${email}`);
         if (res.ok) {
           const data = await res.json();
           setStudyStats(data);
@@ -122,7 +123,7 @@ export const TimerProvider = ({ children }) => {
     if (!email) return;
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/update-study-time', {
+      const response = await fetch(`${API_BASE_URL}/api/users/update-study-time`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, sessionSeconds: secondsToSync })

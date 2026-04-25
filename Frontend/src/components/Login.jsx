@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { HiOutlineBookOpen, HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi'
-import { FaGoogle, FaGithub } from 'react-icons/fa'
 import { FiArrowRight, FiLoader } from 'react-icons/fi'
 import { MdOutlineBarChart, MdOutlineVideoCall } from 'react-icons/md'
-import { RiUserSmileLine } from 'react-icons/ri'
 import { BiUserCircle } from 'react-icons/bi'
-
-import { GoogleLogin } from '@react-oauth/google';
+import { getBackendBaseUrl, postUserLogin } from '../Services/apiClient'
+import { GoogleLogin } from '@react-oauth/google'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -28,7 +26,7 @@ const Login = () => {
     setIsLoading(true);
     setApiError('');
     try {
-      const response = await fetch('http://localhost:3000/api/users/google-login', {
+      const response = await fetch(`${getBackendBaseUrl()}/api/users/google-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: credentialResponse.credential }),
@@ -37,15 +35,13 @@ const Login = () => {
       const result = await response.json();
 
       if (response.ok) {
+        sessionStorage.setItem('token', result.token);
+        sessionStorage.setItem('userName', result.name);
+        sessionStorage.setItem('userId', result._id);
+        sessionStorage.setItem('userEmail', result.email);
         if (!result.profileCompleted) {
-          // New Google User needs to complete profile
-          sessionStorage.setItem('userEmail', result.email);
           navigate('/complete-profile');
         } else {
-          // Returning User
-          sessionStorage.setItem('token', result.token);
-          sessionStorage.setItem('userName', result.name);
-          sessionStorage.setItem('userId', result._id);
           navigate('/dashboard');
         }
       } else {
@@ -80,33 +76,19 @@ const Login = () => {
     
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:3000/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      const result = await response.json()
-
-      if (response.ok) {
-        if (result.profileCompleted === false) {
-           sessionStorage.setItem('userEmail', result.email);
-           navigate('/complete-profile');
-        } else {
-           sessionStorage.setItem('token', result.token)
-           sessionStorage.setItem('userName', result.name)
-           sessionStorage.setItem('userEmail', result.email)
-           sessionStorage.setItem('userId', result._id)
-           navigate('/dashboard')
-        }
+      const result = await postUserLogin(formData)
+      sessionStorage.setItem('token', result.token)
+      sessionStorage.setItem('userName', result.name)
+      sessionStorage.setItem('userEmail', result.email)
+      sessionStorage.setItem('userId', result._id)
+      if (result.profileCompleted === false) {
+        navigate('/complete-profile')
       } else {
-        setApiError(result.message || 'Login failed')
+        navigate('/dashboard')
       }
     } catch (error) {
       console.error(error)
-      setApiError('Network error. Please try again.')
+      setApiError(error.message || 'Network error. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -161,12 +143,12 @@ const Login = () => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 w-full max-w-sm">
             {[
-              { value: '50K+', label: 'Students', Icon: BiUserCircle },
-              { value: '2K+', label: 'Sessions', Icon: MdOutlineVideoCall },
-              { value: '98%', label: 'Satisfied', Icon: MdOutlineBarChart },
-            ].map(({ value, label, Icon }) => (
+              { value: '50K+', label: 'Students', icon: <BiUserCircle className="w-6 h-6 text-indigo-400 mx-auto mb-1" /> },
+              { value: '2K+', label: 'Sessions', icon: <MdOutlineVideoCall className="w-6 h-6 text-indigo-400 mx-auto mb-1" /> },
+              { value: '98%', label: 'Satisfied', icon: <MdOutlineBarChart className="w-6 h-6 text-indigo-400 mx-auto mb-1" /> },
+            ].map(({ value, label, icon }) => (
               <div key={label} className="bg-glass rounded-2xl p-4 text-center">
-                <Icon className="w-6 h-6 text-indigo-400 mx-auto mb-1" />
+                {icon}
                 <p className="text-white font-bold font-jakarta text-lg">{value}</p>
                 <p className="text-slate-400 text-xs">{label}</p>
               </div>

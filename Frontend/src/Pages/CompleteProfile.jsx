@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { FiArrowRight, FiLoader, FiChevronDown, FiCheck } from 'react-icons/fi';
 import { HiOutlineAcademicCap, HiOutlineClock } from 'react-icons/hi';
+import { completeUserProfile } from '../Services/apiClient';
 
 const universities = [
   'NUST', 'FAST-NUCES', 'LUMS', 'COMSATS', 'UET Lahore', 'UET Taxila',
@@ -76,27 +77,15 @@ const CompleteProfile = () => {
     setApiError('');
     
     try {
-      const response = await fetch('http://localhost:3000/api/users/complete-profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...data, email: userEmail }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Update token if it was reissued, else just clear email and redirect
-        if (result.token) sessionStorage.setItem('token', result.token);
-        sessionStorage.removeItem('userEmail'); // Cleanup temporary email storage
-        navigate('/dashboard');
-      } else {
-        setApiError(result.message || 'Failed to update profile');
-      }
+      const result = await completeUserProfile({ ...data, email: userEmail });
+      if (result.token) sessionStorage.setItem('token', result.token);
+      if (result.name) sessionStorage.setItem('userName', result.name);
+      if (result._id) sessionStorage.setItem('userId', result._id);
+      sessionStorage.setItem('userEmail', result.email || userEmail);
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
-      setApiError('Network error. Please try again.');
+      setApiError(error.message || 'Network error. Please try again.');
     } finally {
       setIsLoading(false);
     }
