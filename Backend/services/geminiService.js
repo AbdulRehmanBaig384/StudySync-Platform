@@ -1,18 +1,3 @@
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // apni key yahan paste karein
-
-const response = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: "Hello!" }] }]
-    })
-  }
-);
-const data = await response.json();
-console.log(data.candidates[0].content.parts[0].text); import { GoogleGenerativeAI } from "@google/generative-ai";
-
 const SYSTEM_PROMPT = `
 You are StudySync AI Tutor.
 Rules:
@@ -26,18 +11,61 @@ Rules:
 export const generateTutorReply = async (message) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is missing in backend environment.");
+    return "AI configuration error. Please check backend environment.";
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
-  const model = genAI.getGenerativeModel({ model: modelName });
+  // Using Gemini 3 and 2.5 series as per user's available models
+  const versions = ["v1", "v1beta"];
+  const models = ["gemini-3-flash", "gemini-3.1-pro", "gemini-2.5-flash", "gemini-2.5-pro"];
 
-  const prompt = `${SYSTEM_PROMPT}\n\nStudent question: ${message}`;
+  let lastError = "";
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
+  for (const version of versions) {
+    for (const model of models) {
+      try {
+        console.log(`Attempting Direct Fetch: ${version} / ${model}`);
+        
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: `${SYSTEM_PROMPT}\n\nStudent question: ${message}`
+                    }
+                  ]
+                }
+              ]
+            }),
+          }
+        );
 
-  return text?.trim() || "I could not generate a response right now.";
+        const data = await response.json();
+
+        if (response.ok) {
+          // Success!
+          return data.candidates?.[0]?.content?.parts?.[0]?.text || "I received an empty response from the AI.";
+        } else {
+          console.error(`Failed ${version}/${model}:`, data.error?.message || response.statusText);
+          lastError = data.error?.message || response.statusText;
+          
+          // If it's a quota error (429), don't keep trying others, just report it
+          if (response.status === 429) {
+            return "AI Quota Exceeded. Please wait a minute before trying again.";
+          }
+        }
+      } catch (err) {
+        console.error(`Fetch Error ${version}/${model}:`, err.message);
+        lastError = err.message;
+      }
+    }
+  }
+
+  return `AI Error: All connection attempts failed. Last error: ${lastError}. Please ensure the Generative Language API is enabled in your Google Cloud Console.`;
 };
