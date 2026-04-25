@@ -4,10 +4,18 @@ import express from 'express'
 import passport from "passport";
 import session from "express-session";
 import GoogleStrategy from 'passport-google-oauth2'
+import cors from 'cors';
+import userRoutes from './routes/userRoutes.js';
+
 configDotenv()
 ConnectMongoDb()
 
 const app = express()
+
+app.use(cors());
+app.use(express.json());
+app.use('/api/users', userRoutes);
+
 
 app.use(session({
   secret: 'StudySync_Secret',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiHome,
   FiSearch,
@@ -16,6 +16,14 @@ import {
 } from 'react-icons/fi';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userName');
+    navigate('/login');
+  };
+
   const menuItems = [
     { name: 'Dashboard', icon: <FiHome />, path: '/dashboard' },
     { name: 'Find Study Partner', icon: <FiSearch />, path: '/find-partner' },
@@ -69,7 +77,10 @@ const Sidebar = () => {
           <FiSettings className="text-xl" />
           <span className="font-medium">Settings</span>
         </NavLink>
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all mt-2 font-medium">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all mt-2 font-medium"
+        >
           <FiLogOut className="text-xl" />
           <span>Logout</span>
         </button>

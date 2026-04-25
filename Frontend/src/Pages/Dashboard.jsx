@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import StatCard from '../components/StatCard';
 import StreakTracker from '../components/StreakTracker';
@@ -12,13 +12,22 @@ import Leaderboard from '../components/Leaderboard';
 import { FiBookOpen, FiClock, FiTarget, FiZap, FiPlus, FiBell } from 'react-icons/fi';
 
 const Dashboard = () => {
+  const [userName, setUserName] = useState('Alex');
+
+  useEffect(() => {
+    const storedName = sessionStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName.split(' ')[0]); // Get first name
+    }
+  }, []);
+
   return (
     <DashboardLayout>
       {/* Top Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div className="animate-slide-up">
           <h2 className="text-4xl font-black text-white mb-2 font-jakarta tracking-tight">
-            Welcome back, <span className="text-gradient font-black">Alex!</span> 👋
+            Welcome back, <span className="text-gradient font-black">{userName}!</span> 👋
           </h2>
           <p className="text-slate-500 font-bold uppercase tracking-widest text-xs flex items-center gap-2">
             <span className="w-8 h-px bg-indigo-500/30"></span>

@@ -12,6 +12,7 @@ import Resources from './Pages/Resources'
 import AITutor from './Pages/AITutor'
 import ProHub from './Pages/ProHub'
 import Quizzes from './Pages/Quizzes'
+import NotFound from './Pages/NotFound'
 
 function App() {
   return (
@@ -29,6 +30,8 @@ function App() {
         <Route path="/ai-tutor" element={<AITutor/>}/>
         <Route path="/pro-hub" element={<ProHub/>}/>
         <Route path="/quizzes" element={<Quizzes/>}/>
+        {/* Catch-all route for 404 Not Found */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   )

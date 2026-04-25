@@ -14,6 +14,8 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({})
 
+  const [apiError, setApiError] = useState('')
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -34,12 +36,35 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setApiError('')
     const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return }
+    
     setIsLoading(true)
-    await new Promise(res => setTimeout(res, 1500))
-    setIsLoading(false)
-    navigate('/')
+    try {
+      const response = await fetch('http://localhost:3000/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        sessionStorage.setItem('token', result.token)
+        sessionStorage.setItem('userName', result.name)
+        navigate('/dashboard')
+      } else {
+        setApiError(result.message || 'Login failed')
+      }
+    } catch (error) {
+      console.error(error)
+      setApiError('Network error. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const socialProviders = [
@@ -162,6 +187,12 @@ const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+            {apiError && (
+              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 mb-2">
+                <p className="text-red-400 text-sm text-center">{apiError}</p>
+              </div>
+            )}
+            
             {/* Email */}
             <div className="flex flex-col gap-1.5">
               <label className="text-slate-300 text-sm font-medium" htmlFor="login-email">Email Address</label>
