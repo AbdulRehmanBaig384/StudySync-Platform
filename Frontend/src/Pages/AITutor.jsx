@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   FiSend,
   FiPlus,
@@ -23,6 +23,7 @@ import {
   FiHelpCircle
 } from 'react-icons/fi';
 import DashboardLayout from '../components/DashboardLayout';
+import { postAiChat } from '../Services/apiClient';
 
 const AITutor = () => {
   const [activeChat, setActiveChat] = useState(1);
@@ -30,6 +31,8 @@ const AITutor = () => {
     { id: 1, role: 'ai', text: "Hello Ahsan! I've analyzed your recent coding room sessions. You're making great progress in React, but I noticed some hesitation with 'useEffect' dependencies. Would you like to do a quick 5-minute deep dive or generate some practice questions?", type: 'text' }
   ]);
   const [inputText, setInputText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [chatError, setChatError] = useState('');
 
   const history = [
     { id: 1, title: 'React Performance Hooks', category: 'Web Dev', date: 'Just now' },
@@ -37,27 +40,38 @@ const AITutor = () => {
     { id: 3, title: 'Database Normalization', category: 'DBMS', date: '2 days ago' },
   ];
 
-  const handleSendMessage = () => {
-    if (!inputText.trim()) return;
-    const newMsg = { id: messages.length + 1, role: 'user', text: inputText, type: 'text' };
-    setMessages([...messages, newMsg]);
+  const handleSendMessage = async () => {
+    if (!inputText.trim() || isSending) return;
+    const userText = inputText.trim();
+    const newMsg = { id: Date.now(), role: 'user', text: userText, type: 'text' };
+    setMessages((prev) => [...prev, newMsg]);
     setInputText('');
+    setChatError('');
+    setIsSending(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const data = await postAiChat(userText);
       const aiMsg = {
-        id: messages.length + 2,
+        id: Date.now() + 1,
         role: 'ai',
-        text: "That's a great question! Here's a quick interactive quiz to test your understanding of what we just discussed.",
-        type: 'quiz',
-        quiz: {
-          question: "Which hook should you use to store a persistent value that doesn't trigger a re-render?",
-          options: ["useState", "useMemo", "useRef", "useEffect"],
-          answer: "useRef"
-        }
+        text: data.reply,
+        type: 'text',
       };
-      setMessages(prev => [...prev, aiMsg]);
-    }, 1000);
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch (error) {
+      setChatError(error.message || 'AI request failed');
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: 'ai',
+          text: 'Sorry, I could not respond right now. Please try again.',
+          type: 'text',
+        },
+      ]);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -65,7 +79,7 @@ const AITutor = () => {
       <div className="flex h-[calc(100vh-160px)] bg-glass-dark rounded-[2.5rem] border border-white/5 overflow-hidden animate-fade-in shadow-2xl relative">
 
         {/* --- 1. LEFT SIDEBAR: CHAT HISTORY --- */}
-        <aside className="w-80 border-r border-white/5 bg-white/[0.01] flex flex-col hidden lg:flex">
+        <aside className="hidden w-80 border-r border-white/5 bg-white/[0.01] lg:flex lg:flex-col">
           <div className="p-6 space-y-6">
             <button className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-[1.02] active:scale-95 transition-all">
               <FiPlus /> New Session
@@ -201,17 +215,21 @@ const AITutor = () => {
               />
               <button
                 onClick={handleSendMessage}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all"
+                disabled={isSending}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <FiSend />
               </button>
             </div>
+            {chatError && (
+              <p className="text-center text-[10px] text-red-400 font-semibold mt-3">{chatError}</p>
+            )}
             <p className="text-center text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-4">AI can make mistakes. Verify important information.</p>
           </div>
         </section>
 
         {/* --- 3. RIGHT SIDEBAR: SMART INSIGHTS --- */}
-        <aside className="w-[320px] xl:w-[400px] border-l border-white/5 bg-white/[0.01] flex flex-col hidden xl:flex">
+        <aside className="hidden w-[320px] border-l border-white/5 bg-white/[0.01] xl:flex xl:w-[400px] xl:flex-col">
           <div className="p-8 space-y-10 overflow-y-auto custom-scrollbar">
 
             {/* Learning Progress */}

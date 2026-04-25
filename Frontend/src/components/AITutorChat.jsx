@@ -1,27 +1,49 @@
 import React, { useState } from 'react';
 import { FiSend, FiCpu, FiUser } from 'react-icons/fi';
+import { postAiChat } from '../Services/apiClient';
 
 const AITutorChat = () => {
   const [messages, setMessages] = useState([
     { id: 1, role: 'ai', content: 'Hello! I am your StudySync AI Tutor. How can I help you with your studies today?' },
   ]);
   const [input, setInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [chatError, setChatError] = useState('');
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isSending) return;
 
-    const userMsg = { id: Date.now(), role: 'user', content: input };
-    setMessages([...messages, userMsg]);
+    const userText = input.trim();
+    const userMsg = { id: Date.now(), role: 'user', content: userText };
+    setMessages((prev) => [...prev, userMsg]);
     setInput('');
+    setChatError('');
+    setIsSending(true);
 
-    setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        id: Date.now() + 1, 
-        role: 'ai', 
-        content: `I've analyzed your question about "${input}". Here's a quick explanation... [Real AI integration would go here]` 
-      }]);
-    }, 1000);
+    try {
+      const data = await postAiChat(userText);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: 'ai',
+          content: data.reply,
+        },
+      ]);
+    } catch (error) {
+      setChatError(error.message || 'AI request failed');
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: 'ai',
+          content: 'Sorry, I could not respond right now. Please try again.',
+        },
+      ]);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -68,10 +90,11 @@ const AITutorChat = () => {
           placeholder="Ask about coding, math, or study tips..."
           className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-slate-600 font-medium"
         />
-        <button type="submit" className="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-90 flex-shrink-0">
+        <button type="submit" disabled={isSending} className="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-90 flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed">
           <FiSend className="text-xl" />
         </button>
       </form>
+      {chatError && <p className="px-5 pb-4 text-xs text-red-400">{chatError}</p>}
     </div>
   );
 };
