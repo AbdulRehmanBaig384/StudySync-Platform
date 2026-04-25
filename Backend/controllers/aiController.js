@@ -12,7 +12,7 @@ export const chatWithTutor = async (req, res) => {
 
     return res.status(200).json({
       reply,
-      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
     });
   } catch (error) {
     console.error("Gemini chat error:", error);

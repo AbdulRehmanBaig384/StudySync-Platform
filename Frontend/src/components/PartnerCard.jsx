@@ -1,8 +1,34 @@
-import React from 'react';
-import { FiUserPlus, FiExternalLink, FiAward, FiClock, FiMap } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { FiUserPlus, FiExternalLink, FiAward, FiClock, FiMap, FiCheck, FiLoader } from 'react-icons/fi';
 
-const PartnerCard = ({ name, department, facultyOfStudy, semester, subjects, style, availability, compatibility, avatar, onlineStatus, matchLevel }) => {
+const PartnerCard = ({ id, name, department, facultyOfStudy, semester, subjects, style, availability, compatibility, avatar, onlineStatus, matchLevel }) => {
   const isHighMatch = matchLevel === 'HIGH';
+  const [inviteStatus, setInviteStatus] = useState('idle'); // idle, sending, sent, error
+
+  const handleConnect = async () => {
+    const senderId = sessionStorage.getItem('userId');
+    if (!senderId) return alert('Please log in first');
+    
+    setInviteStatus('sending');
+    try {
+      const res = await fetch('http://localhost:3000/api/invite/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senderId, receiverId: id })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        setInviteStatus('sent');
+      } else {
+        alert(data.message || 'Failed to send invitation');
+        setInviteStatus('error');
+      }
+    } catch (error) {
+      console.error(error);
+      setInviteStatus('error');
+    }
+  };
   
   return (
     <div className={`bg-glass-dark p-6 rounded-3xl border ${isHighMatch ? 'border-indigo-500/50 shadow-[0_0_30px_rgba(79,70,229,0.15)]' : 'border-white/5'} hover:border-indigo-500/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden animate-slide-up`}>
@@ -56,9 +82,19 @@ const PartnerCard = ({ name, department, facultyOfStudy, semester, subjects, sty
 
       {/* Actions */}
       <div className="grid grid-cols-2 gap-3 pt-6 border-t border-white/5">
-        <button className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
-          <FiUserPlus className="text-base" />
-          Connect
+        <button 
+          onClick={handleConnect}
+          disabled={inviteStatus === 'sending' || inviteStatus === 'sent'}
+          className={`flex items-center justify-center gap-2 ${inviteStatus === 'sent' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-70`}
+        >
+          {inviteStatus === 'sending' ? (
+            <FiLoader className="text-base animate-spin" />
+          ) : inviteStatus === 'sent' ? (
+            <FiCheck className="text-base" />
+          ) : (
+            <FiUserPlus className="text-base" />
+          )}
+          {inviteStatus === 'sent' ? 'Sent' : 'Connect'}
         </button>
         <button className="flex items-center justify-center gap-2 bg-white/5 border border-white/5 hover:bg-white/10 text-slate-400 hover:text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
           <FiExternalLink className="text-base" />

@@ -1,11 +1,12 @@
 import { ConnectMongoDb } from "./Config/db.js";
 import { configDotenv } from "dotenv";
-import express from "express";
-import cors from "cors";
-import { createServer } from "http";
-import { Server } from "socket.io";
-import User from "./models/UserData.js";
-import userRoutes from "./routes/userRoutes.js";
+import express from 'express'
+import cors from 'cors';
+import userRoutes from './routes/userRoutes.js';
+import connectionRoutes from './routes/connectionRoutes.js';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import User from './models/UserData.js';
 import aiRoutes from "./routes/aiRoutes.js";
 
 configDotenv();
@@ -24,6 +25,7 @@ app.use(express.json());
 
 app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
+app.use('/api/invite', connectionRoutes);
 
 app.get("/studysync", (req, res) => {
   res.send("hello from the server");

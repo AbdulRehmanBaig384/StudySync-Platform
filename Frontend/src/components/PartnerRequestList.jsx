@@ -1,48 +1,106 @@
-import React from 'react';
-import { FiCheck, FiX, FiSend, FiInbox, FiUsers } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiCheck, FiX, FiClock, FiUser, FiLoader, FiInbox, FiSend, FiUsers } from 'react-icons/fi';
 
 const PartnerRequestList = () => {
-  const received = [
-    { id: 1, name: 'Ava Johnson', subject: 'React Patterns', status: 'pending', avatar: 'AJ' },
-    { id: 2, name: 'Liam Smith', subject: 'Data Structures', status: 'pending', avatar: 'LS' },
-  ];
+  const [incoming, setIncoming] = useState([]);
+  const [outgoing, setOutgoing] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
 
-  const sent = [
-    { id: 3, name: 'Noah Brown', subject: 'UI Design', status: 'sent', avatar: 'NB' },
-  ];
+  const userId = sessionStorage.getItem('userId');
+
+  const fetchData = async () => {
+    try {
+      const [incRes, outRes] = await Promise.all([
+        fetch(`http://localhost:3000/api/invite/incoming/${userId}`),
+        fetch(`http://localhost:3000/api/invite/outgoing/${userId}`)
+      ]);
+      
+      const incData = await incRes.json();
+      const outData = await outRes.json();
+      
+      if (incRes.ok) setIncoming(incData);
+      if (outRes.ok) setOutgoing(outData);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) fetchData();
+  }, [userId]);
+
+  const handleResponse = async (invitationId, status) => {
+    setProcessingId(invitationId);
+    try {
+      const res = await fetch(`http://localhost:3000/api/invite/respond/${invitationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+
+      if (res.ok) {
+        fetchData();
+      } else {
+        alert("Failed to update invitation status");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  if (loading) return (
+    <div className="flex justify-center p-8 bg-glass-dark rounded-3xl border border-white/5 shadow-xl">
+      <FiLoader className="w-6 h-6 text-indigo-500 animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="bg-glass-dark p-6 rounded-3xl border border-white/5 shadow-xl sticky top-8 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+    <div className="bg-glass-dark p-6 rounded-3xl border border-white/5 shadow-xl animate-slide-up">
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+        <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 border border-indigo-500/20">
           <FiInbox />
         </div>
-        <h3 className="text-lg font-black text-white font-jakarta">Connections</h3>
+        <h3 className="text-lg font-black text-white font-jakarta">Requests</h3>
       </div>
 
       {/* Received Requests */}
       <div className="space-y-2 mb-8">
         <div className="flex items-center justify-between px-2 mb-3">
           <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Received</h4>
-          <span className="bg-indigo-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">{received.length}</span>
+          <span className="bg-indigo-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">{incoming.length}</span>
         </div>
-        {received.map((req) => (
-          <div key={req.id} className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between group animate-slide-up">
+        {incoming.length === 0 ? (
+          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest text-center py-4 bg-white/[0.01] rounded-2xl border border-dashed border-white/5">No incoming requests</p>
+        ) : incoming.map((req) => (
+          <div key={req._id} className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between group animate-slide-up">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-xs font-black text-indigo-400 border border-indigo-500/20">
-                {req.avatar}
+                {req.sender.Firstname[0]}
               </div>
-              <div>
-                <p className="text-xs font-black text-white group-hover:text-indigo-400 transition-colors">{req.name}</p>
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{req.subject}</p>
+              <div className="min-w-0">
+                <p className="text-xs font-black text-white truncate">{req.sender.Firstname} {req.sender.lastname}</p>
+                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tight truncate">{req.sender.department}</p>
               </div>
             </div>
             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
-              <button className="p-2 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg border border-emerald-500/20 transition-colors">
-                <FiCheck />
+              <button 
+                onClick={() => handleResponse(req._id, 'accepted')}
+                disabled={processingId === req._id}
+                className="p-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg border border-emerald-500/20 transition-colors disabled:opacity-50"
+              >
+                {processingId === req._id ? <FiLoader className="animate-spin text-[10px]" /> : <FiCheck className="text-[10px]" />}
               </button>
-              <button className="p-2 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg border border-rose-500/20 transition-colors">
-                <FiX />
+              <button 
+                onClick={() => handleResponse(req._id, 'rejected')}
+                disabled={processingId === req._id}
+                className="p-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg border border-rose-500/20 transition-colors disabled:opacity-50"
+              >
+                {processingId === req._id ? <FiLoader className="animate-spin text-[10px]" /> : <FiX className="text-[10px]" />}
               </button>
             </div>
           </div>
@@ -53,27 +111,25 @@ const PartnerRequestList = () => {
       <div className="space-y-2 mb-8">
         <div className="flex items-center justify-between px-2 mb-3">
           <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sent</h4>
+          <span className="bg-slate-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">{outgoing.filter(o => o.status === 'pending').length}</span>
         </div>
-        {sent.map((req) => (
-          <div key={req.id} className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-3 opacity-70 hover:opacity-100 transition-all">
+        {outgoing.filter(o => o.status === 'pending').length === 0 ? (
+          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest text-center py-4 bg-white/[0.01] rounded-2xl border border-dashed border-white/5">No pending sent requests</p>
+        ) : outgoing.filter(o => o.status === 'pending').map((req) => (
+          <div key={req._id} className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-3 opacity-70 group hover:opacity-100 transition-all">
             <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xs font-black text-slate-600 border border-white/5">
-              {req.avatar}
+              {req.receiver.Firstname[0]}
             </div>
-            <div>
-              <p className="text-xs font-black text-slate-300">{req.name}</p>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-slate-300 truncate">{req.receiver.Firstname} {req.receiver.lastname}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <FiSend className="text-[8px] text-indigo-500" />
-                <p className="text-[8px] font-black text-indigo-500/80 uppercase tracking-widest">Pending Match</p>
+                <p className="text-[8px] font-black text-indigo-500/80 uppercase tracking-widest">Pending</p>
               </div>
             </div>
           </div>
         ))}
       </div>
-
-      <button className="w-full py-4 rounded-2xl bg-white/5 border border-dashed border-white/10 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:border-indigo-500/50 hover:text-indigo-400 transition-all flex items-center justify-center gap-3">
-        <FiUsers />
-        Manage Groups
-      </button>
     </div>
   );
 };

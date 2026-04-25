@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FiUsers,
   FiMessageSquare,
@@ -22,22 +22,50 @@ import {
   FiMoreVertical,
   FiMic,
   FiMonitor,
-  FiChevronRight
-  // FiHand
+  FiChevronRight,
+  FiLoader
 } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 
 const StudySession = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [isLive, setIsLive] = useState(false);
+  const [participants, setParticipants] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock Data
-  const participants = [
-    { name: 'Ahsan Khan', role: 'Host', status: 'online', avatar: 'AK' },
-    { name: 'Sarah Ahmed', role: 'Student', status: 'online', avatar: 'SA' },
-    { name: 'Alex Johnson', role: 'Student', status: 'online', avatar: 'AJ' },
-    { name: 'Michael Chen', role: 'Viewer', status: 'offline', avatar: 'MC' },
-  ];
+  const userId = sessionStorage.getItem('userId');
+
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/invite/connections/${userId}`);
+        const data = await res.json();
+        if (res.ok) {
+          // Map to match the UI structure
+          const formatted = data.map(p => ({
+            name: `${p.Firstname} ${p.lastname}`,
+            role: 'Student',
+            status: p.onlineStatus || 'offline',
+            avatar: p.Firstname[0] + (p.lastname ? p.lastname[0] : '')
+          }));
+          
+          // Add self as host (Mock for now, but name from session)
+          const userName = sessionStorage.getItem('userName') || 'Me';
+          setParticipants([
+            { name: userName, role: 'Host', status: 'online', avatar: userName.split(' ').map(n => n[0]).join('') },
+            ...formatted
+          ]);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userId) fetchParticipants();
+  }, [userId]);
+
 
   return (
     <div className="h-screen bg-[#0f172a] flex flex-col font-jakarta overflow-hidden text-slate-300">

@@ -1,4 +1,17 @@
-import { GoogleGenAI } from "@google/genai";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // apni key yahan paste karein
+
+const response = await fetch(
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: "Hello!" }] }]
+    })
+  }
+);
+const data = await response.json();
+console.log(data.candidates[0].content.parts[0].text); import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const SYSTEM_PROMPT = `
 You are StudySync AI Tutor.
@@ -16,13 +29,15 @@ export const generateTutorReply = async (message) => {
     throw new Error("GEMINI_API_KEY is missing in backend environment.");
   }
 
-  const ai = new GoogleGenAI({ apiKey });
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+  const model = genAI.getGenerativeModel({ model: modelName });
 
-  const response = await ai.models.generateContent({
-    model,
-    contents: `${SYSTEM_PROMPT}\n\nStudent question: ${message}`,
-  });
+  const prompt = `${SYSTEM_PROMPT}\n\nStudent question: ${message}`;
 
-  return response.text?.trim() || "I could not generate a response right now.";
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  const text = response.text();
+
+  return text?.trim() || "I could not generate a response right now.";
 };

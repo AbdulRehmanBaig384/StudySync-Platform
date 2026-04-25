@@ -3,6 +3,7 @@ import DashboardLayout from '../components/DashboardLayout';
 import PartnerFilters from '../components/PartnerFilters';
 import PartnerCard from '../components/PartnerCard';
 import PartnerRequestList from '../components/PartnerRequestList';
+import PartnerConnections from '../components/PartnerConnections';
 import { FiUsers, FiLoader } from 'react-icons/fi';
 import { NavLink } from 'react-router';
 import { io } from 'socket.io-client';
@@ -201,6 +202,7 @@ const FindPartner = () => {
                 partners.map((partner) => (
                   <PartnerCard
                     key={partner._id}
+                    id={partner._id}
                     name={`${partner.Firstname} ${partner.lastname}`}
                     department={partner.department}
                     facultyOfStudy={partner.facultyOfStudy}
@@ -243,6 +245,7 @@ const FindPartner = () => {
         {/* Sidebar Interactions */}
         <div className="space-y-8">
           <PartnerRequestList />
+          <PartnerConnections />
 
           {/* Quick Tip Card */}
           <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-8 rounded-3xl shadow-2xl shadow-indigo-600/20 relative overflow-hidden group animate-slide-up" style={{ animationDelay: '0.4s' }}>
