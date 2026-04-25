@@ -1,10 +1,22 @@
 import express from 'express';
-import { startSession, joinSession, endSession } from '../controllers/sessionController.js';
+import { 
+  createSession, 
+  joinSession, 
+  getActiveSessions, 
+  getSessionDetails, 
+  endSession,
+  getSessionMessages,
+  saveSessionMessage
+} from '../controllers/sessionController.js';
 
 const router = express.Router();
 
-router.post('/start', startSession);
-router.put('/join', joinSession);
-router.put('/end', endSession);
+router.post('/create', createSession);
+router.get('/active', getActiveSessions);
+router.get('/:sessionId', getSessionDetails);
+router.put('/join/:sessionId', joinSession);
+router.put('/end/:sessionId', endSession);
+router.get('/messages/:sessionId', getSessionMessages);
+router.post('/message', saveSessionMessage);
 
 export default router;

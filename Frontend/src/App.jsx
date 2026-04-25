@@ -15,6 +15,7 @@ import Quizzes from "./Pages/Quizzes";
 import NotFound from "./Pages/NotFound";
 import CompleteProfile from "./Pages/CompleteProfile";
 import Chat from "./Pages/Chat";
+import SessionLobby from "./Pages/SessionLobby";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { TimerProvider } from "./context/TimerContext";
 import { SocketProvider } from "./context/SocketContext";
@@ -65,6 +66,14 @@ function App() {
             />
             <Route
               path="/StudySession"
+              element={
+                <ProtectedRoute>
+                  <SessionLobby />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/StudyRoom/:sessionId"
               element={
                 <ProtectedRoute>
                   <StudySession />

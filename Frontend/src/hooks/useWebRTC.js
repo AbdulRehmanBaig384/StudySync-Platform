@@ -7,94 +7,122 @@ const configuration = {
   ],
 };
 
-export const useWebRTC = (socket, invitationId, userId) => {
+export const useWebRTC = (socket, sessionId, userId) => {
   const [localStream, setLocalStream] = useState(null);
-  const [remoteStream, setRemoteStream] = useState(null);
-  const [screenStream, setScreenStream] = useState(null);
+  const [remoteStreams, setRemoteStreams] = useState({}); // userId -> MediaStream
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   
-  const peerConnection = useRef(null);
+  const peerConnections = useRef({}); // userId -> RTCPeerConnection
   const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+  const screenStream = useRef(null);
 
-  const createPeerConnection = useCallback(() => {
-    if (peerConnection.current) return peerConnection.current;
+  const createPeerConnection = useCallback((remoteUserId) => {
+    if (peerConnections.current[remoteUserId]) return peerConnections.current[remoteUserId];
 
     const pc = new RTCPeerConnection(configuration);
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        socket.emit('signal', {
-          invitationId,
+        socket.emit('session_signal', {
+          sessionId,
           type: 'candidate',
           candidate: event.candidate,
-          userId,
+          fromUserId: userId,
+          toUserId: remoteUserId
         });
       }
     };
 
     pc.ontrack = (event) => {
-      setRemoteStream(event.streams[0]);
+      setRemoteStreams(prev => ({
+        ...prev,
+        [remoteUserId]: event.streams[0]
+      }));
     };
 
-    peerConnection.current = pc;
-    return pc;
-  }, [socket, invitationId, userId]);
+    pc.oniceconnectionstatechange = () => {
+      if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
+        removePeer(remoteUserId);
+      }
+    };
 
-  const startCall = async () => {
+    peerConnections.current[remoteUserId] = pc;
+    return pc;
+  }, [socket, sessionId, userId]);
+
+  const removePeer = (remoteUserId) => {
+    if (peerConnections.current[remoteUserId]) {
+      peerConnections.current[remoteUserId].close();
+      delete peerConnections.current[remoteUserId];
+    }
+    setRemoteStreams(prev => {
+      const next = { ...prev };
+      delete next[remoteUserId];
+      return next;
+    });
+  };
+
+  const initLocalStream = async () => {
+    if (localStream) return localStream;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
-      const pc = createPeerConnection();
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      socket.emit('signal', {
-        invitationId,
-        type: 'offer',
-        offer,
-        userId,
-      });
+      return stream;
     } catch (err) {
-      console.error('Error starting call:', err);
+      console.error('Error getting local stream:', err);
+      return null;
     }
   };
 
-  const joinCall = async () => {
-    const pc = createPeerConnection();
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      setLocalStream(stream);
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-    } catch (err) {
-      console.error('Error joining call:', err);
-    }
+  const startCallWithUser = async (remoteUserId) => {
+    const stream = await initLocalStream();
+    if (!stream) return;
+
+    const pc = createPeerConnection(remoteUserId);
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    socket.emit('session_signal', {
+      sessionId,
+      type: 'offer',
+      offer,
+      fromUserId: userId,
+      toUserId: remoteUserId
+    });
   };
 
   const handleSignal = async (data) => {
-    const pc = createPeerConnection();
+    const { type, offer, answer, candidate, fromUserId, toUserId } = data;
+    
+    // Only handle if it's meant for us
+    if (toUserId !== userId) return;
 
-    if (data.type === 'offer') {
-      await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit('signal', {
-        invitationId,
+    const pc = createPeerConnection(fromUserId);
+
+    if (type === 'offer') {
+      const stream = await initLocalStream();
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const answerDesc = await pc.createAnswer();
+      await pc.setLocalDescription(answerDesc);
+      
+      socket.emit('session_signal', {
+        sessionId,
         type: 'answer',
-        answer,
-        userId,
+        answer: answerDesc,
+        fromUserId: userId,
+        toUserId: fromUserId
       });
-    } else if (data.type === 'answer') {
-      await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-    } else if (data.type === 'candidate') {
-      await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+    } else if (type === 'answer') {
+      await pc.setRemoteDescription(new RTCSessionDescription(answer));
+    } else if (type === 'candidate') {
+      await pc.addIceCandidate(new RTCIceCandidate(candidate));
     }
   };
 
@@ -103,7 +131,7 @@ export const useWebRTC = (socket, invitationId, userId) => {
       const audioTrack = localStream.getAudioTracks()[0];
       audioTrack.enabled = !audioTrack.enabled;
       setIsAudioMuted(!audioTrack.enabled);
-      socket.emit('toggle-media', { invitationId, userId, type: 'audio', enabled: audioTrack.enabled });
+      socket.emit('session_toggle_media', { sessionId, userId, type: 'audio', enabled: audioTrack.enabled });
     }
   };
 
@@ -112,19 +140,23 @@ export const useWebRTC = (socket, invitationId, userId) => {
       const videoTrack = localStream.getVideoTracks()[0];
       videoTrack.enabled = !videoTrack.enabled;
       setIsVideoOff(!videoTrack.enabled);
-      socket.emit('toggle-media', { invitationId, userId, type: 'video', enabled: videoTrack.enabled });
+      socket.emit('session_toggle_media', { sessionId, userId, type: 'video', enabled: videoTrack.enabled });
     }
   };
 
   const startScreenShare = async () => {
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-      setScreenStream(stream);
+      screenStream.current = stream;
       setIsScreenSharing(true);
 
       const videoTrack = stream.getVideoTracks()[0];
-      const sender = peerConnection.current.getSenders().find((s) => s.track.kind === 'video');
-      sender.replaceTrack(videoTrack);
+      
+      // Replace track for all active peers
+      Object.values(peerConnections.current).forEach(pc => {
+        const sender = pc.getSenders().find((s) => s.track.kind === 'video');
+        if (sender) sender.replaceTrack(videoTrack);
+      });
 
       videoTrack.onended = () => stopScreenShare();
     } catch (err) {
@@ -133,52 +165,63 @@ export const useWebRTC = (socket, invitationId, userId) => {
   };
 
   const stopScreenShare = () => {
-    if (screenStream) {
-      screenStream.getTracks().forEach((track) => track.stop());
-      setScreenStream(null);
+    if (screenStream.current) {
+      screenStream.current.getTracks().forEach((track) => track.stop());
+      screenStream.current = null;
       setIsScreenSharing(false);
 
       const videoTrack = localStream.getVideoTracks()[0];
-      const sender = peerConnection.current.getSenders().find((s) => s.track.kind === 'video');
-      sender.replaceTrack(videoTrack);
+      Object.values(peerConnections.current).forEach(pc => {
+        const sender = pc.getSenders().find((s) => s.track.kind === 'video');
+        if (sender) sender.replaceTrack(videoTrack);
+      });
     }
   };
 
   const endCall = () => {
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
-    if (screenStream) screenStream.getTracks().forEach((track) => track.stop());
-    if (peerConnection.current) peerConnection.current.close();
+    if (screenStream.current) screenStream.current.getTracks().forEach((track) => track.stop());
+    
+    Object.keys(peerConnections.current).forEach(id => removePeer(id));
+    
     setLocalStream(null);
-    setRemoteStream(null);
-    setScreenStream(null);
+    setRemoteStreams({});
     setIsScreenSharing(false);
-    socket.emit('end-session', { invitationId, userId });
+    
+    socket.emit('leave_study_session', { sessionId, userId });
   };
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !sessionId) return;
 
-    socket.on('signal', handleSignal);
-    socket.on('user-joined', (data) => {
-      console.log('Remote user joined:', data.userId);
+    socket.on('session_signal', handleSignal);
+    
+    socket.on('participant_joined', (data) => {
+      console.log('Participant joined room:', data.userId);
+      // Existing users initiate call to the new user
+      startCallWithUser(data.userId);
+    });
+
+    socket.on('participant_left', (data) => {
+      console.log('Participant left room:', data.userId);
+      removePeer(data.userId);
     });
 
     return () => {
-      socket.off('signal');
-      socket.off('user-joined');
+      socket.off('session_signal');
+      socket.off('participant_joined');
+      socket.off('participant_left');
     };
-  }, [socket, handleSignal]);
+  }, [socket, sessionId, handleSignal]);
 
   return {
     localStream,
-    remoteStream,
+    remoteStreams,
     localVideoRef,
-    remoteVideoRef,
     isAudioMuted,
     isVideoOff,
     isScreenSharing,
-    startCall,
-    joinCall,
+    initLocalStream,
     toggleAudio,
     toggleVideo,
     startScreenShare,

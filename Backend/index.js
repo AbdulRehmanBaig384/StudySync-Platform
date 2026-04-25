@@ -79,37 +79,60 @@ io.on("connection", (socket) => {
     socket.to(data.invitationId).emit("messages_marked_seen", data);
   });
 
-  // --- WebRTC Signaling ---
-  socket.on("join-session", (data) => {
-    const { invitationId, userId } = data;
-    socket.join(invitationId);
-    socket.to(invitationId).emit("user-joined", { userId });
-    console.log(`User ${userId} joined session ${invitationId}`);
+  // --- Dynamic Group Study Session Events ---
+  socket.on("join_study_session", (data) => {
+    const { sessionId, userId, userEmail } = data;
+    socket.join(sessionId);
+    socket.sessionId = sessionId;
+    socket.userId = userId;
+    
+    // Notify others in the room
+    socket.to(sessionId).emit("participant_joined", { userId, userEmail });
+    console.log(`User ${userId} joined study session: ${sessionId}`);
   });
 
-  socket.on("signal", (data) => {
-    // Relay signaling data (offer, answer, candidate) to others in the room
-    socket.to(data.invitationId).emit("signal", data);
+  socket.on("send_session_message", (data) => {
+    // data contains sessionId, senderId, message, timestamp
+    io.to(data.sessionId).emit("receive_session_message", data);
   });
 
-  socket.on("toggle-media", (data) => {
-    socket.to(data.invitationId).emit("user-media-toggled", data);
+  socket.on("session_typing", (data) => {
+    socket.to(data.sessionId).emit("user_session_typing", data);
   });
 
-  socket.on("end-session", (data) => {
-    socket.to(data.invitationId).emit("session-ended", data);
+  socket.on("session_stop_typing", (data) => {
+    socket.to(data.sessionId).emit("user_session_stop_typing", data);
   });
 
-  // --- Whiteboard Sync ---
-  socket.on("draw-stroke", (data) => {
-    socket.to(data.invitationId).emit("draw-stroke", data);
+  // --- WebRTC Signaling (Room Based) ---
+  socket.on("session_signal", (data) => {
+    socket.to(data.sessionId).emit("session_signal", data);
   });
 
-  socket.on("clear-whiteboard", (invitationId) => {
-    socket.to(invitationId).emit("clear-whiteboard");
+  socket.on("session_toggle_media", (data) => {
+    socket.to(data.sessionId).emit("user_session_media_toggled", data);
+  });
+
+  // --- Whiteboard Sync (Room Based) ---
+  socket.on("session_draw_stroke", (data) => {
+    socket.to(data.sessionId).emit("session_draw_stroke", data);
+  });
+
+  socket.on("session_clear_whiteboard", (sessionId) => {
+    socket.to(sessionId).emit("session_clear_whiteboard");
+  });
+
+  socket.on("leave_study_session", (data) => {
+    const { sessionId, userId } = data;
+    socket.leave(sessionId);
+    socket.to(sessionId).emit("participant_left", { userId });
   });
 
   socket.on("disconnect", async () => {
+    if (socket.sessionId) {
+      socket.to(socket.sessionId).emit("participant_left", { userId: socket.userId });
+    }
+    
     if (!socket.userEmail) {
       console.log("User disconnected:", socket.id);
       return;

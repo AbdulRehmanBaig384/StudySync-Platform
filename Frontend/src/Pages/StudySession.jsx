@@ -29,18 +29,21 @@ import {
   FiHeart,
   FiChevronRight
 } from 'react-icons/fi';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { useWebRTC } from '../hooks/useWebRTC';
 import Whiteboard from '../components/Whiteboard';
 
 const StudySession = () => {
-  const location = useLocation();
+  const { sessionId } = useParams();
   const [activeTab, setActiveTab] = useState('chat');
   const [isLive, setIsLive] = useState(false);
+  const [session, setSession] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentInvitationId, setCurrentInvitationId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [partnerTyping, setPartnerTyping] = useState(false);
   
   const userId = sessionStorage.getItem('userId');
   const userEmail = sessionStorage.getItem('userEmail');
@@ -48,47 +51,37 @@ const StudySession = () => {
 
   const {
     localStream,
-    remoteStream,
+    remoteStreams,
     localVideoRef,
-    remoteVideoRef,
     isAudioMuted,
     isVideoOff,
     isScreenSharing,
-    startCall,
-    joinCall,
+    initLocalStream,
     toggleAudio,
     toggleVideo,
     startScreenShare,
     stopScreenShare,
     endCall,
-  } = useWebRTC(socket, currentInvitationId, userId);
+  } = useWebRTC(socket, sessionId, userId);
 
   useEffect(() => {
-    const fetchParticipants = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/invite/connections/${userId}`);
-        const data = await res.json();
-        if (res.ok) {
-          // If we came from chat with a specific partner
-          if (location.state?.invitationId) {
-            setCurrentInvitationId(location.state.invitationId);
-          } else if (data.length > 0) {
-            // For now, default to the first connection or wait for user to select
-            // In a real app, you'd select the connection based on the session room
-          }
+        const [sessionRes, messagesRes] = await Promise.all([
+          fetch(`http://localhost:3000/api/session/${sessionId}`),
+          fetch(`http://localhost:3000/api/session/messages/${sessionId}`)
+        ]);
+        
+        const sessionData = await sessionRes.json();
+        const messagesData = await messagesRes.json();
 
-          const formatted = data.map(p => ({
-            name: `${p.Firstname} ${p.lastname}`,
-            role: 'Student',
-            status: p.onlineStatus || 'offline',
-            avatar: p.Firstname[0] + (p.lastname ? p.lastname[0] : '')
-          }));
+        if (sessionRes.ok) {
+          setSession(sessionData);
+          setParticipants(sessionData.participants);
+          setMessages(messagesData);
           
-          const userName = sessionStorage.getItem('userName') || 'Me';
-          setParticipants([
-            { name: userName, role: 'Host', status: 'online', avatar: userName.split(' ').map(n => n[0]).join('') },
-            ...formatted
-          ]);
+          // Join socket room
+          socket?.emit('join_study_session', { sessionId, userId, userEmail });
         }
       } catch (error) {
         console.error(error);
@@ -97,60 +90,83 @@ const StudySession = () => {
       }
     };
 
-    if (userId) fetchParticipants();
-  }, [userId, location.state]);
+    if (sessionId && socket) fetchData();
+  }, [sessionId, socket, userId, userEmail]);
 
-  const handleStartSession = async () => {
-    if (!currentInvitationId) return alert("Select a partner to start a session");
-    
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('receive_session_message', (message) => {
+      setMessages(prev => [...prev, message]);
+    });
+
+    socket.on('participant_joined', (data) => {
+      // Re-fetch session to get updated participants list
+      fetch(`http://localhost:3000/api/session/${sessionId}`)
+        .then(res => res.json())
+        .then(data => setParticipants(data.participants));
+    });
+
+    socket.on('participant_left', (data) => {
+      setParticipants(prev => prev.filter(p => p._id !== data.userId));
+    });
+
+    socket.on('user_session_typing', (data) => {
+      if (data.userId !== userId) setPartnerTyping(true);
+    });
+
+    socket.on('user_session_stop_typing', (data) => {
+      if (data.userId !== userId) setPartnerTyping(false);
+    });
+
+    return () => {
+      socket.off('receive_session_message');
+      socket.off('participant_joined');
+      socket.off('participant_left');
+      socket.off('user_session_typing');
+      socket.off('user_session_stop_typing');
+    };
+  }, [socket, sessionId, userId]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
     try {
-      await fetch('http://localhost:3000/api/session/start', {
+      const res = await fetch('http://localhost:3000/api/session/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invitationId: currentInvitationId, userId })
+        body: JSON.stringify({ sessionId, senderId: userId, message: newMessage })
       });
-      
-      setIsLive(true);
-      setActiveTab('live');
-      await startCall();
-      socket.emit('join-session', { invitationId: currentInvitationId, userId });
+      const savedMsg = await res.json();
+      if (res.ok) {
+        socket.emit('send_session_message', savedMsg);
+        setNewMessage('');
+      }
     } catch (error) {
-      console.error("Error starting session:", error);
+      console.error(error);
     }
   };
 
-  const handleJoinSession = async () => {
-    if (!currentInvitationId) return alert("No active session found");
-
-    try {
-      const res = await fetch('http://localhost:3000/api/session/join', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invitationId: currentInvitationId, userId })
-      });
-      
-      if (!res.ok) return alert("No active session to join");
-
-      setIsLive(true);
-      setActiveTab('live');
-      await joinCall();
-      socket.emit('join-session', { invitationId: currentInvitationId, userId });
-    } catch (error) {
-      console.error("Error joining session:", error);
-    }
+  const handleStartSession = async () => {
+    setIsLive(true);
+    setActiveTab('live');
+    await initLocalStream();
   };
 
   const handleEndSession = async () => {
+    if (userId !== session.host._id) return alert("Only host can end the session");
+    
     try {
-      await fetch('http://localhost:3000/api/session/end', {
+      await fetch(`http://localhost:3000/api/session/end/${sessionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invitationId: currentInvitationId })
+        body: JSON.stringify({ userId })
       });
       endCall();
       setIsLive(false);
     } catch (error) {
-      console.error("Error ending session:", error);
+      console.error(error);
     }
   };
 
@@ -164,7 +180,7 @@ const StudySession = () => {
           <NavLink to="/dashboard" className="text-xl font-black text-white tracking-tighter hover:text-indigo-400 transition-colors">StudySync</NavLink>
           <div className="h-6 w-px bg-white/10" />
           <div className="flex flex-col">
-            <h1 className="text-sm font-black text-white leading-tight">DSA Practice Room</h1>
+            <h1 className="text-sm font-black text-white leading-tight">{session?.name || 'Loading Room...'}</h1>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Live Session</span>
@@ -174,7 +190,7 @@ const StudySession = () => {
 
         <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
           <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Topic:</span>
-          <span className="text-[10px] font-black text-white uppercase tracking-widest">Data Structures & Algorithms</span>
+          <span className="text-[10px] font-black text-white uppercase tracking-widest">{session?.topic || 'N/A'}</span>
         </div>
 
         <div className="flex items-center gap-6">
@@ -182,24 +198,19 @@ const StudySession = () => {
             <div className="flex -space-x-2">
               {participants.slice(0, 3).map((p, i) => (
                 <div key={i} className="w-7 h-7 rounded-full bg-slate-700 border-2 border-[#1e293b] flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
-                  {p.avatar}
+                  {p.Firstname?.[0]}
                 </div>
               ))}
             </div>
             <span className="text-xs font-bold text-slate-400">{participants.length} Online</span>
           </div>
 
-          <div className="flex items-center gap-2 bg-black/20 px-4 py-2 rounded-xl border border-white/5 font-mono text-xs text-white">
-            <FiClock className="text-emerald-400" />
-            01:42:05
-          </div>
-
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-[10px] font-black text-white shadow-lg shadow-indigo-600/20">
-              {sessionStorage.getItem('userName')?.split(' ').map(n => n[0]).join('') || 'U'}
+              {session?.host?.Firstname?.[0]}
             </div>
             <div className="hidden lg:block text-left leading-none">
-              <p className="text-[10px] font-black text-white">{sessionStorage.getItem('userName') || 'User'}</p>
+              <p className="text-[10px] font-black text-white">{session?.host?.Firstname} {session?.host?.lastname}</p>
               <span className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest">Session Host</span>
             </div>
           </div>
@@ -232,17 +243,22 @@ const StudySession = () => {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-xs text-white">
-                      {p.avatar}
+                      {p.Firstname?.[0]}{p.lastname?.[0]}
                     </div>
-                    <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#0f172a] ${p.status === 'online' ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+                    <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#0f172a] ${p.onlineStatus === 'online' ? 'bg-emerald-500' : 'bg-slate-600'}`} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">{p.name}</p>
-                    <span className={`text-[8px] font-black uppercase tracking-widest ${p.role === 'Host' ? 'text-amber-500' : p.role === 'Student' ? 'text-indigo-400' : 'text-slate-500'
-                      }`}>{p.role}</span>
+                    <p className="text-xs font-bold text-white">{p.Firstname} {p.lastname}</p>
+                    <span className={`text-[8px] font-black uppercase tracking-widest ${p._id === session?.host?._id ? 'text-amber-500' : 'text-indigo-400'}`}>
+                      {p._id === session?.host?._id ? 'Host' : 'Student'}
+                    </span>
                   </div>
                 </div>
-                <FiMoreVertical className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {userId === session?.host?._id && p._id !== userId && (
+                  <button className="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-rose-500/10 rounded-lg">
+                    &times;
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -259,19 +275,26 @@ const StudySession = () => {
           </div>
 
           <div className="flex-1 overflow-hidden">
-            {activeTab === 'chat' && <ChatTab />}
-            {activeTab === 'whiteboard' && currentInvitationId && (
+            {activeTab === 'chat' && (
+              <ChatTab 
+                messages={messages} 
+                onSendMessage={handleSendMessage} 
+                newMessage={newMessage} 
+                setNewMessage={setNewMessage}
+                partnerTyping={partnerTyping}
+              />
+            )}
+            {activeTab === 'whiteboard' && sessionId && (
               <div className="h-full p-8 animate-fade-in">
-                <Whiteboard socket={socket} invitationId={currentInvitationId} />
+                <Whiteboard socket={socket} invitationId={sessionId} />
               </div>
             )}
             {activeTab === 'live' && (
               <LiveTab 
                 isLive={isLive} 
                 localVideoRef={localVideoRef} 
-                remoteVideoRef={remoteVideoRef}
+                remoteStreams={remoteStreams}
                 onStart={handleStartSession}
-                onJoin={handleJoinSession}
                 onEnd={handleEndSession}
                 onToggleMic={toggleAudio}
                 onToggleCam={toggleVideo}
@@ -279,7 +302,7 @@ const StudySession = () => {
                 isMicMuted={isAudioMuted}
                 isCamOff={isVideoOff}
                 isSharing={isScreenSharing}
-                hasRemoteStream={!!remoteStream}
+                isHost={userId === session?.host?._id}
               />
             )}
             {activeTab === 'polls' && <PollsTab />}
@@ -347,24 +370,45 @@ const TabButton = ({ active, onClick, icon, label }) => (
   </button>
 );
 
-const ChatTab = () => (
+const ChatTab = ({ messages, onSendMessage, newMessage, setNewMessage, partnerTyping }) => (
   <div className="flex flex-col h-full animate-fade-in">
     <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-      <Message user="Sarah Ahmed" time="12:42" text="Has anyone tried the graph traversal question from last week?" />
-      <Message user="Ahsan Khan" time="12:45" text="Yes, Sarah. I recommend using BFS for shortest path." code="function bfs(graph, start) {\n  const queue = [start];\n  // logic here\n}" />
-      <Message user="Alex Johnson" time="12:46" text="I'm stuck on the adjacency list implementation." reactions={['👍', '💡']} />
+      {messages.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-full opacity-20">
+          <FiMessageSquare className="text-6xl mb-4" />
+          <p className="font-black uppercase tracking-widest text-sm">No messages yet</p>
+        </div>
+      ) : (
+        messages.map((msg, i) => (
+          <Message 
+            key={i} 
+            user={`${msg.senderId?.Firstname} ${msg.senderId?.lastname}`} 
+            time={new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
+            text={msg.message} 
+          />
+        ))
+      )}
+      {partnerTyping && (
+        <div className="flex items-center gap-2 text-indigo-400 animate-pulse ml-12">
+          <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" />
+          <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+          <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+        </div>
+      )}
     </div>
     <div className="p-6 bg-white/[0.02] border-t border-white/5">
-      <div className="relative group max-w-4xl mx-auto">
+      <form onSubmit={onSendMessage} className="relative group max-w-4xl mx-auto">
         <input
           type="text"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Send a message to everyone..."
           className="w-full bg-[#1e293b] border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-indigo-500/40 transition-all shadow-inner"
         />
-        <button className="absolute right-3 top-2.5 p-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-600/30 hover:scale-105 transition-all">
+        <button type="submit" className="absolute right-3 top-2.5 p-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-600/30 hover:scale-105 transition-all">
           <FiSend />
         </button>
-      </div>
+      </form>
     </div>
   </div>
 );
@@ -393,9 +437,8 @@ const DiscussionTab = () => (
 const LiveTab = ({ 
   isLive, 
   localVideoRef, 
-  remoteVideoRef, 
+  remoteStreams, 
   onStart, 
-  onJoin, 
   onEnd,
   onToggleMic,
   onToggleCam,
@@ -403,7 +446,7 @@ const LiveTab = ({
   isMicMuted,
   isCamOff,
   isSharing,
-  hasRemoteStream
+  isHost
 }) => (
   <div className="h-full flex flex-col p-8 animate-fade-in overflow-hidden">
     {!isLive ? (
@@ -413,57 +456,50 @@ const LiveTab = ({
           <FiVideo />
         </div>
         <div className="text-center space-y-2 relative z-10">
-          <h2 className="text-2xl font-black text-white">Join the Virtual Study Room</h2>
-          <p className="text-slate-400 text-sm">Enable your camera and microphone to start collaborating.</p>
+          <h2 className="text-2xl font-black text-white">Group Video Session</h2>
+          <p className="text-slate-400 text-sm">Join the collaborative room with your camera and mic.</p>
         </div>
         <div className="flex gap-4 relative z-10">
-          <button onClick={onStart} className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all">
-            <FiPlay fill="currentColor" /> Start Session
-          </button>
-          <button onClick={onJoin} className="flex items-center gap-3 px-6 py-4 bg-white/5 hover:bg-white/10 text-slate-300 rounded-2xl font-black uppercase tracking-widest text-[11px] border border-white/5 transition-all">
-            Join Active Session
+          <button onClick={onStart} className="flex items-center gap-3 px-12 py-5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all">
+            <FiPlay fill="currentColor" /> Enter Session
           </button>
         </div>
       </div>
     ) : (
       <div className="flex-1 flex flex-col gap-6 overflow-hidden">
-        {/* Video Grid */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
-          <div className="relative bg-[#1e293b] rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl group">
+        {/* Multi-Video Grid */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-0 overflow-y-auto p-2 custom-scrollbar">
+          {/* Local Video */}
+          <div className="relative aspect-video bg-[#1e293b] rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl group">
             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
             <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">You (Host)</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">You {isHost ? '(Host)' : ''}</span>
             </div>
             {isCamOff && (
               <div className="absolute inset-0 bg-[#0f172a] flex items-center justify-center">
-                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-3xl text-slate-600">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-2xl text-slate-600">
                   <FiVideoOff />
                 </div>
               </div>
             )}
           </div>
           
-          <div className="relative bg-[#1e293b] rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl group">
-            {hasRemoteStream ? (
-              <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-2xl text-slate-600 animate-pulse">
-                  <FiUsers />
-                </div>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Waiting for partner...</p>
-              </div>
-            )}
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-              <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full" />
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">Study Partner</span>
+          {/* Remote Videos */}
+          {Object.entries(remoteStreams).map(([peerId, stream]) => (
+            <RemoteVideo key={peerId} stream={stream} peerId={peerId} />
+          ))}
+
+          {Object.keys(remoteStreams).length === 0 && (
+            <div className="relative aspect-video bg-white/[0.02] border border-dashed border-white/10 rounded-[2rem] flex flex-col items-center justify-center gap-4">
+              <FiUsers className="text-4xl text-slate-700" />
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Waiting for others...</p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Call Controls */}
-        <div className="flex items-center justify-center gap-4 bg-white/[0.02] border border-white/5 p-4 rounded-3xl backdrop-blur-xl">
+        <div className="flex items-center justify-center gap-4 bg-[#1e293b]/50 border border-white/5 p-4 rounded-3xl backdrop-blur-xl max-w-2xl mx-auto w-full">
           <button 
             onClick={onToggleMic}
             className={`p-4 rounded-2xl border transition-all ${isMicMuted ? 'bg-rose-500/20 border-rose-500/40 text-rose-400' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'}`}
@@ -482,24 +518,35 @@ const LiveTab = ({
           >
             <FiMonitor />
           </button>
-          <button 
-            className="p-4 rounded-2xl border border-white/10 bg-white/5 text-rose-400 hover:bg-rose-500/10 transition-all"
-            onClick={() => {/* Emit reaction */}}
-          >
-            <FiHeart />
-          </button>
           <div className="h-6 w-px bg-white/10 mx-2" />
           <button 
             onClick={onEnd}
-            className="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-rose-600/20 transition-all flex items-center gap-2"
+            className={`px-8 py-4 ${isHost ? 'bg-rose-600 hover:bg-rose-500' : 'bg-slate-700 hover:bg-slate-600'} text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl transition-all flex items-center gap-2`}
           >
-            <FiLogOut /> End Session
+            <FiLogOut /> {isHost ? 'End Session' : 'Leave Session'}
           </button>
         </div>
       </div>
     )}
   </div>
 );
+
+const RemoteVideo = ({ stream, peerId }) => {
+  const videoRef = React.useRef();
+  React.useEffect(() => {
+    if (videoRef.current && stream) videoRef.current.srcObject = stream;
+  }, [stream]);
+
+  return (
+    <div className="relative aspect-video bg-[#1e293b] rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl group">
+      <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+      <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+        <span className="text-[10px] font-black text-white uppercase tracking-widest">Participant</span>
+      </div>
+    </div>
+  );
+};
 
 const PollsTab = () => (
   <div className="h-full overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-8 custom-scrollbar animate-fade-in">
