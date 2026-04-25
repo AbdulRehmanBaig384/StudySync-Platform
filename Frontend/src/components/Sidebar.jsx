@@ -15,13 +15,18 @@ import {
   FiStar,
   FiMessageSquare
 } from 'react-icons/fi';
+import { useSocket } from '../context/SocketContext';
 
 const Sidebar = () => {
   const navigate = useNavigate();
 
+  const { disconnectUser } = useSocket();
   const handleLogout = () => {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('userEmail');
+    disconnectUser();
     navigate('/login');
   };
 

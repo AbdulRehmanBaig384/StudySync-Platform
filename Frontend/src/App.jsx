@@ -17,102 +17,106 @@ import CompleteProfile from "./Pages/CompleteProfile";
 import Chat from "./Pages/Chat";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { TimerProvider } from "./context/TimerContext";
+import { SocketProvider } from "./context/SocketContext";
 
 function App() {
   return (
-    <TimerProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/complete-profile" element={<CompleteProfile />} />
+    <SocketProvider>
+      <TimerProvider>
+        <Router>
+          {/* ... routes ... */}
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/complete-profile" element={<CompleteProfile />} />
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/find-partner"
-            element={
-              <ProtectedRoute>
-                <FindPartner />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/StudentProfile"
-            element={
-              <ProtectedRoute>
-                <StudentProfile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/CodingRooms"
-            element={
-              <ProtectedRoute>
-                <CodingRooms />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/StudySession"
-            element={
-              <ProtectedRoute>
-                <StudySession />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/resources"
-            element={
-              <ProtectedRoute>
-                <Resources />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ai-tutor"
-            element={
-              <ProtectedRoute>
-                <AITutor />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/pro-hub"
-            element={
-              <ProtectedRoute>
-                <ProHub />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/quizzes"
-            element={
-              <ProtectedRoute>
-                <Quizzes />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <Chat />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/find-partner"
+              element={
+                <ProtectedRoute>
+                  <FindPartner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/StudentProfile"
+              element={
+                <ProtectedRoute>
+                  <StudentProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/CodingRooms"
+              element={
+                <ProtectedRoute>
+                  <CodingRooms />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/StudySession"
+              element={
+                <ProtectedRoute>
+                  <StudySession />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resources"
+              element={
+                <ProtectedRoute>
+                  <Resources />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai-tutor"
+              element={
+                <ProtectedRoute>
+                  <AITutor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pro-hub"
+              element={
+                <ProtectedRoute>
+                  <ProHub />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/quizzes"
+              element={
+                <ProtectedRoute>
+                  <Quizzes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
-    </TimerProvider>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
+      </TimerProvider>
+    </SocketProvider>
   );
 }
 

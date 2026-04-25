@@ -6,7 +6,7 @@ import PartnerRequestList from '../components/PartnerRequestList';
 import PartnerConnections from '../components/PartnerConnections';
 import { FiUsers, FiLoader } from 'react-icons/fi';
 import { NavLink } from 'react-router';
-import { io } from 'socket.io-client';
+import { useSocket } from '../context/SocketContext';
 
 const FindPartner = () => {
   const [partners, setPartners] = useState([]);
@@ -67,18 +67,11 @@ const FindPartner = () => {
   //   };
   // }, []);
 
+  const { socket, onlineUsers } = useSocket();
+
   useEffect(() => {
     const email = sessionStorage.getItem('userEmail');
     if (!email) return;
-
-    const socket = io('http://localhost:3000');
-    socket.emit('user_online', email);
-
-    socket.on('status_change', ({ email: changedEmail, status }) => {
-      setPartners(prev => prev.map(p =>
-        p.email === changedEmail ? { ...p, onlineStatus: status } : p
-      ));
-    });
 
     const fetchData = async () => {
       try {
@@ -90,7 +83,6 @@ const FindPartner = () => {
           setUserProfile(profileData);
           setFilters(prev => ({ ...prev, department: profileData.department }));
 
-          // ✅ Subjects alag alag params mein
           const subjectsParam = (profileData.Preferred_Subjects || [])
             .map(s => `preferredSubjects=${encodeURIComponent(s)}`)
             .join('&');
@@ -112,9 +104,16 @@ const FindPartner = () => {
     };
 
     fetchData();
-
-    return () => socket.disconnect();
   }, []);
+
+  // Update partners list when onlineUsers change in context
+  useEffect(() => {
+    if (Object.keys(onlineUsers).length > 0) {
+      setPartners(prev => prev.map(p => 
+        onlineUsers[p.email] ? { ...p, onlineStatus: onlineUsers[p.email] } : p
+      ));
+    }
+  }, [onlineUsers]);
 
   // const handleFilterChange = async (newFilters) => {
   //   setFilters(newFilters);

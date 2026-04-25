@@ -6,6 +6,7 @@ import { MdOutlineBarChart, MdOutlineVideoCall } from 'react-icons/md'
 import { BiUserCircle } from 'react-icons/bi'
 import { getBackendBaseUrl, postUserLogin } from '../Services/apiClient'
 import { GoogleLogin } from '@react-oauth/google'
+import { useSocket } from '../context/SocketContext'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -14,6 +15,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({})
 
+  const { connectUser } = useSocket()
   const [apiError, setApiError] = useState('')
 
   const handleChange = (e) => {
@@ -39,6 +41,7 @@ const Login = () => {
         sessionStorage.setItem('userName', result.name);
         sessionStorage.setItem('userId', result._id);
         sessionStorage.setItem('userEmail', result.email);
+        connectUser(result.email);
         if (!result.profileCompleted) {
           navigate('/complete-profile');
         } else {
@@ -81,6 +84,7 @@ const Login = () => {
       sessionStorage.setItem('userName', result.name)
       sessionStorage.setItem('userEmail', result.email)
       sessionStorage.setItem('userId', result._id)
+      connectUser(result.email)
       if (result.profileCompleted === false) {
         navigate('/complete-profile')
       } else {

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiMessageSquare, FiUser, FiLoader, FiCircle } from 'react-icons/fi';
+import { useSocket } from '../context/SocketContext';
 
 const PartnerConnections = ({ onSelectPartner }) => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const userId = sessionStorage.getItem('userId');
   const navigate = useNavigate();
+  const { onlineUsers } = useSocket();
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -25,6 +27,14 @@ const PartnerConnections = ({ onSelectPartner }) => {
 
     if (userId) fetchConnections();
   }, [userId]);
+
+  useEffect(() => {
+    if (Object.keys(onlineUsers).length > 0) {
+      setConnections(prev => prev.map(conn => 
+        onlineUsers[conn.email] ? { ...conn, onlineStatus: onlineUsers[conn.email] } : conn
+      ));
+    }
+  }, [onlineUsers]);
 
   if (loading) return (
     <div className="flex justify-center p-4">

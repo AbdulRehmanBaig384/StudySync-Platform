@@ -5,9 +5,11 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
 import connectionRoutes from './routes/connectionRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import sessionRoutes from './routes/sessionRoutes.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import User from './models/UserData.js';
+import Session from './models/Session.js';
 import aiRoutes from "./routes/aiRoutes.js";
 
 configDotenv();
@@ -28,6 +30,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
 app.use('/api/invite', connectionRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/session', sessionRoutes);
 
 app.get("/studysync", (req, res) => {
   res.send("hello from the server");
@@ -74,6 +77,36 @@ io.on("connection", (socket) => {
   socket.on("message_seen", (data) => {
     // data contains invitationId and userId
     socket.to(data.invitationId).emit("messages_marked_seen", data);
+  });
+
+  // --- WebRTC Signaling ---
+  socket.on("join-session", (data) => {
+    const { invitationId, userId } = data;
+    socket.join(invitationId);
+    socket.to(invitationId).emit("user-joined", { userId });
+    console.log(`User ${userId} joined session ${invitationId}`);
+  });
+
+  socket.on("signal", (data) => {
+    // Relay signaling data (offer, answer, candidate) to others in the room
+    socket.to(data.invitationId).emit("signal", data);
+  });
+
+  socket.on("toggle-media", (data) => {
+    socket.to(data.invitationId).emit("user-media-toggled", data);
+  });
+
+  socket.on("end-session", (data) => {
+    socket.to(data.invitationId).emit("session-ended", data);
+  });
+
+  // --- Whiteboard Sync ---
+  socket.on("draw-stroke", (data) => {
+    socket.to(data.invitationId).emit("draw-stroke", data);
+  });
+
+  socket.on("clear-whiteboard", (invitationId) => {
+    socket.to(invitationId).emit("clear-whiteboard");
   });
 
   socket.on("disconnect", async () => {

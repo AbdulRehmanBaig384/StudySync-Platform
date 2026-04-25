@@ -1,5 +1,6 @@
 import Invitation from '../models/Invitation.js';
 import Message from '../models/Message.js';
+import mongoose from 'mongoose';
 
 // @desc    Get all chats (accepted invitations) for a user
 // @route   GET /api/chat/:userId
@@ -7,10 +8,12 @@ export const getChats = async (req, res) => {
   try {
     const { userId } = req.params;
     
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    
     // Find accepted invitations where the user is either sender or receiver
     const connections = await Invitation.find({
       status: 'accepted',
-      $or: [{ sender: userId }, { receiver: userId }]
+      $or: [{ sender: userObjectId }, { receiver: userObjectId }]
     })
     .populate('sender receiver', 'Firstname lastname email profilePicture onlineStatus department facultyOfStudy');
 

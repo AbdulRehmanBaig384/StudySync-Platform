@@ -1,20 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
-import socketService from '../Services/socketService';
-import { 
-  FiSend, 
+import { useSocket } from '../context/SocketContext';
+import {   FiSend, 
   FiSmile, 
   FiPaperclip, 
   FiMoreVertical, 
   FiSearch, 
-  FiCheck, 
   FiCheckCircle, 
-  FiMessageSquare
+  FiMessageSquare,
+  FiVideo,
+  FiMonitor,
+  FiCheck,
 } from 'react-icons/fi';
 
 const Chat = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [chats, setChats] = useState([]); // This will now store accepted invitations
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -26,12 +28,16 @@ const Chat = () => {
   const userId = sessionStorage.getItem('userId');
   const userEmail = sessionStorage.getItem('userEmail');
   const messagesEndRef = useRef(null);
-  const socket = useRef(null);
+  const { socket } = useSocket();
 
   useEffect(() => {
-    socket.current = socketService.connect(userEmail);
+    if (userId) fetchChats();
+  }, [userId]);
 
-    socket.current.on('receive_message', (message) => {
+  useEffect(() => {
+    if (!socket || !userId) return;
+
+    socket.on('receive_message', (message) => {
       if (selectedChat && message.invitationId === selectedChat._id) {
         setMessages(prev => [...prev, message]);
         scrollToBottom();
@@ -41,8 +47,7 @@ const Chat = () => {
       }
     });
 
-    socket.current.on('invitation_accepted', (invitation) => {
-      // If the current user is a participant, add to sidebar instantly
+    socket.on('invitation_accepted', (invitation) => {
       if (invitation.sender._id === userId || invitation.receiver._id === userId) {
         setChats(prev => {
           const exists = prev.find(c => c._id === invitation._id);
@@ -52,29 +57,28 @@ const Chat = () => {
       }
     });
 
-    socket.current.on('user_typing', (data) => {
+    socket.on('user_typing', (data) => {
       if (selectedChat && data.invitationId === selectedChat._id && data.userId !== userId) {
         setPartnerTyping(true);
       }
     });
 
-    socket.current.on('user_stop_typing', (data) => {
+    socket.on('user_stop_typing', (data) => {
       if (selectedChat && data.invitationId === selectedChat._id && data.userId !== userId) {
         setPartnerTyping(false);
       }
     });
 
-    socket.current.on('messages_marked_seen', (data) => {
+    socket.on('messages_marked_seen', (data) => {
       if (selectedChat && data.invitationId === selectedChat._id) {
         setMessages(prev => prev.map(msg => ({ ...msg, seen: true })));
       }
     });
 
-    socket.current.on('status_change', (data) => {
+    socket.on('status_change', (data) => {
       setChats(prev => prev.map(chat => {
         const partner = getPartner(chat);
         if (partner && partner.email === data.email) {
-          // Deep update partner status
           if (chat.sender.email === data.email) chat.sender.onlineStatus = data.status;
           if (chat.receiver.email === data.email) chat.receiver.onlineStatus = data.status;
         }
@@ -82,27 +86,23 @@ const Chat = () => {
       }));
     });
 
-    fetchChats();
-
     return () => {
-      if (socket.current) {
-        socket.current.off('receive_message');
-        socket.current.off('invitation_accepted');
-        socket.current.off('user_typing');
-        socket.current.off('user_stop_typing');
-        socket.current.off('messages_marked_seen');
-        socket.current.off('status_change');
-      }
+      socket.off('receive_message');
+      socket.off('invitation_accepted');
+      socket.off('user_typing');
+      socket.off('user_stop_typing');
+      socket.off('messages_marked_seen');
+      socket.off('status_change');
     };
-  }, [selectedChat]);
+  }, [selectedChat, socket, userId]);
 
   useEffect(() => {
-    if (selectedChat) {
+    if (selectedChat && socket) {
       fetchMessages(selectedChat._id);
-      socket.current.emit('join_chat', selectedChat._id);
+      socket.emit('join_chat', selectedChat._id);
       markAsSeen(selectedChat._id);
     }
-  }, [selectedChat]);
+  }, [selectedChat, socket]);
 
   useEffect(() => {
     scrollToBottom();
@@ -150,7 +150,7 @@ const Chat = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })
       });
-      socket.current.emit('message_seen', { invitationId, userId });
+      socket.emit('message_seen', { invitationId, userId });
     } catch (error) {
       console.error("Error marking messages as seen:", error);
     }
@@ -175,7 +175,7 @@ const Chat = () => {
       const savedMessage = await res.json();
       
       if (res.ok) {
-        socket.current.emit('send_message', savedMessage);
+        socket.emit('send_message', savedMessage);
         setMessages(prev => [...prev, savedMessage]);
         setNewMessage('');
         scrollToBottom();
@@ -200,7 +200,7 @@ const Chat = () => {
     setNewMessage(e.target.value);
     if (!typing) {
       setTyping(true);
-      socket.current.emit('typing', { invitationId: selectedChat._id, userId });
+      socket.emit('typing', { invitationId: selectedChat._id, userId });
     }
 
     const lastTypingTime = new Date().getTime();
@@ -209,7 +209,7 @@ const Chat = () => {
       const timeNow = new Date().getTime();
       const timeDiff = timeNow - lastTypingTime;
       if (timeDiff >= timerLength && typing) {
-        socket.current.emit('stop_typing', { invitationId: selectedChat._id, userId });
+        socket.emit('stop_typing', { invitationId: selectedChat._id, userId });
         setTyping(false);
       }
     }, timerLength);
@@ -221,7 +221,8 @@ const Chat = () => {
 
   const getPartner = (chat) => {
     if (!chat) return null;
-    return chat.sender._id === userId ? chat.receiver : chat.sender;
+    const sId = chat.sender._id.toString();
+    return sId === userId.toString() ? chat.receiver : chat.sender;
   };
 
   return (
@@ -314,6 +315,13 @@ const Chat = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-slate-400">
+                  <button 
+                    onClick={() => navigate('/study-session', { state: { invitationId: selectedChat._id } })}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  >
+                    <FiVideo className="text-sm" /> Start Session
+                  </button>
+                  <div className="h-4 w-px bg-white/10" />
                   <FiSearch className="cursor-pointer hover:text-white transition-colors" />
                   <FiMoreVertical className="cursor-pointer hover:text-white transition-colors" />
                 </div>
