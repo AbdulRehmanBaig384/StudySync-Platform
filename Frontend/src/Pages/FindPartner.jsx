@@ -22,7 +22,7 @@ const FindPartner = () => {
   });
 
   // useEffect(() => {
-  //   const email = sessionStorage.getItem('userEmail');
+  //   const email = localStorage.getItem('userEmail');
   //   if (!email) return;
 
   //   // Initialize socket
@@ -70,12 +70,12 @@ const FindPartner = () => {
   const { socket, onlineUsers } = useSocket();
 
   useEffect(() => {
-    const email = sessionStorage.getItem('userEmail');
+    const email = localStorage.getItem('userEmail');
     if (!email) return;
 
     const fetchData = async () => {
       try {
-        const userId = sessionStorage.getItem('userId');
+        const userId = localStorage.getItem('userId');
         const profileRes = await fetch(`http://localhost:3000/api/users/profile?email=${email}`);
         const profileData = await profileRes.json();
 
@@ -119,7 +119,7 @@ const FindPartner = () => {
   //   setFilters(newFilters);
   //   setLoading(true);
   //   try {
-  //     const email = sessionStorage.getItem('userEmail');
+  //     const email = localStorage.getItem('userEmail');
   //     const subjectsParam = (newFilters.subject
   //       ? [newFilters.subject]
   //       : userProfile?.Preferred_Subjects || []
@@ -141,7 +141,7 @@ const FindPartner = () => {
     setFilters(newFilters);
     setLoading(true);
     try {
-      const userId = sessionStorage.getItem('userId');
+      const userId = localStorage.getItem('userId');
 
       const subjectsParam = (newFilters.subject
         ? [newFilters.subject]
@@ -213,6 +213,9 @@ const FindPartner = () => {
                     matchLevel={partner.matchLevel}
                     onlineStatus={partner.onlineStatus}
                     avatar={partner.Firstname.charAt(0) + partner.lastname.charAt(0)}
+                    onInvite={() => {
+                      setPartners(prev => prev.filter(p => p._id !== partner._id));
+                    }}
                   />
                 ))
               ) : (

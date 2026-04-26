@@ -49,7 +49,7 @@ const CompleteProfile = () => {
   const [apiError, setApiError] = useState('');
 
   // Retrieve user email from session (saved during Google Login)
-  const userEmail = sessionStorage.getItem('userEmail');
+  const userEmail = localStorage.getItem('userEmail');
 
   const {
     register,
@@ -78,10 +78,10 @@ const CompleteProfile = () => {
     
     try {
       const result = await completeUserProfile({ ...data, email: userEmail });
-      if (result.token) sessionStorage.setItem('token', result.token);
-      if (result.name) sessionStorage.setItem('userName', result.name);
-      if (result._id) sessionStorage.setItem('userId', result._id);
-      sessionStorage.setItem('userEmail', result.email || userEmail);
+      if (result.token) localStorage.setItem('token', result.token);
+      if (result.name) localStorage.setItem('userName', result.name);
+      if (result._id) localStorage.setItem('userId', result._id);
+      localStorage.setItem('userEmail', result.email || userEmail);
       navigate('/dashboard');
     } catch (error) {
       console.error(error);

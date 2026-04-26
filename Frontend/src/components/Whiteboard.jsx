@@ -29,7 +29,7 @@ const Whiteboard = ({ socket, invitationId }) => {
     window.addEventListener('resize', handleResize);
 
     // Socket listeners for remote drawing
-    socket.on('draw-stroke', (data) => {
+    socket.on('session_draw_stroke', (data) => {
       const { x, y, prevX, prevY, strokeColor, strokeWidth, type } = data;
       const ctx = contextRef.current;
       ctx.strokeStyle = strokeColor;
@@ -50,7 +50,7 @@ const Whiteboard = ({ socket, invitationId }) => {
       ctx.lineWidth = lineWidth;
     });
 
-    socket.on('clear-whiteboard', () => {
+    socket.on('session_clear_whiteboard', () => {
       const canvas = canvasRef.current;
       const context = contextRef.current;
       context.clearRect(0, 0, canvas.width, canvas.height);
@@ -58,8 +58,8 @@ const Whiteboard = ({ socket, invitationId }) => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      socket.off('draw-stroke');
-      socket.off('clear-whiteboard');
+      socket.off('session_draw_stroke');
+      socket.off('session_clear_whiteboard');
     };
   }, [socket, color, lineWidth]);
 
@@ -69,8 +69,8 @@ const Whiteboard = ({ socket, invitationId }) => {
     contextRef.current.moveTo(offsetX, offsetY);
     setIsDrawing(true);
 
-    socket.emit('draw-stroke', {
-      invitationId,
+    socket.emit('session_draw_stroke', {
+      sessionId: invitationId,
       x: offsetX,
       y: offsetY,
       strokeColor: color,
@@ -85,8 +85,8 @@ const Whiteboard = ({ socket, invitationId }) => {
     contextRef.current.lineTo(offsetX, offsetY);
     contextRef.current.stroke();
 
-    socket.emit('draw-stroke', {
-      invitationId,
+    socket.emit('session_draw_stroke', {
+      sessionId: invitationId,
       x: offsetX,
       y: offsetY,
       strokeColor: color,
@@ -99,8 +99,8 @@ const Whiteboard = ({ socket, invitationId }) => {
     contextRef.current.closePath();
     setIsDrawing(false);
 
-    socket.emit('draw-stroke', {
-      invitationId,
+    socket.emit('session_draw_stroke', {
+      sessionId: invitationId,
       type: 'end'
     });
   };
@@ -108,7 +108,7 @@ const Whiteboard = ({ socket, invitationId }) => {
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
-    socket.emit('clear-whiteboard', invitationId);
+    socket.emit('session_clear_whiteboard', invitationId);
   };
 
   return (

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuthGuard } from '../context/AuthGuardContext'
 import {
   HiOutlineUsers,
   HiOutlineVideoCamera,
@@ -48,6 +49,9 @@ const features = [
 ]
 
 const FeaturesSection = () => {
+  const navigate = useNavigate()
+  const { requireAuth } = useAuthGuard()
+
   return (
     <section id="features" className="section-padding relative overflow-hidden">
       <div className="orb w-[500px] h-[500px] bg-indigo-600 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5" />
@@ -73,6 +77,7 @@ const FeaturesSection = () => {
             return (
               <div
                 key={feature.title}
+                onClick={requireAuth(() => navigate('/dashboard'))}
                 className={`group bg-glass rounded-2xl p-6 card-hover cursor-pointer ${feature.glow} group-hover:shadow-2xl ${index === 4 ? 'lg:col-start-2' : ''
                   }`}
               >

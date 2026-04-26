@@ -9,6 +9,7 @@ import StudySessionList from '../components/StudySessionList';
 import CodingChallengeCard from '../components/CodingChallengeCard';
 import ResourceList from '../components/ResourceList';
 import Leaderboard from '../components/Leaderboard';
+import SessionInvitations from '../components/SessionInvitations';
 import { FiBookOpen, FiClock, FiTarget, FiZap, FiPlus, FiBell, FiPause } from 'react-icons/fi';
 import { useTimer } from '../context/TimerContext';
 
@@ -17,7 +18,7 @@ const Dashboard = () => {
   const { studyStats, startSession, isActive, isPaused, togglePause } = useTimer();
 
   useEffect(() => {
-    const storedName = sessionStorage.getItem('userName');
+    const storedName = localStorage.getItem('userName');
     if (storedName) {
       setUserName(storedName.split(' ')[0]);
     }
@@ -101,6 +102,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-10">
         {/* Left 2 Columns */}
         <div className="xl:col-span-2 space-y-8">
+          <SessionInvitations userId={localStorage.getItem('userId')} />
           {/* Analytics Block */}
           <AnalyticsSection />
 
@@ -137,7 +139,12 @@ const Dashboard = () => {
 
         {/* Right Sidebar Column */}
         <div className="space-y-8">
-          <StreakTracker currentStreak={studyStats.currentStreak} goal={studyStats.longestStreak > 20 ? studyStats.longestStreak + 5 : 20} studyHistory={studyStats.studyHistory} />
+          <StreakTracker 
+            currentStreak={studyStats.currentStreak} 
+            todayStudyHours={studyStats.todayStudyHours}
+            dailyGoal={studyStats.dailyGoal}
+            studyHistory={studyStats.studyHistory} 
+          />
           <StudySessionList />
           <Leaderboard />
           <CodingChallengeCard />

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { 
   BarChart, 
   Bar, 
@@ -14,7 +14,22 @@ import { useTimer } from '../context/TimerContext';
 
 const AnalyticsSection = () => {
   const { studyStats } = useTimer();
+  const [practiceHistory, setPracticeHistory] = useState([]);
   const studyHistory = studyStats?.studyHistory || [];
+  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/quiz/practice/history/${userId}`);
+        const data = await res.json();
+        setPracticeHistory(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    if (userId) fetchHistory();
+  }, [userId]);
 
   const studyHoursData = useMemo(() => {
     const today = new Date();
@@ -41,18 +56,22 @@ const AnalyticsSection = () => {
     return data;
   }, [studyHistory]);
 
-  const progressData = [
-    { week: 'W1', score: 65 },
-    { week: 'W2', score: 72 },
-    { week: 'W3', score: 68 },
-    { week: 'W4', score: 85 },
-    { week: 'W5', score: 82 },
-    { week: 'W6', score: 91 },
-  ];
+  const quizPerformanceData = useMemo(() => {
+    if (!practiceHistory.length) return [];
+    return practiceHistory.slice(-6).map((session, index) => ({
+      week: `S${index + 1}`,
+      score: Math.round((session.score / session.totalQuestions) * 100)
+    }));
+  }, [practiceHistory]);
+
+  const averageScore = useMemo(() => {
+    if (!practiceHistory.length) return 0;
+    const total = practiceHistory.reduce((acc, curr) => acc + (curr.score / curr.totalQuestions), 0);
+    return Math.round((total / practiceHistory.length) * 100);
+  }, [practiceHistory]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Study Hours Bar Chart */}
       <div className="bg-glass-dark p-6 rounded-3xl shadow-xl border border-white/5 min-h-[380px]">
         <h3 className="text-lg font-black text-white mb-8 flex items-center justify-between font-jakarta">
           Weekly Study Hours
@@ -100,15 +119,14 @@ const AnalyticsSection = () => {
         </div>
       </div>
 
-      {/* Quiz Performance Area Chart */}
       <div className="bg-glass-dark p-6 rounded-3xl shadow-xl border border-white/5 min-h-[380px]">
         <h3 className="text-lg font-black text-white mb-8 flex items-center justify-between font-jakarta">
           Quiz Performance
-          <span className="text-[10px] font-black text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20 uppercase tracking-widest">Avg: 82%</span>
+          <span className="text-[10px] font-black text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20 uppercase tracking-widest">Avg: {averageScore}%</span>
         </h3>
         <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={progressData}>
+            <AreaChart data={quizPerformanceData}>
               <defs>
                 <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>

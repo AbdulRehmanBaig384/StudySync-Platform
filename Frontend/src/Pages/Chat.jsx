@@ -25,8 +25,8 @@ const Chat = () => {
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  const userId = sessionStorage.getItem('userId');
-  const userEmail = sessionStorage.getItem('userEmail');
+  const userId = localStorage.getItem('userId');
+  const userEmail = localStorage.getItem('userEmail');
   const messagesEndRef = useRef(null);
   const { socket } = useSocket();
 

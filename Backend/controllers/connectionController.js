@@ -21,7 +21,12 @@ export const sendInvitation = async (req, res) => {
     });
 
     if (existing) {
-      return res.status(400).json({ message: "Invitation already exists or you are already connected" });
+      if (existing.status === 'rejected') {
+        // If rejected, delete it so we can send a new one
+        await Invitation.findByIdAndDelete(existing._id);
+      } else {
+        return res.status(400).json({ message: "Invitation already exists or you are already connected" });
+      }
     }
 
     const invitation = await Invitation.create({

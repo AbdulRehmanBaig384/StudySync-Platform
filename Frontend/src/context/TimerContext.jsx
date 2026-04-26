@@ -29,7 +29,7 @@ export const TimerProvider = ({ children }) => {
   const intervalRef = useRef(null);
 
   const getEmail = () => {
-    return sessionStorage.getItem('userEmail');
+    return localStorage.getItem('userEmail');
   };
 
   // Fetch initial stats once user is logged in

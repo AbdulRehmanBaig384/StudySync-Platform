@@ -7,7 +7,7 @@ const PartnerRequestList = () => {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
 
-  const userId = sessionStorage.getItem('userId');
+  const userId = localStorage.getItem('userId');
 
   const fetchData = async () => {
     try {
@@ -87,20 +87,22 @@ const PartnerRequestList = () => {
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tight truncate">{req.sender.department}</p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
               <button 
                 onClick={() => handleResponse(req._id, 'accepted')}
                 disabled={processingId === req._id}
-                className="p-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg border border-emerald-500/20 transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-lg border border-emerald-500/20 transition-all duration-200 disabled:opacity-50 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-emerald-500/10"
               >
-                {processingId === req._id ? <FiLoader className="animate-spin text-[10px]" /> : <FiCheck className="text-[10px]" />}
+                {processingId === req._id ? <FiLoader className="animate-spin" /> : <FiCheck />}
+                Accept
               </button>
               <button 
                 onClick={() => handleResponse(req._id, 'rejected')}
                 disabled={processingId === req._id}
-                className="p-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg border border-rose-500/20 transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white rounded-lg border border-rose-500/20 transition-all duration-200 disabled:opacity-50 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-rose-500/10"
               >
-                {processingId === req._id ? <FiLoader className="animate-spin text-[10px]" /> : <FiX className="text-[10px]" />}
+                {processingId === req._id ? <FiLoader className="animate-spin" /> : <FiX />}
+                Reject
               </button>
             </div>
           </div>

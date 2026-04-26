@@ -6,7 +6,7 @@ import { useSocket } from '../context/SocketContext';
 const PartnerConnections = ({ onSelectPartner }) => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userId = sessionStorage.getItem('userId');
+  const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
   const { onlineUsers } = useSocket();
 

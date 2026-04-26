@@ -11,6 +11,8 @@ import { Server } from 'socket.io';
 import User from './models/UserData.js';
 import Session from './models/Session.js';
 import aiRoutes from "./routes/aiRoutes.js";
+import codeExecutionRoutes from './routes/codeExecutionRoutes.js';
+import quizRoutes from './routes/quizRoutes.js';
 
 configDotenv();
 ConnectMongoDb();
@@ -31,6 +33,8 @@ app.use("/api/ai", aiRoutes);
 app.use('/api/invite', connectionRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/session', sessionRoutes);
+app.use('/api/code', codeExecutionRoutes);
+app.use('/api/quiz', quizRoutes);
 
 app.get("/studysync", (req, res) => {
   res.send("hello from the server");
@@ -48,11 +52,31 @@ app.set('io', io);
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("user_online", async (email) => {
+  socket.on("user_online", async (data) => {
+    const email = typeof data === 'string' ? data : data.email;
+    const userId = data.userId;
+    
     if (!email) return;
     await User.findOneAndUpdate({ email }, { onlineStatus: "online" });
     socket.userEmail = email;
+    if (userId) {
+      socket.join(userId);
+      socket.currentUserId = userId;
+      console.log(`User ${userId} joined their personal room`);
+    }
     io.emit("status_change", { email, status: "online" });
+  });
+
+  socket.on("send_session_invitation", (data) => {
+    io.to(data.receiverId).emit("new_session_invitation", data.notification);
+  });
+
+  socket.on("respond_to_invitation", (data) => {
+    io.to(data.senderId).emit("invitation_response", { 
+      status: data.status, 
+      receiverId: data.receiverId,
+      notification: data.notification 
+    });
   });
 
   socket.on("join_chat", (invitationId) => {
@@ -61,12 +85,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", (message) => {
-    // Message should contain invitationId, senderId, text, etc.
     io.to(message.invitationId).emit("receive_message", message);
   });
 
   socket.on("typing", (data) => {
-    // data should contain invitationId and userId
     socket.to(data.invitationId).emit("user_typing", data);
   });
 

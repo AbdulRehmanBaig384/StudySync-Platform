@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuthGuard } from '../context/AuthGuardContext'
 import {
   HiOutlineUsers,
   HiOutlineVideoCamera,
@@ -11,6 +12,9 @@ import { BiCodeAlt, BiTargetLock, BiTrophy } from 'react-icons/bi'
 import { RiUserSmileLine } from 'react-icons/ri'
 
 const HeroSection = () => {
+  const navigate = useNavigate()
+  const { requireAuth } = useAuthGuard()
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Background orbs */}
@@ -53,11 +57,17 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4">
-            <Link to="/signup" className="btn-primary text-base px-8 py-3.5 rounded-xl inline-flex items-center gap-2">
+            <button 
+              onClick={requireAuth(() => navigate('/signup'))} 
+              className="btn-primary text-base px-8 py-3.5 rounded-xl inline-flex items-center gap-2"
+            >
               <HiOutlineUsers className="w-5 h-5" />
               <span>Find Study Partner</span>
-            </Link>
-            <button className="btn-secondary text-base px-8 py-3.5 rounded-xl flex items-center gap-2">
+            </button>
+            <button 
+              onClick={requireAuth(() => navigate('/dashboard'))}
+              className="btn-secondary text-base px-8 py-3.5 rounded-xl flex items-center gap-2"
+            >
               <FiPlay className="w-4 h-4" />
               Start Studying
             </button>

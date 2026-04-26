@@ -13,10 +13,12 @@ const SessionLobby = () => {
     description: '',
     maxParticipants: 5,
     privacy: 'public',
-    department: sessionStorage.getItem('department') || ''
+    department: localStorage.getItem('department') || '',
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
   });
   
-  const userId = sessionStorage.getItem('userId');
+  const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -99,25 +101,45 @@ const SessionLobby = () => {
           sessions.map(session => (
             <div key={session._id} className="group bg-glass-dark border border-white/5 rounded-[2rem] p-8 hover:border-indigo-500/30 transition-all duration-500 hover:translate-y-[-4px] shadow-2xl">
               <div className="flex justify-between items-start mb-6">
-                <div className={`p-3 rounded-2xl ${session.privacy === 'public' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                  {session.privacy === 'public' ? <FiGlobe /> : <FiLock />}
+                <div className="flex flex-col gap-2">
+                  <div className={`w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    session.status === 'active' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                    session.status === 'upcoming' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                    'bg-slate-500/10 text-slate-500 border border-slate-500/20'
+                  }`}>
+                    {session.status}
+                  </div>
+                  <div className={`p-3 rounded-2xl w-fit ${session.privacy === 'public' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                    {session.privacy === 'public' ? <FiGlobe /> : <FiLock />}
+                  </div>
                 </div>
-                <div className="flex -space-x-2">
-                  {session.participants.slice(0, 3).map((p, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-slate-800 border-2 border-[#0a0f1e] flex items-center justify-center text-[10px] font-bold text-white">
-                      {p.Firstname?.[0]}
-                    </div>
-                  ))}
-                  {session.participants.length > 3 && (
-                    <div className="w-8 h-8 rounded-full bg-slate-700 border-2 border-[#0a0f1e] flex items-center justify-center text-[10px] font-bold text-white">
-                      +{session.participants.length - 3}
-                    </div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex -space-x-2">
+                    {session.participants.slice(0, 3).map((p, i) => (
+                      <div key={i} className="w-8 h-8 rounded-full bg-slate-800 border-2 border-[#0a0f1e] flex items-center justify-center text-[10px] font-bold text-white overflow-hidden">
+                        {p.profilePicture ? <img src={p.profilePicture} alt="" className="w-full h-full object-cover" /> : p.Firstname?.[0]}
+                      </div>
+                    ))}
+                    {session.participants.length > 3 && (
+                      <div className="w-8 h-8 rounded-full bg-slate-700 border-2 border-[#0a0f1e] flex items-center justify-center text-[10px] font-bold text-white">
+                        +{session.participants.length - 3}
+                      </div>
+                    )}
+                  </div>
+                  {session.status === 'upcoming' && session.timeRemaining > 0 && (
+                    <span className="text-[10px] font-black text-indigo-400 animate-pulse uppercase tracking-widest">
+                      Starts in {session.timeRemaining}m
+                    </span>
                   )}
                 </div>
               </div>
 
               <h3 className="text-xl font-black text-white mb-2 font-jakarta truncate group-hover:text-indigo-400 transition-colors">{session.name}</h3>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">{session.topic}</p>
+              <div className="flex items-center gap-2 mb-4">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{session.topic}</p>
+                <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{session.date === new Date().toISOString().split('T')[0] ? 'Today' : session.date} at {session.time}</p>
+              </div>
               
               <p className="text-slate-400 text-sm mb-6 line-clamp-2 h-10">{session.description || "Join this session to collaborate on the topic."}</p>
 
@@ -188,6 +210,29 @@ const SessionLobby = () => {
                     type="number" 
                     value={formData.maxParticipants}
                     onChange={(e) => setFormData({...formData, maxParticipants: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={formData.date}
+                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Time</label>
+                  <input 
+                    type="time" 
+                    required
+                    value={formData.time}
+                    onChange={(e) => setFormData({...formData, time: e.target.value})}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all"
                   />
                 </div>

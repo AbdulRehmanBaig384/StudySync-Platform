@@ -33,6 +33,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { useWebRTC } from '../hooks/useWebRTC';
 import Whiteboard from '../components/Whiteboard';
+import InviteModal from '../components/InviteModal';
 
 const StudySession = () => {
   const { sessionId } = useParams();
@@ -44,9 +45,10 @@ const StudySession = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [partnerTyping, setPartnerTyping] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   
-  const userId = sessionStorage.getItem('userId');
-  const userEmail = sessionStorage.getItem('userEmail');
+  const userId = localStorage.getItem('userId');
+  const userEmail = localStorage.getItem('userEmail');
   const { socket } = useSocket();
 
   const {
@@ -107,6 +109,11 @@ const StudySession = () => {
         .then(data => setParticipants(data.participants));
     });
 
+    socket.on('invitation_response', (data) => {
+      // Optional: Show a toast notification to the host
+      console.log(`Invitation ${data.status} by user ${data.receiverId}`);
+    });
+
     socket.on('participant_left', (data) => {
       setParticipants(prev => prev.filter(p => p._id !== data.userId));
     });
@@ -122,6 +129,7 @@ const StudySession = () => {
     return () => {
       socket.off('receive_session_message');
       socket.off('participant_joined');
+      socket.off('invitation_response');
       socket.off('participant_left');
       socket.off('user_session_typing');
       socket.off('user_session_stop_typing');
@@ -231,7 +239,10 @@ const StudySession = () => {
                 className="w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500/30 transition-all"
               />
             </div>
-            <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+            <button 
+              onClick={() => setIsInviteModalOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+            >
               <FiUserPlus /> Invite User
             </button>
           </div>
@@ -354,6 +365,13 @@ const StudySession = () => {
         </aside>
 
       </main>
+
+      <InviteModal 
+        sessionId={sessionId}
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        userId={userId}
+      />
     </div>
   );
 };

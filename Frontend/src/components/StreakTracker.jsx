@@ -1,84 +1,46 @@
-import React, { useMemo } from 'react';
-import { FiCheckCircle, FiAward } from 'react-icons/fi';
+import React from 'react';
+import { FiZap } from 'react-icons/fi';
 
-const StreakTracker = ({ currentStreak, goal, studyHistory = [] }) => {
-  const progress = Math.min((currentStreak / goal) * 100, 100);
-
-  // Calculate current week (Mon-Sun)
-  const weekData = useMemo(() => {
-    const today = new Date();
-    // getDay() is 0 for Sunday, 1 for Mon... Make Mon=0, Sun=6
-    const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
-    
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - dayOfWeek);
-    
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const completedDays = [];
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
-      const dateString = d.toISOString().split('T')[0];
-      
-      const historyItem = studyHistory.find(h => h.date === dateString);
-      completedDays.push(historyItem ? historyItem.goalMet : false);
-    }
-
-    return { days, completedDays };
-  }, [studyHistory]);
-
-  const { days, completedDays } = weekData;
+const StreakTracker = ({ currentStreak, todayStudyHours, dailyGoal, studyHistory = [] }) => {
+  const today = new Date().toISOString().split('T')[0];
+  const todayStats = studyHistory.find(h => h.date === today) || { hours: 0, goalMet: false };
+  
+  const progress = dailyGoal > 0 ? Math.min((todayStudyHours / dailyGoal) * 100, 100) : 0;
+  const isGoalMetToday = todayStats.goalMet || progress >= 100;
 
   return (
-    <div className="bg-glass-dark p-6 rounded-3xl shadow-xl border border-white/5 h-full flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-black text-white flex items-center gap-2 font-jakarta">
-            Study Streak
-            <span className="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-black border border-amber-500/20">🔥 {currentStreak} Days</span>
+    <div className="bg-glass-dark p-6 rounded-3xl shadow-xl border border-white/5 relative overflow-hidden group">
+      {/* Background Glow */}
+      <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-700"></div>
+      
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Streak</p>
+          <h3 className="text-3xl font-black text-white flex items-center gap-2 font-jakarta">
+            {currentStreak} <span className="text-sm text-amber-500">Days</span>
           </h3>
-          <FiAward className="text-2xl text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
         </div>
-
-        <div className="mb-6">
-          <div className="flex justify-between text-sm mb-2 font-medium">
-            <span className="text-slate-400">Progress to goal</span>
-            <span className="font-black text-indigo-400">{currentStreak}/{goal} days</span>
-          </div>
-          <div className="w-full bg-white/5 h-3 rounded-full overflow-hidden border border-white/5 p-0.5">
-            <div 
-              className="bg-gradient-to-r from-indigo-500 to-violet-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(79,70,229,0.5)]"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-2">
-          {days.map((day, idx) => (
-            <div key={day} className="flex flex-col items-center gap-3">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">{day}</span>
-              <div className={`
-                w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300
-                ${completedDays[idx] 
-                  ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20' 
-                  : 'bg-white/5 text-slate-700 border border-dashed border-white/10'}
-              `}>
-                {completedDays[idx] && <FiCheckCircle className="text-lg" />}
-              </div>
-            </div>
-          ))}
+        <div className={`p-3 rounded-2xl ${isGoalMetToday ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-white/5 text-slate-600 border border-white/5'}`}>
+          <FiZap className={`text-xl ${isGoalMetToday ? 'animate-pulse' : ''}`} />
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-2 pt-6 border-t border-white/5">
-        <div className="bg-white/5 px-3 py-2 rounded-xl flex items-center gap-2 border border-white/5 hover:bg-white/10 transition-colors cursor-help">
-          <span className="text-xl">🥉</span>
-          <span className="text-[10px] font-black text-slate-300 uppercase">Early Bird</span>
+      <div className="relative z-10">
+        <div className="flex justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
+          <span className="text-slate-400">Today's Goal</span>
+          <span className={isGoalMetToday ? "text-emerald-400" : "text-amber-400"}>
+            {isGoalMetToday ? "Completed" : "In Progress"}
+          </span>
         </div>
-        <div className="bg-white/5 px-3 py-2 rounded-xl flex items-center gap-2 border border-white/5 opacity-40 grayscale">
-          <span className="text-xl">🥈</span>
-          <span className="text-[10px] font-black text-slate-300 uppercase">Night Owl</span>
+        <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden p-0.5 border border-white/5">
+          <div 
+            className={`h-full rounded-full transition-all duration-1000 ${
+              isGoalMetToday 
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
+                : 'bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+            }`}
+            style={{ width: `${progress}%` }} 
+          />
         </div>
       </div>
     </div>

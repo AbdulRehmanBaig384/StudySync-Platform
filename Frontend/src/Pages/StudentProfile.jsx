@@ -28,7 +28,7 @@ const StudentProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const email = sessionStorage.getItem('userEmail');
+      const email = localStorage.getItem('userEmail');
       if (!email) {
         setIsLoading(false);
         return;

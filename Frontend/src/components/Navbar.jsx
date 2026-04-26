@@ -1,17 +1,36 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { HiOutlineBookOpen } from 'react-icons/hi'
+import { Link, useNavigate } from 'react-router-dom'
+import { HiOutlineBookOpen, HiOutlineUser } from 'react-icons/hi'
 import { HiOutlineBars3, HiOutlineXMark } from 'react-icons/hi2'
-import { FiChevronRight } from 'react-icons/fi'
+import { FiChevronRight, FiLogOut } from 'react-icons/fi'
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userName, setUserName] = useState('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token')
+      const name = localStorage.getItem('userName')
+      setIsLoggedIn(!!token)
+      setUserName(name || '')
+    }
+    
+    // Initial check
+    checkAuth()
+
+    // Listen for custom event
+    window.addEventListener('authChange', checkAuth)
+    return () => window.removeEventListener('authChange', checkAuth)
   }, [])
 
   const navLinks = [
@@ -54,19 +73,45 @@ const Navbar = () => {
 
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            to="/login"
-            className="text-slate-300 hover:text-white font-medium text-sm transition-colors duration-200 px-4 py-2"
-          >
-            Log In
-          </Link>
-          <Link
-            to="/signup"
-            className="btn-primary text-sm px-5 py-2.5 rounded-xl inline-flex items-center gap-1.5"
-          >
-            <span>Get Started Free</span>
-            <FiChevronRight className="w-4 h-4" />
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="text-slate-300 hover:text-white font-medium text-sm transition-colors duration-200 px-4 py-2"
+              >
+                Dashboard
+              </Link>
+              <div 
+                className="flex items-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 rounded-xl px-3 py-1.5 transition-colors border border-white/10"
+                onClick={() => navigate('/StudentProfile')}
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-inner">
+                  <span className="text-white text-sm font-bold">
+                    {userName ? userName.charAt(0).toUpperCase() : <HiOutlineUser className="w-4 h-4 text-white" />}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-white max-w-[100px] truncate">
+                  {userName ? userName.split(' ')[0] : 'Profile'}
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-slate-300 hover:text-white font-medium text-sm transition-colors duration-200 px-4 py-2"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/signup"
+                className="btn-primary text-sm px-5 py-2.5 rounded-xl inline-flex items-center gap-1.5"
+              >
+                <span>Get Started Free</span>
+                <FiChevronRight className="w-4 h-4" />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Hamburger */}
@@ -96,11 +141,27 @@ const Navbar = () => {
             </a>
           ))}
           <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-            <Link to="/login" className="text-slate-300 hover:text-white font-medium">Log In</Link>
-            <Link to="/signup" className="btn-primary text-center text-sm py-2.5 rounded-xl inline-flex items-center justify-center gap-1.5">
-              <span>Get Started Free</span>
-              <FiChevronRight className="w-4 h-4" />
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link to="/dashboard" className="text-slate-300 hover:text-white font-medium py-2">Dashboard</Link>
+                <Link to="/StudentProfile" className="flex items-center gap-3 text-slate-300 hover:text-white font-medium py-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">
+                      {userName ? userName.charAt(0).toUpperCase() : <HiOutlineUser className="w-4 h-4 text-white" />}
+                    </span>
+                  </div>
+                  <span>{userName ? userName.split(' ')[0] : 'Profile'}</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-slate-300 hover:text-white font-medium">Log In</Link>
+                <Link to="/signup" className="btn-primary text-center text-sm py-2.5 rounded-xl inline-flex items-center justify-center gap-1.5">
+                  <span>Get Started Free</span>
+                  <FiChevronRight className="w-4 h-4" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

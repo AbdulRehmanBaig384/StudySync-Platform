@@ -14,7 +14,6 @@ export const generateTutorReply = async (message) => {
     return "AI configuration error. Please check backend environment.";
   }
 
-  // Using Gemini 3 and 2.5 series as per user's available models
   const versions = ["v1", "v1beta"];
   const models = ["gemini-3-flash", "gemini-3.1-pro", "gemini-2.5-flash", "gemini-2.5-pro"];
 
@@ -49,13 +48,11 @@ export const generateTutorReply = async (message) => {
         const data = await response.json();
 
         if (response.ok) {
-          // Success!
           return data.candidates?.[0]?.content?.parts?.[0]?.text || "I received an empty response from the AI.";
         } else {
           console.error(`Failed ${version}/${model}:`, data.error?.message || response.statusText);
           lastError = data.error?.message || response.statusText;
           
-          // If it's a quota error (429), don't keep trying others, just report it
           if (response.status === 429) {
             return "AI Quota Exceeded. Please wait a minute before trying again.";
           }

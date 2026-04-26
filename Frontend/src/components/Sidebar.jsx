@@ -22,16 +22,18 @@ const Sidebar = () => {
 
   const { disconnectUser } = useSocket();
   const handleLogout = () => {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('userName');
-    sessionStorage.removeItem('userId');
-    sessionStorage.removeItem('userEmail');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    window.dispatchEvent(new Event('authChange'));
     disconnectUser();
     navigate('/login');
   };
 
   const menuItems = [
-    { name: 'Dashboard', icon: <FiHome />, path: '/dashboard' },
+    { name: 'Home', icon: <FiHome />, path: '/' },
+    { name: 'Dashboard', icon: <FiTrendingUp />, path: '/dashboard' },
     { name: 'Find Study Partner', icon: <FiSearch />, path: '/find-partner' },
     { name: 'Study Sessions', icon: <FiBookOpen />, path: '/StudySession' },
     { name: 'Quiz & Practice', icon: <FiLayers />, path: '/quizzes' },

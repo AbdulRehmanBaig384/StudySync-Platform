@@ -39,6 +39,8 @@ const CodingRooms = () => {
   const [activeRightPanel, setActiveRightPanel] = useState(null); // null, 'chat', or 'ai'
   const [activeBottomTab, setActiveBottomTab] = useState('output'); // 'output' or 'input'
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [executionStatus, setExecutionStatus] = useState(null);
   const [timer, setTimer] = useState(0);
   const [showAIPopover, setShowAIPopover] = useState(false);
 
@@ -91,10 +93,49 @@ const CodingRooms = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleRun = () => {
-    setOutput('Compilation Successful...\nExecuting Test Cases...\n\nResult: [0, 1]\nTime: 42ms\nMemory: 12.4MB\n\n✅ Test Case 1 Passed');
+  const handleRun = async () => {
+    setIsLoading(true);
     setIsConsoleOpen(true);
     setActiveBottomTab('output');
+    setOutput('');
+    setExecutionStatus(null);
+
+    const languageIds = {
+      javascript: 63,
+      python: 71,
+      cpp: 54
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/api/code/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          language_id: languageIds[language]
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setExecutionStatus(data.status);
+        if (data.stderr) {
+          setOutput(data.stderr);
+        } else if (data.compile_output) {
+          setOutput(data.compile_output);
+        } else {
+          setOutput(data.stdout || "No Output");
+        }
+      } else {
+        setOutput(data.message || "Execution failed");
+      }
+    } catch (error) {
+      console.error("Run Error:", error);
+      setOutput("Error connecting to execution server");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -171,9 +212,11 @@ const CodingRooms = () => {
 
             <button
               onClick={handleRun}
-              className="flex items-center gap-2 px-5 py-2 bg-white/5 hover:bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-black uppercase tracking-widest text-[10px] rounded-xl transition-all active:scale-95"
+              disabled={isLoading}
+              className={`flex items-center gap-2 px-5 py-2 bg-white/5 hover:bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-black uppercase tracking-widest text-[10px] rounded-xl transition-all active:scale-95 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <FiPlay fill="currentColor" className="text-[10px]" /> Run
+              {isLoading ? <FiRefreshCw className="animate-spin text-[10px]" /> : <FiPlay fill="currentColor" className="text-[10px]" />}
+              {isLoading ? 'Running...' : 'Run'}
             </button>
 
             <button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black uppercase tracking-widest text-[10px] rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
@@ -344,10 +387,30 @@ const CodingRooms = () => {
 
               <div className="flex-1 p-6 overflow-y-auto font-mono text-xs custom-scrollbar">
                 {activeBottomTab === 'output' ? (
-                  <div className="animate-slide-up space-y-2">
-                    {output ? (
-                      <div className="text-emerald-400 whitespace-pre-wrap leading-relaxed animate-slide-up">
-                        {output}
+                  <div className="animate-slide-up space-y-4">
+                    {isLoading ? (
+                      <div className="flex flex-col items-center justify-center py-10 gap-4">
+                        <FiRefreshCw className="text-4xl text-indigo-500 animate-spin" />
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Executing code on Judge0...</p>
+                      </div>
+                    ) : output ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                          <div className="flex items-center gap-3">
+                            <span className={`w-2 h-2 rounded-full ${executionStatus?.id === 3 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white">
+                              {executionStatus?.description || 'Status Unknown'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={`p-4 rounded-xl font-mono text-[11px] leading-relaxed overflow-x-auto ${
+                          output.toLowerCase().includes('error') || 
+                          output.toLowerCase().includes('exception') || 
+                          output.toLowerCase().includes('failed') 
+                          ? 'bg-rose-500/5 text-rose-300 border border-rose-500/10' 
+                          : 'bg-black/20 text-emerald-400 border border-white/5'}`}>
+                          {output}
+                        </div>
                       </div>
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center text-slate-700 opacity-20 py-10 scale-90">

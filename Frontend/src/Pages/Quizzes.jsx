@@ -29,203 +29,338 @@ import {
   Area
 } from 'recharts';
 import DashboardLayout from '../components/DashboardLayout';
+import QuizSetupModal from '../components/QuizSetupModal';
 
 const Quizzes = () => {
-  const [view, setView] = useState('list'); // 'list', 'start', 'attempt', 'result'
-  const [activeTab, setActiveTab] = useState('practice');
+  const [view, setView] = useState('courses'); 
+  const [courses, setCourses] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [timer, setTimer] = useState(0);
   const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
+  const [practiceSessionId, setPracticeSessionId] = useState(null);
+  const [isPracticeMode, setIsPracticeMode] = useState(false);
+  const [practiceResults, setPracticeResults] = useState(null);
+  const [practiceHistory, setPracticeHistory] = useState([]);
 
-  // Mock Data
-  const quizTypes = [
-    { id: 'practice', label: 'Practice Mode', icon: <FiLayers /> },
-    { id: 'exam', label: 'Exam Mode', icon: <FiClock /> },
-    { id: 'topic', label: 'Topic Based', icon: <FiZap /> },
-    { id: 'hardest', label: 'Elite Challenges', icon: <FiTrendingUp /> },
-  ];
+  const userId = localStorage.getItem('userId');
 
-  const quizzes = [
-    { 
-      id: 1, 
-      title: 'React Hooks Mastery', 
-      questions: 10, 
-      difficulty: 'Medium', 
-      duration: 15, 
-      subject: 'Web Dev', 
-      tab: 'topic',
-      image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1470&auto=format&fit=crop'
-    },
-    { 
-      id: 2, 
-      title: 'DSA: Graph Theory', 
-      questions: 15, 
-      difficulty: 'Hard', 
-      duration: 30, 
-      subject: 'DSA', 
-      tab: 'hardest',
-      image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1469&auto=format&fit=crop'
-    },
-    { 
-      id: 3, 
-      title: 'SQL Joins & Indexing', 
-      questions: 8, 
-      difficulty: 'Easy', 
-      duration: 10, 
-      subject: 'DBMS', 
-      tab: 'practice',
-      image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=1421&auto=format&fit=crop'
-    },
-    { 
-      id: 4, 
-      title: 'System Design Patterns', 
-      questions: 12, 
-      difficulty: 'Hard', 
-      duration: 45, 
-      subject: 'Architecture', 
-      tab: 'exam',
-      image: 'https://images.unsplash.com/photo-1508921331509-4c7ee27c0d23?q=80&w=1470&auto=format&fit=crop'
-    },
-  ];
+  useEffect(() => {
+    fetchCourses();
+    fetchPracticeHistory();
+  }, []);
 
-  const quizData = {
-    questions: [
-      {
-        id: 1,
-        q: "What is the primary purpose of the 'useEffect' hook in React?",
-        options: [
-          "To manage state exclusively",
-          "To perform side effects in functional components",
-          "To optimize rendering performance",
-          "To handle complex routing logic"
-        ],
-        answer: 1,
-        explanation: "useEffect allows you to perform side effects (data fetching, subscriptions, manual DOM changes) in functional components, serving a similar purpose to lifecycle methods in class components."
-      },
-      {
-        id: 2,
-        q: "Which hook should be used to store a mutable value that does not cause a re-render?",
-        options: ["useState", "useMemo", "useRef", "useCallback"],
-        answer: 2,
-        explanation: "useRef returns a mutable ref object whose .current property is initialized to the passed argument. The returned object will persist for the full lifetime of the component and changing it doesn't trigger a re-render."
-      }
-    ]
+  const fetchPracticeHistory = async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/quiz/practice/history/${userId}`);
+      const data = await res.json();
+      setPracticeHistory(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const performanceData = [
-    { name: 'Mon', score: 65 },
-    { name: 'Tue', score: 80 },
-    { name: 'Wed', score: 72 },
-    { name: 'Thu', score: 90 },
-    { name: 'Fri', score: 85 },
-    { name: 'Sat', score: 95 },
-    { name: 'Sun', score: 88 },
-  ];
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/quiz/courses');
+      const data = await res.json();
+      setCourses(data);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
 
-  // Logic Handlers
-  const startQuiz = (quiz) => {
+  const fetchTopics = async (courseId) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:3000/api/quiz/courses/${courseId}/topics`);
+      const data = await res.json();
+      setTopics(data);
+      setView('topics');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchQuizzes = async (topic) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:3000/api/quiz/topics/${topic}/quizzes`);
+      const data = await res.json();
+      setQuizzes(data);
+      setView('quizzes');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchQuestions = async (quizId) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:3000/api/quiz/${quizId}/questions`);
+      const data = await res.json();
+      setQuestions(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCourseSelect = (course) => {
+    setSelectedCourse(course);
+    fetchTopics(course._id);
+  };
+
+  const handleTopicSelect = (topic) => {
+    setSelectedTopic(topic);
+    fetchQuizzes(topic);
+  };
+
+  const handleQuizSelect = (quiz) => {
     setSelectedQuiz(quiz);
     setView('start');
   };
 
-  const beginAttempt = () => {
+  const beginAttempt = async () => {
+    await fetchQuestions(selectedQuiz._id);
     setView('attempt');
-    setTimer(selectedQuiz.duration * 60);
+    setTimer(selectedQuiz.timeLimit * 60);
     setUserAnswers({});
     setCurrentQuestion(0);
   };
 
-  const finishQuiz = () => {
-    const score = Object.keys(userAnswers).reduce((acc, qIdx) => {
-      return acc + (userAnswers[qIdx] === quizData.questions[qIdx].answer ? 1 : 0);
-    }, 0);
-
-    setResults({
-      score,
-      total: quizData.questions.length,
-      percentage: (score / quizData.questions.length) * 100,
-      timeTaken: selectedQuiz.duration * 60 - timer
-    });
-    setView('result');
+  const handleGeneratePractice = async (formData) => {
+    try {
+      const res = await fetch('http://localhost:3000/api/quiz/practice/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, userId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setQuestions(data.questions);
+        setPracticeSessionId(data.sessionId);
+        setIsPracticeMode(true);
+        setIsPracticeModalOpen(false);
+        setView('practice-attempt');
+        setCurrentQuestion(0);
+        setUserAnswers({});
+      } else {
+        alert(data.message || "Generation failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error connecting to server");
+    }
   };
+
+  const finishPracticeQuiz = async () => {
+    setLoading(true);
+    try {
+      const answersArray = questions.map((_, i) => userAnswers[i] !== undefined ? questions[i].options[userAnswers[i]] : null);
+      
+      const res = await fetch(`http://localhost:3000/api/quiz/practice/${practiceSessionId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedAnswers: answersArray })
+      });
+      const data = await res.json();
+      setPracticeResults(data);
+      setView('practice-result');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const finishQuiz = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:3000/api/quiz/${selectedQuiz._id}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, selectedAnswers: userAnswers })
+      });
+      const data = await res.json();
+      setResults(data);
+      setView('result');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let interval;
+    if (view === 'attempt' && timer > 0) {
+      interval = setInterval(() => setTimer(t => t - 1), 1000);
+    } else if (timer === 0 && view === 'attempt') {
+      finishQuiz();
+    }
+    return () => clearInterval(interval);
+  }, [view, timer]);
 
   return (
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in pb-20">
 
-        {view === 'list' && (
+        {view === 'courses' && (
           <>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
                 <h1 className="text-3xl font-black text-white tracking-tight">Quiz & Practice</h1>
-                <p className="text-slate-400 text-sm mt-1">Challenge yourself and track your growth.</p>
+                <p className="text-slate-400 text-sm mt-1">Select a course or generate a custom AI practice session.</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="relative group">
-                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input type="text" placeholder="Search quizzes..." className="bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-3 text-sm text-white focus:outline-none focus:border-indigo-500/50 w-full md:w-[300px]" />
-                </div>
-                <button className="p-3 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white transition-all"><FiFilter /></button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
-              {quizTypes.map((type) => (
-                <button
-                  key={type.id}
-                  onClick={() => setActiveTab(type.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === type.id
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                      : 'bg-white/5 text-slate-500 border border-white/5 hover:bg-white/10'
-                    }`}
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => {
+                    fetchPracticeHistory();
+                    setView('history');
+                  }}
+                  className="flex items-center gap-2 px-6 py-4 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
                 >
-                  {type.icon} {type.label}
+                  <FiClock /> History
                 </button>
-              ))}
+                <button 
+                  onClick={() => setIsPracticeModalOpen(true)}
+                  className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-indigo-600/20 group"
+                >
+                  <div className="bg-white/20 p-2 rounded-xl group-hover:rotate-12 transition-transform">
+                    <FiCpu className="text-lg" />
+                  </div>
+                  Attempt MCQs
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {quizzes.filter(q => q.tab === activeTab || activeTab === 'practice').map((quiz) => (
-                <div key={quiz.id} className="group bg-glass-dark border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all hover:-translate-y-1 shadow-xl flex flex-col h-full">
-                  {/* Card Splash Image */}
-                  <div className="h-40 w-full relative overflow-hidden">
-                    <img 
-                      src={quiz.image} 
-                      alt={quiz.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
-                    <div className="absolute top-4 right-4">
-                      <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                        quiz.difficulty === 'Hard' ? 'bg-rose-500 text-white' : quiz.difficulty === 'Medium' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'
-                      }`}>
-                        {quiz.difficulty}
-                      </span>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {[1,2,3,4].map(i => <div key={i} className="h-64 bg-white/5 animate-pulse rounded-[2.5rem]" />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {courses.map((course) => (
+                  <div key={course._id} onClick={() => handleCourseSelect(course)} className="group bg-glass-dark border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all hover:-translate-y-1 shadow-xl flex flex-col h-full cursor-pointer">
+                    <div className="h-40 w-full relative overflow-hidden">
+                      <img src={course.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3'} className="w-full h-full object-cover opacity-60" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
+                    </div>
+                    <div className="p-8">
+                      <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{course.category}</span>
+                      <h3 className="text-white font-bold mt-1 group-hover:text-indigo-300 transition-colors">{course.title}</h3>
                     </div>
                   </div>
-
-                  <div className="p-8 space-y-6 flex-1 flex flex-col">
-                    <div>
-                      <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{quiz.subject}</span>
-                      <h3 className="text-white font-bold mt-1 group-hover:text-indigo-300 transition-colors">{quiz.title}</h3>
-                    </div>
-                    <div className="flex items-center gap-6 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                      <span className="flex items-center gap-2"><FiLayers /> {quiz.questions} Qs</span>
-                      <span className="flex items-center gap-2"><FiClock /> {quiz.duration} Min</span>
-                    </div>
-                    <button
-                      onClick={() => startQuiz(quiz)}
-                      className="w-full mt-auto py-4 bg-white/5 hover:bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white rounded-2xl transition-all flex items-center justify-center gap-2"
-                    >
-                      <FiPlay /> Start Assessment
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </>
+        )}
+
+        {view === 'topics' && (
+          <div className="space-y-8 animate-fade-in">
+            <button onClick={() => setView('courses')} className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-xs font-black uppercase tracking-widest">
+              <FiArrowLeft /> Back to Courses
+            </button>
+            <div>
+              <h1 className="text-3xl font-black text-white tracking-tight">{selectedCourse?.title} Topics</h1>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {topics.length > 0 ? (
+                topics.map((topic, i) => (
+                  <div key={i} onClick={() => handleTopicSelect(topic)} className="p-8 bg-glass-dark border border-white/5 rounded-[2rem] hover:border-indigo-500/30 transition-all cursor-pointer group flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                      <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-indigo-400 text-xl group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                        <FiZap />
+                      </div>
+                      <h3 className="text-white font-black uppercase tracking-widest text-xs">{topic}</h3>
+                    </div>
+                    <FiChevronRight className="text-slate-600 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-10 flex flex-col items-center justify-center text-slate-600 space-y-4">
+                   <FiAlertCircle className="text-2xl opacity-30" />
+                   <p className="font-bold opacity-30 uppercase tracking-[0.2em] text-[10px]">No topics found for this course</p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-12 p-8 bg-indigo-600/5 border border-indigo-500/10 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-600/20 rounded-full flex items-center justify-center text-indigo-400 text-xl">
+                  <FiCpu />
+                </div>
+                <div>
+                  <h4 className="text-white font-black uppercase tracking-widest text-xs">AI Quiz Generator</h4>
+                  <p className="text-slate-500 text-[10px]">Generate custom MCQs for any topic in this course instantly.</p>
+                </div>
+              </div>
+              <button className="px-8 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all">
+                Try AI Generator
+              </button>
+            </div>
+          </div>
+        )}
+
+        {view === 'quizzes' && (
+          <div className="space-y-8 animate-fade-in">
+            <button onClick={() => setView('topics')} className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-xs font-black uppercase tracking-widest">
+              <FiArrowLeft /> Back to Topics
+            </button>
+            <div>
+              <h1 className="text-3xl font-black text-white tracking-tight">{selectedTopic} Assessments</h1>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {quizzes.length > 0 ? (
+                quizzes.map((quiz) => (
+                  <div key={quiz._id} className="group bg-glass-dark border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all shadow-xl flex flex-col h-full">
+                    <div className="h-40 w-full relative overflow-hidden">
+                      <img src={quiz.image || 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4'} className="w-full h-full object-cover opacity-60" />
+                      <div className="absolute top-4 right-4">
+                        <span className="px-3 py-1 bg-indigo-600 text-white rounded-full text-[8px] font-black uppercase tracking-widest">
+                          {quiz.difficulty}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-8 space-y-6 flex-1 flex flex-col">
+                      <h3 className="text-white font-bold">{quiz.title}</h3>
+                      <div className="flex items-center gap-6 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                        <span className="flex items-center gap-2"><FiLayers /> {quiz.totalQuestions} Qs</span>
+                        <span className="flex items-center gap-2"><FiClock /> {quiz.timeLimit} Min</span>
+                      </div>
+                      <button onClick={() => handleQuizSelect(quiz)} className="w-full py-4 bg-white/5 hover:bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white rounded-2xl transition-all">
+                        Start Assessment
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-10 flex flex-col items-center justify-center text-slate-600 space-y-4">
+                   <FiAlertCircle className="text-2xl opacity-30" />
+                   <p className="font-bold opacity-30 uppercase tracking-[0.2em] text-[10px]">No quizzes available for this topic</p>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {view === 'start' && selectedQuiz && (
@@ -240,9 +375,9 @@ const Quizzes = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-6">
-              <InfoItem icon={<FiLayers />} label="Questions" val={selectedQuiz.questions} />
-              <InfoItem icon={<FiClock />} label="Duration" val={`${selectedQuiz.duration} Min`} />
-              <InfoItem icon={<FiTarget />} label="Difficulty" val={selectedQuiz.difficulty} />
+              <InfoItem icon={<FiLayers />} label="Questions" val={selectedQuiz.totalQuestions} />
+              <InfoItem icon={<FiClock />} label="Duration" val={`${selectedQuiz.timeLimit} Min`} />
+              <InfoItem icon={<FiTrendingUp />} label="Difficulty" val={selectedQuiz.difficulty} />
             </div>
 
             <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl text-left space-y-3">
@@ -261,52 +396,59 @@ const Quizzes = () => {
           </div>
         )}
 
-        {view === 'attempt' && (
+        {(view === 'attempt' || view === 'practice-attempt') && (
           <div className="max-w-6xl mx-auto h-[700px] flex flex-col bg-glass-dark border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl relative">
-            {/* Header / Progress */}
             <div className="h-20 bg-white/[0.02] border-b border-white/5 px-10 flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <span className="text-sm font-black text-white uppercase">Q{currentQuestion + 1}<span className="text-slate-500">/{quizData.questions.length}</span></span>
+                <span className="text-sm font-black text-white uppercase">Q{currentQuestion + 1}<span className="text-slate-500">/{questions.length}</span></span>
                 <div className="w-64 h-1.5 bg-black/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${((currentQuestion + 1) / quizData.questions.length) * 100}%` }} />
+                  <div className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }} />
                 </div>
               </div>
-              <div className="flex items-center gap-4 bg-rose-500/10 px-6 py-2.5 rounded-2xl border border-rose-500/20">
-                <FiClock className={`text-rose-500 ${timer < 60 ? 'animate-pulse' : ''}`} />
-                <span className={`font-mono text-sm font-bold ${timer < 60 ? 'text-rose-400' : 'text-white'}`}>
-                  {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
+              {!isPracticeMode && (
+                <div className="flex items-center gap-4 bg-rose-500/10 px-6 py-2.5 rounded-2xl border border-rose-500/20">
+                  <FiClock className={`text-rose-500 ${timer < 60 ? 'animate-pulse' : ''}`} />
+                  <span className={`font-mono text-sm font-bold ${timer < 60 ? 'text-rose-400' : 'text-white'}`}>
+                    {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+              )}
+              {isPracticeMode && (
+                <div className="flex items-center gap-4 bg-indigo-500/10 px-6 py-2.5 rounded-2xl border border-indigo-500/20">
+                  <FiZap className="text-indigo-400" />
+                  <span className="text-xs font-black text-white uppercase tracking-widest">Practice Mode</span>
+                </div>
+              )}
             </div>
 
-            {/* Main Question Area */}
             <div className="flex-1 p-12 overflow-y-auto custom-scrollbar">
-              <div className="space-y-12">
-                <h2 className="text-2xl font-bold text-white leading-relaxed">{quizData.questions[currentQuestion].q}</h2>
-                <div className="grid grid-cols-1 gap-4">
-                  {quizData.questions[currentQuestion].options.map((opt, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setUserAnswers({ ...userAnswers, [currentQuestion]: i })}
-                      className={`w-full text-left p-6 rounded-3xl border transition-all flex items-center justify-between group ${userAnswers[currentQuestion] === i
-                          ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-xl shadow-indigo-600/10'
-                          : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
-                        }`}
-                    >
-                      <div className="flex items-center gap-6">
-                        <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black ${userAnswers[currentQuestion] === i ? 'bg-indigo-600 text-white' : 'bg-black/20 text-slate-500 group-hover:bg-black/40'}`}>
-                          {String.fromCharCode(65 + i)}
-                        </span>
-                        <span className="text-sm font-medium">{opt}</span>
-                      </div>
-                      {userAnswers[currentQuestion] === i && <FiCheckCircle className="text-indigo-400 text-xl" />}
-                    </button>
-                  ))}
+              {questions.length > 0 && (
+                <div className="space-y-12">
+                  <h2 className="text-2xl font-bold text-white leading-relaxed">{questions[currentQuestion].question}</h2>
+                  <div className="grid grid-cols-1 gap-4">
+                    {questions[currentQuestion].options.map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setUserAnswers({ ...userAnswers, [currentQuestion]: i })}
+                        className={`w-full text-left p-6 rounded-3xl border transition-all flex items-center justify-between group ${userAnswers[currentQuestion] === i
+                            ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-xl shadow-indigo-600/10'
+                            : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
+                          }`}
+                      >
+                        <div className="flex items-center gap-6">
+                          <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black ${userAnswers[currentQuestion] === i ? 'bg-indigo-600 text-white' : 'bg-black/20 text-slate-500 group-hover:bg-black/40'}`}>
+                            {String.fromCharCode(65 + i)}
+                          </span>
+                          <span className="text-sm font-medium">{opt}</span>
+                        </div>
+                        {userAnswers[currentQuestion] === i && <FiCheckCircle className="text-indigo-400 text-xl" />}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Footer Actions */}
             <div className="h-24 bg-white/[0.02] border-t border-white/5 px-10 flex items-center justify-between">
               <button
                 onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
@@ -319,8 +461,13 @@ const Quizzes = () => {
                 <button className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 text-amber-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
                   <FiBookmark /> Mark for Review
                 </button>
-                {currentQuestion === quizData.questions.length - 1 ? (
-                  <button onClick={finishQuiz} className="px-10 py-3 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 hover:scale-105 transition-all">Finish Assessment</button>
+                {currentQuestion === questions.length - 1 ? (
+                  <button 
+                    onClick={isPracticeMode ? finishPracticeQuiz : finishQuiz} 
+                    className="px-10 py-3 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 hover:scale-105 transition-all"
+                  >
+                    Finish Assessment
+                  </button>
                 ) : (
                   <button onClick={() => setCurrentQuestion(currentQuestion + 1)} className="px-10 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all flex items-center gap-2">Next <FiChevronRight /></button>
                 )}
@@ -329,79 +476,154 @@ const Quizzes = () => {
           </div>
         )}
 
-        {view === 'result' && results && (
+        {(view === 'result' || view === 'practice-result') && (isPracticeMode ? practiceResults : results) && (
           <div className="max-w-6xl mx-auto space-y-10 animate-fade-in">
-            {/* Top Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <ResultStatCard title="Overall Score" val={`${results.score}/${results.total}`} icon={<FiAward className="text-amber-500" />} color="amber" />
-              <ResultStatCard title="Percentage" val={`${results.percentage}%`} icon={<FiTrendingUp className="text-indigo-500" />} color="indigo" />
-              <ResultStatCard title="Time Taken" val={`${Math.floor(results.timeTaken / 60)}m ${results.timeTaken % 60}s`} icon={<FiClock className="text-emerald-500" />} color="emerald" />
-              <ResultStatCard title="Efficiency" val="High" icon={<FiActivity className="text-rose-500" />} color="rose" />
+              <ResultStatCard title="Overall Score" val={`${(isPracticeMode ? practiceResults : results).score}/${(isPracticeMode ? practiceResults : results).total}`} icon={<FiZap className="text-amber-500" />} color="amber" />
+              <ResultStatCard title="Percentage" val={`${(isPracticeMode ? practiceResults : results).percentage.toFixed(1)}%`} icon={<FiTrendingUp className="text-indigo-500" />} color="indigo" />
+              <ResultStatCard title="Correct" val={(isPracticeMode ? practiceResults : results).correctCount} icon={<FiCheckCircle className="text-emerald-500" />} color="emerald" />
+              <ResultStatCard title="Wrong" val={(isPracticeMode ? practiceResults : results).wrongCount} icon={<FiXCircle className="text-rose-500" />} color="rose" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Performance Graph */}
-              <div className="lg:col-span-2 bg-glass-dark border border-white/5 rounded-[3rem] p-10 space-y-8">
-                <h3 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3">
-                  <FiBarChart2 className="text-indigo-400" /> Performance Analysis
-                </h3>
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={performanceData}>
-                      <defs>
-                        <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="name" stroke="#64748b" fontSize={10} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '10px' }} />
-                      <Area type="monotone" dataKey="score" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Insights / AI Section */}
-              <div className="space-y-8">
-                <div className="bg-glass-dark border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-3">
-                    <FiCpu className="text-amber-500" /> AI Diagnostic
+            <div className="grid grid-cols-1 gap-8">
+              <div className="bg-glass-dark border border-white/5 rounded-[3rem] p-10 space-y-8">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3">
+                    <FiSearch className="text-indigo-400" /> Review Detailed Results
                   </h3>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <p className="text-[11px] text-slate-400 font-medium italic">"Your logical flow is strong, but you showed slight delay in dependency questions. Recommendation: Review 'React Reconciliation' patterns."</p>
-                    </div>
-                    <button className="w-full py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">Generate Revision Plan</button>
+                  <div className={`px-6 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest ${
+                    (isPracticeMode ? practiceResults : results).passed ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                  }`}>
+                    {(isPracticeMode ? practiceResults : results).passed ? 'Passed' : 'Failed'}
                   </div>
                 </div>
-
-                <div className="bg-glass-dark border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Question Review</h3>
-                  <div className="space-y-3">
-                    {quizData.questions.map((q, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                        <span className="text-[10px] font-bold text-white">Question {i + 1}</span>
-                        {userAnswers[i] === q.answer ? <FiCheckCircle className="text-emerald-500" /> : <FiXCircle className="text-rose-500" />}
+                
+                <div className="space-y-6">
+                  {(isPracticeMode ? practiceResults : results).detailedResults.map((item, i) => (
+                    <div key={i} className="p-8 bg-white/[0.02] border border-white/5 rounded-[2rem] space-y-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <h4 className="text-sm font-bold text-white leading-relaxed">
+                          <span className="text-slate-500 mr-2">Q{i+1}.</span> {item.question}
+                        </h4>
+                        {item.isCorrect ? (
+                          <span className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase tracking-widest border border-emerald-500/20 rounded-lg">Correct</span>
+                        ) : (
+                          <span className="flex items-center gap-2 px-3 py-1 bg-rose-500/10 text-rose-400 text-[8px] font-black uppercase tracking-widest border border-rose-500/20 rounded-lg">Incorrect</span>
+                        )}
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {item.options.map((opt, idx) => {
+                          const isSelected = isPracticeMode ? (item.selectedAnswer === opt) : (item.selectedAnswer === idx);
+                          const isCorrect = isPracticeMode ? (item.correctAnswer === opt) : (item.correctAnswer === idx);
+                          
+                          return (
+                            <div key={idx} className={`p-4 rounded-xl text-xs font-medium border ${
+                              isCorrect ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' :
+                              isSelected && !isCorrect ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' :
+                              'bg-white/5 border-white/5 text-slate-500'
+                            }`}>
+                              {opt}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {item.explanation && (
+                        <div className="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-xl">
+                          <p className="text-[10px] text-indigo-300 italic"><span className="font-black uppercase tracking-widest mr-2">Explanation:</span> {item.explanation}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
             <div className="flex justify-center pt-8">
-              <button onClick={() => setView('list')} className="px-12 py-5 bg-white text-indigo-600 rounded-3xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-xl shadow-white/5">Review Full Details</button>
+              <button 
+                onClick={() => {
+                  setView('courses');
+                  setIsPracticeMode(false);
+                }} 
+                className="px-12 py-5 bg-white text-indigo-600 rounded-3xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-xl shadow-white/5"
+              >
+                Back to Courses
+              </button>
+            </div>
+          </div>
+        )}
+        {view === 'history' && (
+          <div className="space-y-8 animate-fade-in">
+            <button onClick={() => setView('courses')} className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-xs font-black uppercase tracking-widest">
+              <FiArrowLeft /> Back to Courses
+            </button>
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-black text-white tracking-tight">Practice History</h1>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {practiceHistory.length > 0 ? (
+                practiceHistory.map((session) => (
+                  <div 
+                    key={session._id} 
+                    onClick={() => {
+                      const detailedResults = session.questions.map((q, i) => ({
+                        question: q.question,
+                        options: q.options,
+                        selectedAnswer: session.selectedAnswers[i],
+                        correctAnswer: q.correctAnswer,
+                        isCorrect: session.selectedAnswers[i] === q.correctAnswer,
+                        explanation: q.explanation
+                      }));
+                      setPracticeResults({ ...session, detailedResults });
+                      setIsPracticeMode(true);
+                      setView('practice-result');
+                    }}
+                    className="p-6 bg-glass-dark border border-white/5 rounded-3xl hover:border-indigo-500/30 transition-all cursor-pointer group flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${session.passed ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                        {session.passed ? <FiCheckCircle /> : <FiXCircle />}
+                      </div>
+                      <div>
+                        <h3 className="text-white font-bold text-sm">{session.topic}</h3>
+                        <div className="flex items-center gap-4 mt-1">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{session.difficulty}</span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">|</span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{new Date(session.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-8 text-right">
+                      <div>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Score</p>
+                        <p className="text-lg font-black text-white">{session.score}/{session.totalQuestions}</p>
+                      </div>
+                      <FiChevronRight className="text-slate-600 group-hover:text-white transition-all" />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-20 flex flex-col items-center justify-center text-slate-600 space-y-4 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
+                   <FiClock className="text-4xl opacity-30" />
+                   <p className="font-bold opacity-30 uppercase tracking-[0.2em] text-[10px]">No history found. Start your first practice session!</p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
       </div>
+
+      <QuizSetupModal 
+        isOpen={isPracticeModalOpen} 
+        onClose={() => setIsPracticeModalOpen(false)} 
+        onGenerate={handleGeneratePractice} 
+      />
     </DashboardLayout>
   );
 };
-
-// --- Sub-Components ---
 
 const InfoItem = ({ icon, label, val }) => (
   <div className="space-y-2">

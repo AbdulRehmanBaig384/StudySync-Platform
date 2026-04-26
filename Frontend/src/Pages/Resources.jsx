@@ -15,7 +15,9 @@ import {
   FiGrid,
   FiList,
   FiZap,
-  FiChevronRight
+  FiChevronRight,
+  FiLock,
+  FiX
 } from 'react-icons/fi';
 import DashboardLayout from '../components/DashboardLayout';
 
@@ -23,6 +25,8 @@ const Resources = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [isPro, setIsPro] = useState(false); // Simulate lock status
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const tabs = [
     { id: 'all', label: 'All Resources', icon: <FiGrid /> },
@@ -128,7 +132,33 @@ const Resources = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-8 animate-fade-in relative">
+        
+        {/* Payment CTA Banner */}
+        {!isPro && (
+          <div className="bg-gradient-to-r from-indigo-600/20 via-violet-600/20 to-indigo-600/20 border border-indigo-500/30 rounded-[2rem] p-8 md:p-12 text-center space-y-6 shadow-2xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-grid-white/5 mask-gradient opacity-20 pointer-events-none" />
+            <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter">
+                Unlock <span className="text-indigo-400">Premium</span> Study Resources 🚀
+              </h2>
+              <p className="text-slate-400 text-sm md:text-base font-medium leading-relaxed">
+                Get unlimited access to expert notes, video lectures, and master cheat sheets. 
+                <span className="block mt-2 font-black text-indigo-300 uppercase tracking-widest text-xs animate-pulse">
+                  Please proceed with payment integration process to unlock this resources
+                </span>
+              </p>
+              <button 
+                onClick={() => setShowPaymentModal(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95"
+              >
+                Proceed to Payment
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-8">
 
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -176,7 +206,7 @@ const Resources = () => {
         <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
           {filteredResources.length > 0 ? (
             filteredResources.map((res) => (
-              <ResourceCard key={res.id} res={res} />
+              <ResourceCard key={res.id} res={res} isLocked={!isPro} />
             ))
           ) : (
             <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-600 space-y-4">
@@ -187,18 +217,75 @@ const Resources = () => {
             </div>
           )}
         </div>
+        </div>
       </div>
+
+      {/* Simulated Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#1e293b] w-full max-w-md rounded-[2.5rem] border border-white/10 p-10 shadow-2xl animate-slide-up relative">
+            <button 
+              onClick={() => setShowPaymentModal(false)}
+              className="absolute top-8 right-8 text-slate-500 hover:text-white transition-colors"
+            >
+              <FiX className="text-xl" />
+            </button>
+            
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto text-indigo-400 text-4xl shadow-inner">
+                <FiZap />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-white mb-2">Upgrade to Pro</h3>
+                <p className="text-slate-500 text-sm">One-time payment to unlock all premium resources forever.</p>
+              </div>
+              
+              <div className="bg-white/5 border border-white/5 p-6 rounded-2xl space-y-2">
+                <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <span>Pro Plan</span>
+                  <span className="text-white">$19.99</span>
+                </div>
+                <div className="h-px bg-white/5" />
+                <p className="text-[10px] text-slate-500 font-bold leading-relaxed italic text-left">
+                  * Payment integration process initiated. You will be redirected to the secure gateway.
+                </p>
+              </div>
+
+              <button 
+                onClick={() => {
+                  setIsPro(true);
+                  setShowPaymentModal(false);
+                }}
+                className="w-full bg-white text-indigo-600 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-indigo-50 transition-colors shadow-lg"
+              >
+                Complete Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };
 
 // --- Sub-Components ---
 
-const ResourceCard = ({ res }) => {
+const ResourceCard = ({ res, isLocked }) => {
   return (
-    <div className="group bg-glass-dark border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all hover:-translate-y-1 shadow-xl flex flex-col h-full">
+    <div className={`group bg-glass-dark border border-white/5 rounded-[2.5rem] overflow-hidden transition-all shadow-xl flex flex-col h-full relative ${isLocked ? 'grayscale-[0.5]' : 'hover:border-indigo-500/30 hover:-translate-y-1'}`}>
+      
+      {/* Locked Overlay */}
+      {isLocked && (
+        <div className="absolute inset-0 z-10 bg-[#0f172a]/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center space-y-4">
+          <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white text-xl shadow-lg border border-white/5 animate-pulse">
+            <FiLock />
+          </div>
+          <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Locked Resource</p>
+        </div>
+      )}
+
       {/* Card Splash Image */}
-      <div className="h-40 w-full relative overflow-hidden">
+      <div className={`h-40 w-full relative overflow-hidden ${isLocked ? 'blur-[1px]' : ''}`}>
         <img 
           src={res.image} 
           alt={res.title} 

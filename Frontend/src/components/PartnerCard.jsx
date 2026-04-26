@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { FiUserPlus, FiExternalLink, FiAward, FiClock, FiMap, FiCheck, FiLoader } from 'react-icons/fi';
 
-const PartnerCard = ({ id, name, department, facultyOfStudy, semester, subjects, style, availability, compatibility, avatar, onlineStatus, matchLevel }) => {
+const PartnerCard = ({ id, name, department, facultyOfStudy, semester, subjects, style, availability, compatibility, avatar, onlineStatus, matchLevel, onInvite }) => {
   const isHighMatch = matchLevel === 'HIGH';
   const [inviteStatus, setInviteStatus] = useState('idle'); // idle, sending, sent, error
 
   const handleConnect = async () => {
-    const senderId = sessionStorage.getItem('userId');
+    const senderId = localStorage.getItem('userId');
     if (!senderId) return alert('Please log in first');
     
     setInviteStatus('sending');
@@ -20,6 +20,10 @@ const PartnerCard = ({ id, name, department, facultyOfStudy, semester, subjects,
       const data = await res.json();
       if (res.ok) {
         setInviteStatus('sent');
+        // Give time for user to see "Sent" before removing from list
+        setTimeout(() => {
+          if (onInvite) onInvite();
+        }, 1000);
       } else {
         alert(data.message || 'Failed to send invitation');
         setInviteStatus('error');

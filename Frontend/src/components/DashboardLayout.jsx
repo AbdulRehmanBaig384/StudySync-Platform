@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { useTimer } from '../context/TimerContext';
 import { FiClock, FiSquare } from 'react-icons/fi';
+import WelcomeModal from './WelcomeModal';
 
 const DashboardLayout = ({ children }) => {
   const { isActive, isPaused, sessionSeconds, stopSession } = useTimer();
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const shouldShowWelcome = localStorage.getItem('showWelcomeModal');
+    if (shouldShowWelcome === 'true') {
+      setShowWelcome(true);
+      setUserName(localStorage.getItem('userName') || 'User');
+      localStorage.removeItem('showWelcomeModal');
+    }
+  }, []);
 
   const formatTime = (totalSeconds) => {
     const h = Math.floor(totalSeconds / 3600);
@@ -41,6 +53,13 @@ const DashboardLayout = ({ children }) => {
           {children}
         </div>
       </main>
+
+      {/* Welcome Modal */}
+      <WelcomeModal 
+        isOpen={showWelcome} 
+        onClose={() => setShowWelcome(false)} 
+        userName={userName} 
+      />
     </div>
   );
 };

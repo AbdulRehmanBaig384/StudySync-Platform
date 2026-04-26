@@ -19,13 +19,17 @@ const invitationSchema = new mongoose.Schema({
   message: {
     type: String,
     trim: true
+  },
+  sessionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Session'
   }
 }, {
   timestamps: true
 });
 
-// Prevent duplicate invitations between same sender and receiver
-invitationSchema.index({ sender: 1, receiver: 1 }, { unique: true });
+// Prevent duplicate invitations for same purpose
+invitationSchema.index({ sender: 1, receiver: 1, sessionId: 1 }, { unique: true });
 
 const Invitation = mongoose.model('Invitation', invitationSchema);
 

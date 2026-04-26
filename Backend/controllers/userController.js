@@ -363,6 +363,74 @@ export const getStudyPartners = async (req, res) => {
       {
         $match: matchQuery
       },
+      // Join with invitations where current user is sender
+      {
+        $lookup: {
+          from: 'invitations',
+          let: { partnerId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$sender', new mongoose.Types.ObjectId(userId)] },
+                    { $eq: ['$receiver', '$$partnerId'] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'outgoingInvitation'
+        }
+      },
+      // Join with invitations where current user is receiver
+      {
+        $lookup: {
+          from: 'invitations',
+          let: { partnerId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$receiver', new mongoose.Types.ObjectId(userId)] },
+                    { $eq: ['$sender', '$$partnerId'] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'incomingInvitation'
+        }
+      },
+      {
+        $addFields: {
+          invitation: {
+            $cond: {
+              if: { $gt: [{ $size: '$outgoingInvitation' }, 0] },
+              then: { $arrayElemAt: ['$outgoingInvitation', 0] },
+              else: {
+                $cond: {
+                  if: { $gt: [{ $size: '$incomingInvitation' }, 0] },
+                  then: { $arrayElemAt: ['$incomingInvitation', 0] },
+                  else: null
+                }
+              }
+            }
+          }
+        }
+      },
+      // Filtering Rules:
+      // Show users ONLY if: No invitation exists OR invitationStatus === "rejected"
+      // Hide users if: invitationStatus === "accepted" or "pending"
+      {
+        $match: {
+          $or: [
+            { invitation: null },
+            { 'invitation.status': 'rejected' }
+          ]
+        }
+      },
       {
         $addFields: {
           matchLevel: {

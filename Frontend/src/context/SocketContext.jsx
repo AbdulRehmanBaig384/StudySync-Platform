@@ -10,7 +10,7 @@ export const useSocket = () => {
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState({});
-  const [userEmail, setUserEmail] = useState(sessionStorage.getItem('userEmail'));
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('userEmail'));
 
   const connectUser = (email) => {
     setUserEmail(email);
@@ -33,7 +33,8 @@ export const SocketProvider = ({ children }) => {
 
       newSocket.on('connect', () => {
         console.log('Global socket connected:', newSocket.id);
-        newSocket.emit('user_online', userEmail);
+        const userId = localStorage.getItem('userId');
+        newSocket.emit('user_online', { email: userEmail, userId });
       });
 
       newSocket.on('status_change', (data) => {

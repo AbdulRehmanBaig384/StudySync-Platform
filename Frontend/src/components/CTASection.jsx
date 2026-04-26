@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuthGuard } from '../context/AuthGuardContext'
 import {
   HiOutlineShieldCheck,
   HiOutlineUsers,
@@ -10,6 +11,9 @@ import { FiArrowRight } from 'react-icons/fi'
 import { RiRocketLine } from 'react-icons/ri'
 
 const CTASection = () => {
+  const navigate = useNavigate()
+  const { requireAuth } = useAuthGuard()
+
   return (
     <section className="section-padding relative overflow-hidden">
       <div className="container-max">
@@ -40,11 +44,17 @@ const CTASection = () => {
 
             {/* Buttons */}
             <div className="flex flex-wrap justify-center gap-4 mt-2">
-              <Link to="/signup" className="btn-primary text-base px-10 py-4 rounded-xl inline-flex items-center gap-2">
+              <button 
+                onClick={requireAuth(() => navigate('/signup'))} 
+                className="btn-primary text-base px-10 py-4 rounded-xl inline-flex items-center gap-2"
+              >
                 <span>Get Started Free</span>
                 <FiArrowRight className="w-5 h-5" />
-              </Link>
-              <button className="btn-secondary text-base px-8 py-4 rounded-xl flex items-center gap-2">
+              </button>
+              <button 
+                onClick={requireAuth(() => navigate('/dashboard'))}
+                className="btn-secondary text-base px-8 py-4 rounded-xl flex items-center gap-2"
+              >
                 Learn More
               </button>
             </div>

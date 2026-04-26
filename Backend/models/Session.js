@@ -39,9 +39,41 @@ const sessionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Invitation'
   },
-  startedAt: {
+  date: {
+    type: String, // format: YYYY-MM-DD
+    required: true
+  },
+  time: {
+    type: String, // format: HH:mm
+    required: true
+  },
+  startDateTime: {
     type: Date,
-    default: Date.now
+    required: true,
+    index: true
+  },
+  status: {
+    type: String,
+    enum: ['upcoming', 'active', 'completed'],
+    default: 'upcoming',
+    index: true
+  },
+  invitedUsers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  whiteboardData: {
+    type: Object,
+    default: {}
+  },
+  sharedResources: [{
+    title: String,
+    type: { type: String }, // pdf, doc, etc.
+    url: String,
+    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  }],
+  startedAt: {
+    type: Date
   },
   endedAt: {
     type: Date
