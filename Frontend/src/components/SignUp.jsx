@@ -18,7 +18,7 @@ import {
 } from 'react-icons/hi';
 import { FiArrowRight, FiLoader, FiChevronDown, FiCheck } from 'react-icons/fi';
 import { MdOutlineSchool, MdOutlineVideoCall } from 'react-icons/md';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { getBackendBaseUrl, postUserSignup } from '../Services/apiClient';
 
 const universities = [
@@ -127,13 +127,40 @@ const SignUp = () => {
     setStep((s) => s - 1);
   };
 
-  const signupWithGoogle = useGoogleLogin({
-    ux_mode: 'redirect',
-    redirect_uri: 'http://localhost:5173/auth/google/callback',
-  });
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setApiError('');
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${getBackendBaseUrl()}/api/users/google-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Google Signup failed');
+
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('userName', result.name);
+      localStorage.setItem('userEmail', result.email);
+      localStorage.setItem('userId', result._id);
+      localStorage.setItem('showWelcomeModal', 'true');
+      window.dispatchEvent(new Event('authChange'));
+
+      if (result.profileCompleted === false) {
+        navigate('/complete-profile');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Google Signup Error:', error);
+      setApiError(error.message || 'Google Signup failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGoogleError = () => {
-    setApiError('Google Signup Failed');
+    setApiError('Google Signup Failed. Please try again.');
   };
 
   const onSubmit = async (data) => {
