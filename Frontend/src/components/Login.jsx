@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { HiOutlineBookOpen, HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi'
-import { FaGoogle, FaGithub } from 'react-icons/fa'
 import { FiArrowRight, FiLoader } from 'react-icons/fi'
 import { MdOutlineBarChart, MdOutlineVideoCall } from 'react-icons/md'
-import { RiUserSmileLine } from 'react-icons/ri'
 import { BiUserCircle } from 'react-icons/bi'
+import { getBackendBaseUrl, postUserLogin } from '../Services/apiClient'
+import { GoogleLogin } from '@react-oauth/google'
+import { useSocket } from '../context/SocketContext'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -14,11 +15,51 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({})
 
+  const { connectUser } = useSocket()
+  const [apiError, setApiError] = useState('')
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setApiError('');
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${getBackendBaseUrl()}/api/users/google-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Google Login failed');
+
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('userName', result.name);
+      localStorage.setItem('userEmail', result.email);
+      localStorage.setItem('userId', result._id);
+      localStorage.setItem('showWelcomeModal', 'true');
+      window.dispatchEvent(new Event('authChange'));
+      connectUser(result.email);
+
+      if (result.profileCompleted === false) {
+        navigate('/complete-profile');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Google Login Error:', error);
+      setApiError(error.message || 'Google Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setApiError('Google Login Failed. Please try again.');
+  };
 
   const validate = () => {
     const newErrors = {}
@@ -31,18 +72,32 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setApiError('')
     const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return }
+    
     setIsLoading(true)
-    await new Promise(res => setTimeout(res, 1500))
-    setIsLoading(false)
-    navigate('/')
+    try {
+      const result = await postUserLogin(formData)
+      localStorage.setItem('token', result.token)
+      localStorage.setItem('userName', result.name)
+      localStorage.setItem('userEmail', result.email)
+      localStorage.setItem('userId', result._id)
+      localStorage.setItem('showWelcomeModal', 'true')
+      window.dispatchEvent(new Event('authChange'))
+      connectUser(result.email)
+      if (result.profileCompleted === false) {
+        navigate('/complete-profile')
+      } else {
+        navigate('/dashboard')
+      }
+    } catch (error) {
+      console.error(error)
+      setApiError(error.message || 'Network error. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
-
-  const socialProviders = [
-    { name: 'Google', Icon: FaGoogle, color: 'hover:text-red-400' },
-    { name: 'GitHub', Icon: FaGithub, color: 'hover:text-white' },
-  ]
 
   const activityFeed = [
     { initials: 'AK', name: 'Aisha K.', action: 'joined Coding Room', time: '2m ago', gradient: 'from-indigo-500 to-purple-600' },
@@ -93,12 +148,12 @@ const Login = () => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 w-full max-w-sm">
             {[
-              { value: '50K+', label: 'Students', Icon: BiUserCircle },
-              { value: '2K+', label: 'Sessions', Icon: MdOutlineVideoCall },
-              { value: '98%', label: 'Satisfied', Icon: MdOutlineBarChart },
-            ].map(({ value, label, Icon }) => (
+              { value: '50K+', label: 'Students', icon: <BiUserCircle className="w-6 h-6 text-indigo-400 mx-auto mb-1" /> },
+              { value: '2K+', label: 'Sessions', icon: <MdOutlineVideoCall className="w-6 h-6 text-indigo-400 mx-auto mb-1" /> },
+              { value: '98%', label: 'Satisfied', icon: <MdOutlineBarChart className="w-6 h-6 text-indigo-400 mx-auto mb-1" /> },
+            ].map(({ value, label, icon }) => (
               <div key={label} className="bg-glass rounded-2xl p-4 text-center">
-                <Icon className="w-6 h-6 text-indigo-400 mx-auto mb-1" />
+                {icon}
                 <p className="text-white font-bold font-jakarta text-lg">{value}</p>
                 <p className="text-slate-400 text-xs">{label}</p>
               </div>
@@ -138,16 +193,18 @@ const Login = () => {
           </div>
 
           {/* Social Login */}
-          <div className="flex gap-3 mb-6">
-            {socialProviders.map(({ name, Icon, color }) => (
-              <button
-                key={name}
-                className={`flex-1 flex items-center justify-center gap-2 bg-glass border border-white/10 text-slate-300 ${color} hover:border-white/20 hover:bg-white/10 rounded-xl py-3 text-sm font-medium transition-all duration-200`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{name}</span>
-              </button>
-            ))}
+          <div className="flex justify-center mb-6 w-full">
+            <div className="w-full flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                width="400"
+                theme="filled_black"
+                shape="rectangular"
+                text="signin_with"
+                size="large"
+              />
+            </div>
           </div>
 
           {/* Divider */}
@@ -159,6 +216,12 @@ const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+            {apiError && (
+              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 mb-2">
+                <p className="text-red-400 text-sm text-center">{apiError}</p>
+              </div>
+            )}
+            
             {/* Email */}
             <div className="flex flex-col gap-1.5">
               <label className="text-slate-300 text-sm font-medium" htmlFor="login-email">Email Address</label>
@@ -221,6 +284,7 @@ const Login = () => {
             {/* Submit */}
             <button
               type="submit"
+              
               disabled={isLoading}
               className="btn-primary w-full py-3.5 rounded-xl text-base mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
             >

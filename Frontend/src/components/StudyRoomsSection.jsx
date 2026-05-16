@@ -1,4 +1,6 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthGuard } from '../context/AuthGuardContext'
 import {
   BiCodeAlt,
   BiQuestionMark,
@@ -52,6 +54,9 @@ const rooms = [
 ]
 
 const StudyRoomsSection = () => {
+  const navigate = useNavigate()
+  const { requireAuth } = useAuthGuard()
+
   return (
     <section id="study-rooms" className="section-padding relative overflow-hidden">
       <div className="orb w-[400px] h-[400px] bg-cyan-500 bottom-0 right-0 opacity-5" />
@@ -106,6 +111,7 @@ const StudyRoomsSection = () => {
 
               {/* Join Button */}
               <button
+                onClick={requireAuth(() => navigate('/dashboard'))}
                 className={`w-full mt-auto bg-gradient-to-r ${color} text-white text-sm font-semibold py-2.5 rounded-xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2`}
               >
                 Join Now <FiArrowRight className="w-4 h-4" />
