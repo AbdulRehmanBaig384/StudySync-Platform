@@ -56,7 +56,7 @@ const subjectsList = [
   'Physics', 'Medical Sciences', 'Data Science', 'Cybersecurity', 'Other',
 ];
 
-const studyTimes = ['Morning', 'Afternoon', 'Evening', 'Night'];
+const studyTimes = ['Morning','Afternoon','Evening','Night'];
 const yearsOfStudy = ['1', '2', '3', '4', '5']; // Using numerical strings
 
 const SignUp = () => {
