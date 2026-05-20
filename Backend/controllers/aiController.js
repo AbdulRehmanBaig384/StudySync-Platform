@@ -12,9 +12,9 @@ export const chatWithTutor=async(req,res)=>{
 
     return res.status(200).json({
       reply,
-      model: process.env.GEMINI_MODEL || "gemini-pro",
+      model:process.env.GEMINI_MODEL || "gemini-pro",
     });
-  } catch (error) {
+  } catch(error){
     console.error("Gemini chat error:", error);
     return res.status(500).json({ message: "Failed to get AI response" });
   }
