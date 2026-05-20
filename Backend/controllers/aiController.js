@@ -1,6 +1,6 @@
-import { generateTutorReply } from "../services/geminiService.js";
+import {generateTutorReply} from "../services/geminiService.js";
 
-export const chatWithTutor = async (req, res) => {
+export const chatWithTutor = async(req,res) => {
   try {
     const { message } = req.body;
 
