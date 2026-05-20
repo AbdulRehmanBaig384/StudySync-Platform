@@ -35,9 +35,9 @@ app.use('/api/session', sessionRoutes);
 app.use('/api/code', codeExecutionRoutes);
 app.use('/api/quiz', quizRoutes);
 
-app.get("/studysync",(req,res)=>{
-  res.send("hello from the server");
-});
+// app.get("/studysync",(req,res)=>{
+//   res.send("hello from the server");
+// });
 
 const io = new Server(httpServer, {
   cors: {
