@@ -14,7 +14,7 @@ export const chatWithTutor=async(req,res)=>{
       model:process.env.GEMINI_MODEL||"gemini-pro",
     });
   } catch(error){
-    console.error("Gemini chat error:", error);
-    return res.status(500).json({ message: "Failed to get AI response" });
+    console.error("Gemini chat error:",error);
+    return res.status(500).json({ message:"Failed to get AI response"});
   }
 };
