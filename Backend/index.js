@@ -61,7 +61,6 @@ io.on("connection", (socket) => {
     if (userId) {
       socket.join(userId);
       socket.currentUserId = userId;
-      console.log(`User ${userId} joined their personal room`);
     }
     io.emit("status_change", { email, status: "online" });
   });
@@ -151,8 +150,7 @@ io.on("connection", (socket) => {
     
     if (!socket.userEmail) {
       console.log("User disconnected:", socket.id);
-      return;
-    }
+      return;}
 
     await User.findOneAndUpdate(
       { email: socket.userEmail },
