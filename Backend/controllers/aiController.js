@@ -2,7 +2,7 @@ import {generateTutorReply} from "../services/geminiService.js";
 
 export const chatWithTutor=async(req,res)=>{
   try{
-    const { message } = req.body;
+    const {message}=req.body;
 
     if(!message || !message.trim()) {
       return res.status(400).json({ message: "Message is required" });}
@@ -11,7 +11,7 @@ export const chatWithTutor=async(req,res)=>{
     
     return res.status(200).json({
       reply,
-      model:process.env.GEMINI_MODEL || "gemini-pro",
+      model:process.env.GEMINI_MODEL||"gemini-pro",
     });
   } catch(error){
     console.error("Gemini chat error:", error);
