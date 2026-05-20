@@ -113,7 +113,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_session_message", (data) => {
-    // data contains sessionId, senderId, message, timestamp
     io.to(data.sessionId).emit("receive_session_message", data);
   });
 
@@ -124,17 +123,13 @@ io.on("connection", (socket) => {
   socket.on("session_stop_typing", (data) => {
     socket.to(data.sessionId).emit("user_session_stop_typing", data);
   });
-
-  // --- WebRTC Signaling (Room Based) ---
   socket.on("session_signal", (data) => {
     socket.to(data.sessionId).emit("session_signal", data);
   });
-
   socket.on("session_toggle_media", (data) => {
     socket.to(data.sessionId).emit("user_session_media_toggled", data);
   });
 
-  // --- Whiteboard Sync (Room Based) ---
   socket.on("session_draw_stroke", (data) => {
     socket.to(data.sessionId).emit("session_draw_stroke", data);
   });
