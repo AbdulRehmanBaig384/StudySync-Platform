@@ -27,7 +27,6 @@ app.use(
   })
 );
 app.use(express.json());
-
 app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
 app.use('/api/invite', connectionRoutes);
@@ -36,7 +35,7 @@ app.use('/api/session', sessionRoutes);
 app.use('/api/code', codeExecutionRoutes);
 app.use('/api/quiz', quizRoutes);
 
-app.get("/studysync", (req, res) => {
+app.get("/studysync",(req,res)=>{
   res.send("hello from the server");
 });
 
