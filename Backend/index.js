@@ -1,5 +1,5 @@
-import { ConnectMongoDb } from "./Config/db.js";
-import { configDotenv } from "dotenv";
+import {ConnectMongoDb} from "./Config/db.js";
+import {configDotenv} from "dotenv";
 import express from 'express'
 import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
