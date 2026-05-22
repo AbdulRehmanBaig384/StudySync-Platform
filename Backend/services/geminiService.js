@@ -43,12 +43,12 @@ export const generateTutorReply =async (message) => {
           }
         );
 
-        const data = await response.json();
+        const data=await response.json();
 
         if(response.ok){
           return data.candidates?.[0]?.content?.parts?.[0]?.text || "I received an empty response from the AI.";
         } else {
-          console.error(`Failed ${version}/${model}:`, data.error?.message || response.statusText);
+          console.error(`Failed ${version}/${model}:`,data.error?.message || response.statusText);
           lastError = data.error?.message || response.statusText;
           
           if (response.status === 429) {
