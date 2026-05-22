@@ -1,4 +1,4 @@
-const SYSTEM_PROMPT = `
+const SYSTEM_PROMPT=`
 You are StudySync AI Tutor.
 Rules:
 - Be concise and practical.
@@ -7,7 +7,7 @@ Rules:
 - If the user asks coding questions, provide short examples.
 - If unsure, say so clearly.
 `;
-export const generateTutorReply = async (message) => {
+export const generateTutorReply =async (message) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return "AI configuration error. Please check backend environment.";
