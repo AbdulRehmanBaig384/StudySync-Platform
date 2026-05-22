@@ -51,11 +51,11 @@ export const generateTutorReply =async (message) => {
           console.error(`Failed ${version}/${model}:`,data.error?.message || response.statusText);
           lastError = data.error?.message || response.statusText;
           
-          if (response.status === 429) {
+          if (response.status===429) {
             return "AI Quota Exceeded. Please wait a minute before trying again.";
           }
         }
-      } catch (err) {
+      } catch(err){
         console.error(`Fetch Error ${version}/${model}:`, err.message);
         lastError = err.message;
       }
