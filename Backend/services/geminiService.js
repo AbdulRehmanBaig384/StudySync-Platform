@@ -10,10 +10,10 @@ Rules:
 export const generateTutorReply =async (message) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return "AI configuration error. Please check backend environment.";
+    return "AI configuration error.Please check backend environment.";
   }
   const versions = ["v1", "v1beta"];
-  const models = ["gemini-3-flash", "gemini-3.1-pro", "gemini-2.5-flash", "gemini-2.5-pro"];
+  const models = ["gemini-3-flash","gemini-3.1-pro", "gemini-2.5-flash", "gemini-2.5-pro"];
 
   let lastError = "";
 
