@@ -59,8 +59,7 @@ export const generateTutorReply =async (message) => {
         console.error(`Fetch Error ${version}/${model}:`, err.message);
         lastError = err.message;
       }
-    }
-  }
+    }}
 
   return `AI Error: All connection attempts failed. Last error: ${lastError}. Please ensure the Generative Language API is enabled in your Google Cloud Console.`;
 };
