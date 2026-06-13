@@ -20,9 +20,22 @@ ConnectMongoDb();
 const app = express();
 const httpServer = createServer(app);
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://study-sync-platform.vercel.app",
+];
+
+const corsOrigin = (origin, callback) => {
+  if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+    callback(null, true);
+  } else {
+    callback(new Error("Not allowed by CORS"));
+  }
+};
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+    origin: corsOrigin,
     credentials: true,
   })
 );
@@ -41,8 +54,9 @@ app.use('/api/quiz', quizRoutes);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+    origin: corsOrigin,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
