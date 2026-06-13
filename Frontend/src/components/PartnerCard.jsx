@@ -11,7 +11,7 @@ const PartnerCard = ({ id, name, department, facultyOfStudy, semester, subjects,
     
     setInviteStatus('sending');
     try {
-      const res = await fetch('http://localhost:3000/api/invite/send', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/invite/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ senderId, receiverId: id })

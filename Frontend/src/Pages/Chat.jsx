@@ -110,7 +110,7 @@ const Chat = () => {
 
   const fetchChats = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/chat/${userId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat/${userId}`);
       const data = await res.json();
       if (res.ok) {
         setChats(data);
@@ -133,7 +133,7 @@ const Chat = () => {
 
   const fetchMessages = async (invitationId) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/chat/messages/${invitationId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat/messages/${invitationId}`);
       const data = await res.json();
       if (res.ok) {
         setMessages(data);
@@ -145,7 +145,7 @@ const Chat = () => {
 
   const markAsSeen = async (invitationId) => {
     try {
-      await fetch(`http://localhost:3000/api/chat/seen/${invitationId}`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat/seen/${invitationId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })
@@ -167,7 +167,7 @@ const Chat = () => {
     };
 
     try {
-      const res = await fetch(`http://localhost:3000/api/chat/message`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(messageData)

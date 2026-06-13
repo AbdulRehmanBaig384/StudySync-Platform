@@ -12,8 +12,8 @@ const PartnerRequestList = () => {
   const fetchData = async () => {
     try {
       const [incRes, outRes] = await Promise.all([
-        fetch(`http://localhost:3000/api/invite/incoming/${userId}`),
-        fetch(`http://localhost:3000/api/invite/outgoing/${userId}`)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/invite/incoming/${userId}`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/invite/outgoing/${userId}`)
       ]);
       
       const incData = await incRes.json();
@@ -35,7 +35,7 @@ const PartnerRequestList = () => {
   const handleResponse = async (invitationId, status) => {
     setProcessingId(invitationId);
     try {
-      const res = await fetch(`http://localhost:3000/api/invite/respond/${invitationId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/invite/respond/${invitationId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

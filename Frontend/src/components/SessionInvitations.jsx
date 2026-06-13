@@ -21,7 +21,7 @@ const SessionInvitations = ({ userId }) => {
 
   const fetchInvitations = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/session/notifications/${userId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/notifications/${userId}`);
       const data = await res.json();
       if (res.ok) setInvitations(data);
     } catch (error) {
@@ -33,7 +33,7 @@ const SessionInvitations = ({ userId }) => {
 
   const handleResponse = async (invitationId, status) => {
     try {
-      const res = await fetch('http://localhost:3000/api/session/invitation-response', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/invitation-response`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invitationId, status, userId })

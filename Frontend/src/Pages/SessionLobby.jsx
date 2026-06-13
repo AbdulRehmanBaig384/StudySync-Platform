@@ -27,7 +27,7 @@ const SessionLobby = () => {
 
   const fetchActiveSessions = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/session/active');
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/active`);
       const data = await res.json();
       if (res.ok) setSessions(data);
     } catch (error) {
@@ -40,7 +40,7 @@ const SessionLobby = () => {
   const handleCreateSession = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:3000/api/session/create', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, hostId: userId })

@@ -70,8 +70,8 @@ const StudySession = () => {
     const fetchData = async () => {
       try {
         const [sessionRes, messagesRes] = await Promise.all([
-          fetch(`http://localhost:3000/api/session/${sessionId}`),
-          fetch(`http://localhost:3000/api/session/messages/${sessionId}`)
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/${sessionId}`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/messages/${sessionId}`)
         ]);
         
         const sessionData = await sessionRes.json();
@@ -104,7 +104,7 @@ const StudySession = () => {
 
     socket.on('participant_joined', (data) => {
       // Re-fetch session to get updated participants list
-      fetch(`http://localhost:3000/api/session/${sessionId}`)
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/${sessionId}`)
         .then(res => res.json())
         .then(data => setParticipants(data.participants));
     });
@@ -141,7 +141,7 @@ const StudySession = () => {
     if (!newMessage.trim()) return;
 
     try {
-      const res = await fetch('http://localhost:3000/api/session/message', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, senderId: userId, message: newMessage })
@@ -166,7 +166,7 @@ const StudySession = () => {
     if (userId !== session.host._id) return alert("Only host can end the session");
     
     try {
-      await fetch(`http://localhost:3000/api/session/end/${sessionId}`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/end/${sessionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })

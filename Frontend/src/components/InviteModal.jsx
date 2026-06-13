@@ -18,7 +18,7 @@ const InviteModal = ({ sessionId, isOpen, onClose, userId }) => {
   const fetchEligibleUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/session/eligible-users/${sessionId}?userId=${userId}&search=${search}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/eligible-users/${sessionId}?userId=${userId}&search=${search}`);
       const data = await res.json();
       if (res.ok) setUsers(data);
     } catch (error) {
@@ -31,7 +31,7 @@ const InviteModal = ({ sessionId, isOpen, onClose, userId }) => {
   const handleInvite = async (receiverId) => {
     setInvitingId(receiverId);
     try {
-      const res = await fetch('http://localhost:3000/api/session/invite', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, senderId: userId, receiverId })

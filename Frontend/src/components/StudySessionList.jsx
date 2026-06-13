@@ -13,7 +13,7 @@ const StudySessionList = () => {
         const userId = localStorage.getItem('userId');
         if (!userId) return;
 
-        const res = await fetch(`http://localhost:3000/api/session/active?userId=${userId}`);
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/session/active?userId=${userId}`);
         const data = await res.json();
         if (res.ok) {
           setSessions(data.slice(0, 3)); // Only show top 3 on dashboard

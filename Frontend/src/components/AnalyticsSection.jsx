@@ -21,7 +21,7 @@ const AnalyticsSection = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/quiz/practice/history/${userId}`);
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/practice/history/${userId}`);
         const data = await res.json();
         setPracticeHistory(data);
       } catch (err) {

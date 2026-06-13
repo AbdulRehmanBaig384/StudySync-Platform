@@ -34,7 +34,7 @@ const StudentProfile = () => {
         return;
       }
       try {
-        const response = await fetch(`http://localhost:3000/api/users/profile?email=${email}`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/profile?email=${email}`);
         const data = await response.json();
         if (response.ok) {
           setUserData({

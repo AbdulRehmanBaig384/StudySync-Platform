@@ -26,7 +26,7 @@ const FindPartner = () => {
   //   if (!email) return;
 
   //   // Initialize socket
-  //   const socket = io('http://localhost:3000');
+  //   const socket = io(import.meta.env.VITE_API_BASE_URL);
   //   socket.emit('user_online', email);
 
   //   socket.on('status_change', ({ email: changedEmail, status }) => {
@@ -38,7 +38,7 @@ const FindPartner = () => {
   //   const fetchData = async () => {
   //     try {
   //       // Get user profile first to get their department/subjects
-  //       const profileRes = await fetch(`http://localhost:3000/api/users/profile?email=${email}`);
+  //       const profileRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/profile?email=${email}`);
   //       const profileData = await profileRes.json();
 
   //       if (profileRes.ok) {
@@ -46,7 +46,7 @@ const FindPartner = () => {
   //         setFilters(prev => ({ ...prev, department: profileData.department }));
 
   //         // Fetch partners based on user profile
-  //         const partnersRes = await fetch(`http://localhost:3000/api/users/partners?email=${email}&department=${profileData.department}&facultyOfStudy=${profileData.facultyOfStudy}&preferredSubjects=${profileData.Preferred_Subjects.join(',')}`);
+  //         const partnersRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/partners?email=${email}&department=${profileData.department}&facultyOfStudy=${profileData.facultyOfStudy}&preferredSubjects=${profileData.Preferred_Subjects.join(',')}`);
   //         const partnersData = await partnersRes.json();
 
   //         if (partnersRes.ok) {
@@ -76,7 +76,7 @@ const FindPartner = () => {
     const fetchData = async () => {
       try {
         const userId = localStorage.getItem('userId');
-        const profileRes = await fetch(`http://localhost:3000/api/users/profile?email=${email}`);
+        const profileRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/profile?email=${email}`);
         const profileData = await profileRes.json();
 
         if (profileRes.ok) {
@@ -88,7 +88,7 @@ const FindPartner = () => {
             .join('&');
 
           const partnersRes = await fetch(
-            `http://localhost:3000/api/users/partners?userId=${userId || profileData._id}&department=${encodeURIComponent(profileData.department)}&facultyOfStudy=${encodeURIComponent(profileData.facultyOfStudy)}&${subjectsParam}`
+            `${import.meta.env.VITE_API_BASE_URL}/api/users/partners?userId=${userId || profileData._id}&department=${encodeURIComponent(profileData.department)}&facultyOfStudy=${encodeURIComponent(profileData.facultyOfStudy)}&${subjectsParam}`
           );
           const partnersData = await partnersRes.json();
 
@@ -125,7 +125,7 @@ const FindPartner = () => {
   //       : userProfile?.Preferred_Subjects || []
   //     ).map(s => `preferredSubjects=${encodeURIComponent(s)}`).join('&');
 
-  //     const partnersRes = await fetch(`http://localhost:3000/api/users/partners?email=${email}&department=${newFilters.department || userProfile?.department}&facultyOfStudy=${newFilters.facultyOfStudy || userProfile?.facultyOfStudy}&preferredSubjects=${newFilters.subject || userProfile?.Preferred_Subjects.join(',')}&semester=${newFilters.semester}`);
+  //     const partnersRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/partners?email=${email}&department=${newFilters.department || userProfile?.department}&facultyOfStudy=${newFilters.facultyOfStudy || userProfile?.facultyOfStudy}&preferredSubjects=${newFilters.subject || userProfile?.Preferred_Subjects.join(',')}&semester=${newFilters.semester}`);
   //     const partnersData = await partnersRes.json();
   //     if (partnersRes.ok) {
   //       setPartners(partnersData);
@@ -149,7 +149,7 @@ const FindPartner = () => {
       ).map(s => `preferredSubjects=${encodeURIComponent(s)}`).join('&');
 
       const partnersRes = await fetch(
-        `http://localhost:3000/api/users/partners?userId=${userId || userProfile?._id}&department=${encodeURIComponent(newFilters.department || userProfile?.department || '')}&facultyOfStudy=${encodeURIComponent(newFilters.facultyOfStudy || userProfile?.facultyOfStudy || '')}&${subjectsParam}&semester=${newFilters.semester || ''}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/partners?userId=${userId || userProfile?._id}&department=${encodeURIComponent(newFilters.department || userProfile?.department || '')}&facultyOfStudy=${encodeURIComponent(newFilters.facultyOfStudy || userProfile?.facultyOfStudy || '')}&${subjectsParam}&semester=${newFilters.semester || ''}`
       );
 
       const partnersData = await partnersRes.json();

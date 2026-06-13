@@ -61,7 +61,7 @@ const Quizzes = () => {
 
   const fetchPracticeHistory = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/quiz/practice/history/${userId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/practice/history/${userId}`);
       const data = await res.json();
       setPracticeHistory(data);
     } catch (err) {
@@ -71,7 +71,7 @@ const Quizzes = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/quiz/courses');
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/courses`);
       const data = await res.json();
       setCourses(data);
       setLoading(false);
@@ -84,7 +84,7 @@ const Quizzes = () => {
   const fetchTopics = async (courseId) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/quiz/courses/${courseId}/topics`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/courses/${courseId}/topics`);
       const data = await res.json();
       setTopics(data);
       setView('topics');
@@ -98,7 +98,7 @@ const Quizzes = () => {
   const fetchQuizzes = async (topic) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/quiz/topics/${topic}/quizzes`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/topics/${topic}/quizzes`);
       const data = await res.json();
       setQuizzes(data);
       setView('quizzes');
@@ -112,7 +112,7 @@ const Quizzes = () => {
   const fetchQuestions = async (quizId) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/quiz/${quizId}/questions`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/${quizId}/questions`);
       const data = await res.json();
       setQuestions(data);
     } catch (err) {
@@ -147,7 +147,7 @@ const Quizzes = () => {
 
   const handleGeneratePractice = async (formData) => {
     try {
-      const res = await fetch('http://localhost:3000/api/quiz/practice/generate', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/practice/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, userId })
@@ -175,7 +175,7 @@ const Quizzes = () => {
     try {
       const answersArray = questions.map((_, i) => userAnswers[i] !== undefined ? questions[i].options[userAnswers[i]] : null);
       
-      const res = await fetch(`http://localhost:3000/api/quiz/practice/${practiceSessionId}/submit`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/practice/${practiceSessionId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ selectedAnswers: answersArray })
@@ -193,7 +193,7 @@ const Quizzes = () => {
   const finishQuiz = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/quiz/${selectedQuiz._id}/submit`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quiz/${selectedQuiz._id}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, selectedAnswers: userAnswers })

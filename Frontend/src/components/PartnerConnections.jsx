@@ -13,7 +13,7 @@ const PartnerConnections = ({ onSelectPartner }) => {
   useEffect(() => {
     const fetchConnections = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/invite/connections/${userId}`);
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/invite/connections/${userId}`);
         const data = await res.json();
         if (res.ok) {
           setConnections(data);
