@@ -1,7 +1,7 @@
 import axios from 'axios';
 export const runCode = async (req, res) => {
-  try {
-    const { code, language_id } = req.body;
+  try{
+    const {code,language_id}=req.body;
 
     if (!code) {
       return res.status(400).json({ message: "Code is required" });
