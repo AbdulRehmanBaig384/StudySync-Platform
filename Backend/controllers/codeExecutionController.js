@@ -6,22 +6,22 @@ export const runCode=async(req,res)=>{
     if (!code) {
       return res.status(400).json({message:"Code is required"});
     }
-    const options ={
-      method: 'POST',
-      url: `https://${process.env.RAPIDAPI_HOST}/submissions`,
-      params: { 
+    const options={
+      method:'POST',
+      url:`https://${process.env.RAPIDAPI_HOST}/submissions`,
+      params:{ 
         base64_encoded:'false', 
-        wait: 'true' 
+        wait:'true' 
       },
-      headers: {
-        'content-type': 'application/json',
-        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-        'X-RapidAPI-Host': process.env.RAPIDAPI_HOST
+      headers:{
+        'content-type':'application/json',
+        'X-RapidAPI-Key':process.env.RAPIDAPI_KEY,
+        'X-RapidAPI-Host':process.env.RAPIDAPI_HOST
       },
-      data: {
-        language_id: language_id || 63,
-        source_code: code,
-        stdin: req.body.stdin || ''
+      data:{
+        language_id:language_id || 63,
+        source_code:code,
+        stdin:req.body.stdin || ''
       }
     };
 
