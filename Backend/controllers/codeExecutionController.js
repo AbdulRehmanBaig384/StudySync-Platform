@@ -1,5 +1,5 @@
 import axios from 'axios';
-export const runCode = async (req, res) => {
+export const runCode=async(req,res)=>{
   try{
     const {code,language_id}=req.body;
 
