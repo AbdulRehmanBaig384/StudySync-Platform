@@ -4,14 +4,13 @@ export const runCode=async(req,res)=>{
     const {code,language_id}=req.body;
 
     if (!code) {
-      return res.status(400).json({ message: "Code is required" });
+      return res.status(400).json({message:"Code is required"});
     }
-
-    const options = {
+    const options ={
       method: 'POST',
       url: `https://${process.env.RAPIDAPI_HOST}/submissions`,
       params: { 
-        base64_encoded: 'false', 
+        base64_encoded:'false', 
         wait: 'true' 
       },
       headers: {
