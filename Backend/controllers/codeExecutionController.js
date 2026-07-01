@@ -1,7 +1,4 @@
 import axios from 'axios';
-
-// @desc    Run code using Judge0 API
-// @route   POST /api/code/run
 export const runCode = async (req, res) => {
   try {
     const { code, language_id } = req.body;
