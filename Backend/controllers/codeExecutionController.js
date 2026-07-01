@@ -37,13 +37,12 @@ export const runCode=async(req,res)=>{
       memory: result.memory
     });
 
-  } catch (error) {
+  } catch(error){
     console.error("Code Execution Error Details:", {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message
+      status:error.response?.status,
+      data:error.response?.data,
+      message:error.message
     });
-    
     res.status(500).json({ 
       message: "Code execution failed", 
       error: error.response?.data?.message || error.message 
